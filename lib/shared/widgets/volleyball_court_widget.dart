@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import '../../core/constants/rotation_positions.dart';
 
 class VolleyballCourtWidget extends StatefulWidget {
   final List<String> playerPositions;
+  final int? rotation; // If provided, use specific coordinates
+  final Phase? phase; // If provided, use specific coordinates
   final Color? courtColor;
   final Color? lineColor;
   final Color? playerCircleColor;
@@ -9,6 +12,8 @@ class VolleyballCourtWidget extends StatefulWidget {
   const VolleyballCourtWidget({
     super.key,
     required this.playerPositions,
+    this.rotation,
+    this.phase,
     this.courtColor,
     this.lineColor,
     this.playerCircleColor,
@@ -99,6 +104,8 @@ class _VolleyballCourtWidgetState extends State<VolleyballCourtWidget>
                     playerPositions: _currentPositions,
                     previousPositions: _previousPositions,
                     animationValue: _animation.value,
+                    rotation: widget.rotation,
+                    phase: widget.phase,
                     courtColor: courtBgColor,
                     lineColor: linesColor,
                     playerColor: playerColor,
@@ -117,6 +124,8 @@ class VolleyballCourtPainter extends CustomPainter {
   final List<String> playerPositions;
   final List<String>? previousPositions;
   final double animationValue;
+  final int? rotation; // If provided, use specific coordinates
+  final Phase? phase; // If provided, use specific coordinates
   final Color courtColor;
   final Color lineColor;
   final Color playerColor;
@@ -125,6 +134,8 @@ class VolleyballCourtPainter extends CustomPainter {
     required this.playerPositions,
     this.previousPositions,
     this.animationValue = 1.0,
+    this.rotation,
+    this.phase,
     required this.courtColor,
     required this.lineColor,
     required this.playerColor,
@@ -236,38 +247,74 @@ class VolleyballCourtPainter extends CustomPainter {
     final middleY = size.height * 0.5;
     final bottomY = size.height * 0.75;
 
-    // Map positions to coordinates (standard volleyball positions)
-    // Position 1: back right (darrere dreta) - back (leftX) and right (bottomY)
-    // Position 2: front right (davant dreta) - front (rightX) and right (bottomY)
-    // Position 3: front center (davant centre) - front (rightX) and center (middleY)
-    // Position 4: front left (davant esquerra) - front (rightX) and left (topY)
-    // Position 5: back left (darrere esquerra) - back (leftX) and left (topY)
-    // Position 6: back center (darrere centre) - back (leftX) and center (middleY)
+    // Get player coordinates - use specific coordinates if rotation and phase are provided
+    Map<String, Offset> playerCoords = {};
+    Map<String, Offset>? previousPlayerCoords;
     
-    final positionCoordinates = [
-      Offset(leftX, bottomY),   // Position 1: back right (darrere dreta)
-      Offset(rightX, bottomY),  // Position 2: front right (davant dreta)
-      Offset(rightX, middleY), // Position 3: front center (davant centre)
-      Offset(rightX, topY),    // Position 4: front left (davant esquerra)
-      Offset(leftX, topY),     // Position 5: back left (darrere esquerra)
-      Offset(leftX, middleY),  // Position 6: back center (darrere centre)
-    ];
+    if (rotation != null && phase != null) {
+      // Use specific coordinates from RotationPositions
+      final coords = RotationPositions.getPositionCoords(rotation!, phase!);
+      coords.forEach((role, coord) {
+        playerCoords[role] = Offset(
+          coord.x * size.width,  // x: 0.0 = back, 1.0 = front
+          coord.y * size.height, // y: 0.0 = top, 1.0 = bottom
+        );
+      });
+      
+      // Get previous coordinates if available
+      if (previousPositions != null && animationValue < 1.0) {
+        // Try to get previous rotation/phase from context (simplified - would need to pass this)
+        // For now, use standard positions for previous
+        previousPlayerCoords = {};
+        for (int i = 0; i < previousPositions!.length; i++) {
+          final role = previousPositions![i];
+          if (role.isNotEmpty) {
+            // Use standard position mapping for previous
+            final stdCoords = PositionCoord.fromStandardPosition(i + 1);
+            previousPlayerCoords![role] = Offset(
+              stdCoords.x * size.width,
+              stdCoords.y * size.height,
+            );
+          }
+        }
+      }
+    } else {
+      // Fallback to standard positions
+      final positionCoordinates = [
+        Offset(leftX, bottomY),   // Position 1: back right
+        Offset(rightX, bottomY),  // Position 2: front right
+        Offset(rightX, middleY), // Position 3: front center
+        Offset(rightX, topY),    // Position 4: front left
+        Offset(leftX, topY),     // Position 5: back left
+        Offset(leftX, middleY),  // Position 6: back center
+      ];
+      
+      for (int i = 0; i < playerPositions.length && i < positionCoordinates.length; i++) {
+        final role = playerPositions[i];
+        if (role.isNotEmpty) {
+          playerCoords[role] = positionCoordinates[i];
+        }
+      }
+    }
 
-    // Draw players based on current rotation with animation
-    for (int i = 0; i < playerPositions.length && i < positionCoordinates.length; i++) {
-      final playerRole = playerPositions[i];
+    // Draw players based on current positions with animation
+    // If we have specific coordinates, draw all roles from coords
+    // Otherwise, draw from playerPositions list
+    final rolesToDraw = rotation != null && phase != null
+        ? playerCoords.keys.toList()
+        : playerPositions.where((role) => role.isNotEmpty).toList();
+    
+    for (final playerRole in rolesToDraw) {
+      if (playerRole.isEmpty || !playerCoords.containsKey(playerRole)) continue;
       
       // Find where this player was in previous positions
       Offset? previousPosition;
-      if (previousPositions != null && animationValue < 1.0) {
-        final previousIndex = previousPositions!.indexOf(playerRole);
-        if (previousIndex >= 0 && previousIndex < positionCoordinates.length) {
-          previousPosition = positionCoordinates[previousIndex];
-        }
+      if (previousPlayerCoords != null && animationValue < 1.0) {
+        previousPosition = previousPlayerCoords[playerRole];
       }
       
       // Calculate animated position
-      final targetPosition = positionCoordinates[i];
+      final targetPosition = playerCoords[playerRole]!;
       final currentPosition = previousPosition != null && animationValue < 1.0
           ? Offset.lerp(previousPosition, targetPosition, animationValue)!
           : targetPosition;
@@ -317,30 +364,6 @@ class VolleyballCourtPainter extends CustomPainter {
         Offset(
           currentPosition.dx - textPainter.width / 2,
           currentPosition.dy - textPainter.height / 2,
-        ),
-      );
-      
-      // TEMPORAL: Draw position number below the circle
-      final positionNumber = (i + 1).toString(); // Position 1-6
-      final positionTextSpan = TextSpan(
-        text: positionNumber,
-        style: TextStyle(
-          color: Colors.black87,
-          fontSize: playerRadius * 0.7,
-          fontWeight: FontWeight.bold,
-        ),
-      );
-      final positionTextPainter = TextPainter(
-        text: positionTextSpan,
-        textAlign: TextAlign.center,
-        textDirection: TextDirection.ltr,
-      );
-      positionTextPainter.layout();
-      positionTextPainter.paint(
-        canvas,
-        Offset(
-          currentPosition.dx - positionTextPainter.width / 2,
-          currentPosition.dy + playerRadius + 5, // Below the circle
         ),
       );
     }

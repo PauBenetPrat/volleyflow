@@ -176,8 +176,10 @@ class RotationsPage extends ConsumerWidget {
                   Expanded(
                     child: Padding(
                       padding: const EdgeInsets.all(16.0),
-                      child: VolleyballCourtWidget(
+                      child:                       VolleyballCourtWidget(
                         playerPositions: rotationState.positions,
+                        rotation: rotationState.rotation,
+                        phase: rotationState.phase,
                       ),
                     ),
                   ),
