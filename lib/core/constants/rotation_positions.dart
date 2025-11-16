@@ -14,6 +14,41 @@ enum Phase {
   defensa,
 }
 
+// Court position constants (1-6)
+class CourtPosition {
+  // Standard volleyball court positions
+  static const int position1 = 1; // Back right
+  static const int position2 = 2; // Front right
+  static const int position3 = 3; // Front center
+  static const int position4 = 4; // Front left
+  static const int position5 = 5; // Back left
+  static const int position6 = 6; // Back center
+  
+  // All positions
+  static const List<int> allPositions = [1, 2, 3, 4, 5, 6];
+  
+  // Front row positions (davanters - prop de la xarxa)
+  static const List<int> frontRowPositions = [2, 3, 4];
+  
+  // Back row positions (posteriors - lluny de la xarxa)
+  static const List<int> backRowPositions = [1, 5, 6];
+  
+  // Check if a position is in front row
+  static bool isFrontRow(int position) {
+    return frontRowPositions.contains(position);
+  }
+  
+  // Check if a position is in back row
+  static bool isBackRow(int position) {
+    return backRowPositions.contains(position);
+  }
+  
+  // Validate position is between 1-6
+  static bool isValid(int position) {
+    return position >= 1 && position <= 6;
+  }
+}
+
 // Helper class for position coordinates
 class PositionCoord {
   final double x; // 0.0 = back, 1.0 = front (near net)
@@ -24,12 +59,12 @@ class PositionCoord {
   // Create from standard position (1-6)
   static PositionCoord fromStandardPosition(int position) {
     switch (position) {
-      case 1: return const PositionCoord(x: 0.25, y: 0.75); // back right
-      case 2: return const PositionCoord(x: 0.75, y: 0.75); // front right
-      case 3: return const PositionCoord(x: 0.75, y: 0.5); // front center
-      case 4: return const PositionCoord(x: 0.75, y: 0.25); // front left
-      case 5: return const PositionCoord(x: 0.25, y: 0.25); // back left
-      case 6: return const PositionCoord(x: 0.25, y: 0.5); // back center
+      case CourtPosition.position1: return const PositionCoord(x: 0.25, y: 0.75); // back right
+      case CourtPosition.position2: return const PositionCoord(x: 0.75, y: 0.75); // front right
+      case CourtPosition.position3: return const PositionCoord(x: 0.75, y: 0.5); // front center
+      case CourtPosition.position4: return const PositionCoord(x: 0.75, y: 0.25); // front left
+      case CourtPosition.position5: return const PositionCoord(x: 0.25, y: 0.25); // back left
+      case CourtPosition.position6: return const PositionCoord(x: 0.25, y: 0.5); // back center
       default: return const PositionCoord(x: 0.5, y: 0.5);
     }
   }
@@ -258,12 +293,12 @@ class RotationPositions {
     if (rotationMap == null) {
       // Default fallback - use standard positions
       return {
-        'Co': PositionCoord.fromStandardPosition(1),
-        'R1': PositionCoord.fromStandardPosition(2),
-        'C2': PositionCoord.fromStandardPosition(3),
-        'O': PositionCoord.fromStandardPosition(4),
-        'R2': PositionCoord.fromStandardPosition(5),
-        'C1': PositionCoord.fromStandardPosition(6),
+        'Co': PositionCoord.fromStandardPosition(CourtPosition.position1),
+        'R1': PositionCoord.fromStandardPosition(CourtPosition.position2),
+        'C2': PositionCoord.fromStandardPosition(CourtPosition.position3),
+        'O': PositionCoord.fromStandardPosition(CourtPosition.position4),
+        'R2': PositionCoord.fromStandardPosition(CourtPosition.position5),
+        'C1': PositionCoord.fromStandardPosition(CourtPosition.position6),
       };
     }
     
@@ -271,12 +306,12 @@ class RotationPositions {
     if (phasePositions == null) {
       // Default fallback - use standard positions
       return {
-        'Co': PositionCoord.fromStandardPosition(1),
-        'R1': PositionCoord.fromStandardPosition(2),
-        'C2': PositionCoord.fromStandardPosition(3),
-        'O': PositionCoord.fromStandardPosition(4),
-        'R2': PositionCoord.fromStandardPosition(5),
-        'C1': PositionCoord.fromStandardPosition(6),
+        'Co': PositionCoord.fromStandardPosition(CourtPosition.position1),
+        'R1': PositionCoord.fromStandardPosition(CourtPosition.position2),
+        'C2': PositionCoord.fromStandardPosition(CourtPosition.position3),
+        'O': PositionCoord.fromStandardPosition(CourtPosition.position4),
+        'R2': PositionCoord.fromStandardPosition(CourtPosition.position5),
+        'C1': PositionCoord.fromStandardPosition(CourtPosition.position6),
       };
     }
 
@@ -291,7 +326,7 @@ class RotationPositions {
         result[playerRole] = PositionCoord.fromStandardPosition(position);
       } else if (position is Map) {
         // Custom coordinates - handle both Map<String, dynamic> and Map<Object?, Object?>
-        final posMap = Map<String, dynamic>.from(position as Map);
+        final posMap = Map<String, dynamic>.from(position);
         final x = (posMap['x'] as num?)?.toDouble() ?? 0.5;
         final y = (posMap['y'] as num?)?.toDouble() ?? 0.5;
         result[playerRole] = PositionCoord(x: x, y: y);
@@ -306,13 +341,13 @@ class RotationPositions {
   static List<String> getPositions(int rotation, Phase phase) {
     final coords = getPositionCoords(rotation, phase);
     // Convert to list format (approximate to standard positions)
-    final result = List<String>.filled(6, '');
+    final result = List<String>.filled(CourtPosition.allPositions.length, '');
     
     coords.forEach((playerRole, coord) {
       // Find closest standard position
-      int closestPos = 1;
+      int closestPos = CourtPosition.position1;
       double minDist = double.infinity;
-      for (int pos = 1; pos <= 6; pos++) {
+      for (final pos in CourtPosition.allPositions) {
         final stdCoord = PositionCoord.fromStandardPosition(pos);
         final dist = (coord.x - stdCoord.x).abs() + (coord.y - stdCoord.y).abs();
         if (dist < minDist) {
@@ -324,6 +359,60 @@ class RotationPositions {
     });
     
     return result;
+  }
+  
+  // Get players in front row positions for a specific rotation and phase
+  static Map<String, PositionCoord> getFrontRowPositions(int rotation, Phase phase) {
+    final allPositions = getPositionCoords(rotation, phase);
+    final frontRow = <String, PositionCoord>{};
+    
+    allPositions.forEach((playerRole, coord) {
+      // Find closest standard position
+      int closestPos = CourtPosition.position1;
+      double minDist = double.infinity;
+      for (final pos in CourtPosition.allPositions) {
+        final stdCoord = PositionCoord.fromStandardPosition(pos);
+        final dist = (coord.x - stdCoord.x).abs() + (coord.y - stdCoord.y).abs();
+        if (dist < minDist) {
+          minDist = dist;
+          closestPos = pos;
+        }
+      }
+      
+      // If closest position is in front row, include this player
+      if (CourtPosition.isFrontRow(closestPos)) {
+        frontRow[playerRole] = coord;
+      }
+    });
+    
+    return frontRow;
+  }
+  
+  // Get players in back row positions for a specific rotation and phase
+  static Map<String, PositionCoord> getBackRowPositions(int rotation, Phase phase) {
+    final allPositions = getPositionCoords(rotation, phase);
+    final backRow = <String, PositionCoord>{};
+    
+    allPositions.forEach((playerRole, coord) {
+      // Find closest standard position
+      int closestPos = CourtPosition.position1;
+      double minDist = double.infinity;
+      for (final pos in CourtPosition.allPositions) {
+        final stdCoord = PositionCoord.fromStandardPosition(pos);
+        final dist = (coord.x - stdCoord.x).abs() + (coord.y - stdCoord.y).abs();
+        if (dist < minDist) {
+          minDist = dist;
+          closestPos = pos;
+        }
+      }
+      
+      // If closest position is in back row, include this player
+      if (CourtPosition.isBackRow(closestPos)) {
+        backRow[playerRole] = coord;
+      }
+    });
+    
+    return backRow;
   }
 }
 

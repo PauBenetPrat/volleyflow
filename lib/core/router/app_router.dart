@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../features/home/presentation/pages/home_page.dart';
 import '../../features/rotations/presentation/pages/rotations_page.dart';
 import '../../features/about/presentation/pages/about_page.dart';
+import '../../features/match/presentation/pages/match_page.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
   return GoRouter(
@@ -22,6 +23,11 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/about',
         name: 'about',
         builder: (context, state) => const AboutPage(),
+      ),
+      GoRoute(
+        path: '/match',
+        name: 'match',
+        builder: (context, state) => const MatchPage(),
       ),
     ],
   );

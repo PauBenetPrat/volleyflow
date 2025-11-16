@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/constants/rotation_positions.dart';
+import '../../core/constants/rotation_validator.dart';
 import '../../features/rotations/domain/providers/rotation_provider.dart';
 
 class VolleyballCourtWidget extends ConsumerStatefulWidget {
@@ -10,6 +11,7 @@ class VolleyballCourtWidget extends ConsumerStatefulWidget {
   final Color? courtColor;
   final Color? lineColor;
   final Color? playerCircleColor;
+  final RotationValidationResult? validationResult; // Resultat de validació
 
   const VolleyballCourtWidget({
     super.key,
@@ -19,6 +21,7 @@ class VolleyballCourtWidget extends ConsumerStatefulWidget {
     this.courtColor,
     this.lineColor,
     this.playerCircleColor,
+    this.validationResult,
   });
 
   @override
@@ -33,6 +36,8 @@ class _VolleyballCourtWidgetState extends ConsumerState<VolleyballCourtWidget>
   List<String> _currentPositions = [];
   String? _draggedPlayer;
   Offset? _dragOffset;
+  DateTime? _lastValidationTime;
+  static const _validationThrottleMs = 100; // Validar màxim cada 100ms durant el drag
 
   @override
   void initState() {
@@ -165,16 +170,44 @@ class _VolleyballCourtWidgetState extends ConsumerState<VolleyballCourtWidget>
                   final newY = (details.localPosition.dy / courtHeight).clamp(0.0, 1.0);
                   final newPosition = PositionCoord(x: newX, y: newY);
                   
-                  ref.read(rotationProvider.notifier).updatePlayerPosition(
-                    _draggedPlayer!,
-                    newPosition,
-                  );
+                  // Throttle validation during drag to avoid flickering
+                  final now = DateTime.now();
+                  final shouldValidate = _lastValidationTime == null ||
+                      now.difference(_lastValidationTime!).inMilliseconds >= _validationThrottleMs;
+                  
+                  if (shouldValidate) {
+                    ref.read(rotationProvider.notifier).updatePlayerPosition(
+                      _draggedPlayer!,
+                      newPosition,
+                    );
+                    _lastValidationTime = now;
+                  } else {
+                    // Update position without validation to keep smooth dragging
+                    ref.read(rotationProvider.notifier).updatePlayerPositionWithoutValidation(
+                      _draggedPlayer!,
+                      newPosition,
+                    );
+                  }
                 }
               },
               onPanEnd: (details) {
+                // Always validate one final time when drag ends
+                if (_draggedPlayer != null) {
+                  final rotationState = ref.read(rotationProvider);
+                  if (rotationState.customPositions != null && 
+                      rotationState.customPositions!.containsKey(_draggedPlayer)) {
+                    final finalPosition = rotationState.customPositions![_draggedPlayer]!;
+                    ref.read(rotationProvider.notifier).updatePlayerPosition(
+                      _draggedPlayer!,
+                      finalPosition,
+                    );
+                  }
+                }
+                
                 setState(() {
                   _draggedPlayer = null;
                   _dragOffset = null;
+                  _lastValidationTime = null;
                 });
               },
               child: Container(
@@ -193,6 +226,7 @@ class _VolleyballCourtWidgetState extends ConsumerState<VolleyballCourtWidget>
                         rotation: widget.rotation,
                         phase: widget.phase,
                         customPositions: currentRotationState.customPositions,
+                        validationResult: widget.validationResult,
                         courtColor: courtBgColor,
                         lineColor: linesColor,
                         playerColor: playerColor,
@@ -216,6 +250,7 @@ class VolleyballCourtPainter extends CustomPainter {
   final int? rotation; // If provided, use specific coordinates
   final Phase? phase; // If provided, use specific coordinates
   final Map<String, PositionCoord>? customPositions; // Override positions for drag & drop
+  final RotationValidationResult? validationResult; // Resultat de validació
   final Color courtColor;
   final Color lineColor;
   final Color playerColor;
@@ -227,10 +262,32 @@ class VolleyballCourtPainter extends CustomPainter {
     this.rotation,
     this.phase,
     this.customPositions,
+    this.validationResult,
     required this.courtColor,
     required this.lineColor,
     required this.playerColor,
   });
+  
+  // Extreu els noms dels jugadors que estan en falta dels errors
+  Set<String> _getPlayersInViolation() {
+    final playersInViolation = <String>{};
+    if (validationResult != null && !validationResult!.isValid) {
+      // Llista de possibles noms de jugadors
+      const playerRoles = ['Co', 'C1', 'C2', 'R1', 'R2', 'O'];
+      
+      for (final error in validationResult!.errors) {
+        // Buscar tots els noms de jugadors que apareixen a l'error
+        for (final role in playerRoles) {
+          // Buscar el nom del jugador seguit de parèntesi o espai o final de línia
+          final regex = RegExp('\\b$role\\b');
+          if (regex.hasMatch(error)) {
+            playersInViolation.add(role);
+          }
+        }
+      }
+    }
+    return playersInViolation;
+  }
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -367,11 +424,12 @@ class VolleyballCourtPainter extends CustomPainter {
         // Try to get previous rotation/phase from context (simplified - would need to pass this)
         // For now, use standard positions for previous
         previousPlayerCoords = {};
-        for (int i = 0; i < previousPositions!.length; i++) {
+        for (int i = 0; i < previousPositions!.length && i < CourtPosition.allPositions.length; i++) {
           final role = previousPositions![i];
           if (role.isNotEmpty) {
             // Use standard position mapping for previous
-            final stdCoords = PositionCoord.fromStandardPosition(i + 1);
+            final position = CourtPosition.allPositions[i];
+            final stdCoords = PositionCoord.fromStandardPosition(position);
             previousPlayerCoords![role] = Offset(
               stdCoords.x * size.width,
               stdCoords.y * size.height,
@@ -390,7 +448,7 @@ class VolleyballCourtPainter extends CustomPainter {
         Offset(leftX, middleY),  // Position 6: back center
       ];
       
-      for (int i = 0; i < playerPositions.length && i < positionCoordinates.length; i++) {
+      for (int i = 0; i < playerPositions.length && i < positionCoordinates.length && i < CourtPosition.allPositions.length; i++) {
         final role = playerPositions[i];
         if (role.isNotEmpty) {
           playerCoords[role] = positionCoordinates[i];
@@ -404,6 +462,9 @@ class VolleyballCourtPainter extends CustomPainter {
     final rolesToDraw = rotation != null && phase != null
         ? playerCoords.keys.toList()
         : playerPositions.where((role) => role.isNotEmpty).toList();
+    
+    // Obtenir jugadors en violació
+    final playersInViolation = _getPlayersInViolation();
     
     for (final playerRole in rolesToDraw) {
       if (playerRole.isEmpty || !playerCoords.containsKey(playerRole)) continue;
@@ -423,25 +484,31 @@ class VolleyballCourtPainter extends CustomPainter {
       // Determine if this is a secondary player (C2 or R2)
       final isSecondary = playerRole == 'C2' || playerRole == 'R2';
       
+      // Check if this player is in violation
+      final isInViolation = playersInViolation.contains(playerRole);
+      
       // Get color for this player role
       final roleColor = getRoleColor(playerRole);
       
       // Use role color for circle, with reduced opacity for secondary players
+      // If in violation, use red color
       final circlePaint = Paint()
         ..style = PaintingStyle.fill
-        ..color = isSecondary 
-            ? roleColor.withValues(alpha: 0.7) // Lighter/dimmer for secondary
-            : roleColor;
+        ..color = isInViolation
+            ? Colors.red.withValues(alpha: 0.8)
+            : (isSecondary 
+                ? roleColor.withValues(alpha: 0.7) // Lighter/dimmer for secondary
+                : roleColor);
       
       // Draw circle with role-specific color at animated position
       canvas.drawCircle(currentPosition, playerRadius, circlePaint);
       
-      // Draw border for secondary players to distinguish them
-      if (isSecondary) {
+      // Draw border for secondary players or players in violation
+      if (isSecondary || isInViolation) {
         final borderPaint = Paint()
           ..style = PaintingStyle.stroke
-          ..color = roleColor
-          ..strokeWidth = 2.0;
+          ..color = isInViolation ? Colors.red : roleColor
+          ..strokeWidth = isInViolation ? 3.0 : 2.0;
         canvas.drawCircle(currentPosition, playerRadius, borderPaint);
       }
       
@@ -478,6 +545,7 @@ class VolleyballCourtPainter extends CustomPainter {
         oldDelegate.rotation != rotation ||
         oldDelegate.phase != phase ||
         oldDelegate.customPositions != customPositions ||
+        oldDelegate.validationResult != validationResult ||
         oldDelegate.courtColor != courtColor ||
         oldDelegate.lineColor != lineColor ||
         oldDelegate.playerColor != playerColor;

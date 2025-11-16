@@ -49,7 +49,13 @@ class HomePage extends StatelessWidget {
               _MenuButton(
                 icon: Icons.rotate_right,
                 label: 'Rotations',
-                onPressed: () => context.go('/rotations'),
+                onPressed: () => context.push('/rotations'),
+              ),
+              const SizedBox(height: 16),
+              _MenuButton(
+                icon: Icons.gavel,
+                label: 'Referee / Match',
+                onPressed: () => context.push('/match'),
               ),
               const SizedBox(height: 16),
               _MenuButton(
@@ -66,7 +72,7 @@ class HomePage extends StatelessWidget {
               _MenuButton(
                 icon: Icons.info_outline,
                 label: 'About',
-                onPressed: () => context.go('/about'),
+                onPressed: () => context.push('/about'),
               ),
             ],
           ),
