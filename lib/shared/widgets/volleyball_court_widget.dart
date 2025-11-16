@@ -34,6 +34,8 @@ class _VolleyballCourtWidgetState extends ConsumerState<VolleyballCourtWidget>
   late Animation<double> _animation;
   List<String> _previousPositions = [];
   List<String> _currentPositions = [];
+  int? _previousRotation;
+  Phase? _previousPhase;
   String? _draggedPlayer;
   Offset? _dragOffset;
   DateTime? _lastValidationTime;
@@ -96,6 +98,11 @@ class _VolleyballCourtWidgetState extends ConsumerState<VolleyballCourtWidget>
     if (oldWidget.playerPositions != widget.playerPositions ||
         oldWidget.rotation != widget.rotation ||
         oldWidget.phase != widget.phase) {
+      // Store previous rotation and phase for animation
+      if (oldWidget.rotation != widget.rotation || oldWidget.phase != widget.phase) {
+        _previousRotation = oldWidget.rotation;
+        _previousPhase = oldWidget.phase;
+      }
       _previousPositions = List<String>.from(_currentPositions);
       _currentPositions = List<String>.from(widget.playerPositions);
       // Only animate if rotation or phase changed (not for drag & drop)
@@ -225,6 +232,8 @@ class _VolleyballCourtWidgetState extends ConsumerState<VolleyballCourtWidget>
                         animationValue: _animation.value,
                         rotation: widget.rotation,
                         phase: widget.phase,
+                        previousRotation: _previousRotation,
+                        previousPhase: _previousPhase,
                         customPositions: currentRotationState.customPositions,
                         validationResult: widget.validationResult,
                         courtColor: courtBgColor,
@@ -249,6 +258,8 @@ class VolleyballCourtPainter extends CustomPainter {
   final double animationValue;
   final int? rotation; // If provided, use specific coordinates
   final Phase? phase; // If provided, use specific coordinates
+  final int? previousRotation; // Previous rotation for animation
+  final Phase? previousPhase; // Previous phase for animation
   final Map<String, PositionCoord>? customPositions; // Override positions for drag & drop
   final RotationValidationResult? validationResult; // Resultat de validació
   final Color courtColor;
@@ -261,6 +272,8 @@ class VolleyballCourtPainter extends CustomPainter {
     this.animationValue = 1.0,
     this.rotation,
     this.phase,
+    this.previousRotation,
+    this.previousPhase,
     this.customPositions,
     this.validationResult,
     required this.courtColor,
@@ -421,19 +434,33 @@ class VolleyballCourtPainter extends CustomPainter {
       
       // Get previous coordinates if available
       if (previousPositions != null && animationValue < 1.0) {
-        // Try to get previous rotation/phase from context (simplified - would need to pass this)
-        // For now, use standard positions for previous
         previousPlayerCoords = {};
-        for (int i = 0; i < previousPositions!.length && i < CourtPosition.allPositions.length; i++) {
-          final role = previousPositions![i];
-          if (role.isNotEmpty) {
-            // Use standard position mapping for previous
-            final position = CourtPosition.allPositions[i];
-            final stdCoords = PositionCoord.fromStandardPosition(position);
+        // Use previous rotation and phase if available
+        if (previousRotation != null && previousPhase != null) {
+          // Get actual coordinates from previous phase
+          final previousCoords = RotationPositions.getPositionCoords(
+            previousRotation!,
+            previousPhase!,
+          );
+          previousCoords.forEach((role, coord) {
             previousPlayerCoords![role] = Offset(
-              stdCoords.x * size.width,
-              stdCoords.y * size.height,
+              coord.x * size.width,
+              coord.y * size.height,
             );
+          });
+        } else {
+          // Fallback: use standard positions for previous
+          for (int i = 0; i < previousPositions!.length && i < CourtPosition.allPositions.length; i++) {
+            final role = previousPositions![i];
+            if (role.isNotEmpty) {
+              // Use standard position mapping for previous
+              final position = CourtPosition.allPositions[i];
+              final stdCoords = PositionCoord.fromStandardPosition(position);
+              previousPlayerCoords![role] = Offset(
+                stdCoords.x * size.width,
+                stdCoords.y * size.height,
+              );
+            }
           }
         }
       }
