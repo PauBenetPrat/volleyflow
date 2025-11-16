@@ -49,6 +49,10 @@ flutter run
 - Reset functionality
 - About screen
 
+## Deployment
+
+This app is automatically deployed to Netlify using GitHub Actions. See [DEPLOYMENT.md](DEPLOYMENT.md) for setup instructions.
+
 ## Future Enhancements
 
 - Player names assignment

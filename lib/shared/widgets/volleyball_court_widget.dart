@@ -49,16 +49,6 @@ class _VolleyballCourtWidgetState extends ConsumerState<VolleyballCourtWidget>
       parent: _animationController,
       curve: Curves.easeInOut,
     );
-    
-    // Ensure custom positions are cleared on initial load
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) {
-        final rotationState = ref.read(rotationProvider);
-        if (rotationState.customPositions != null && rotationState.customPositions!.isNotEmpty) {
-          ref.read(rotationProvider.notifier).clearCustomPositions();
-        }
-      }
-    });
   }
 
   String? _getPlayerAtPosition(Offset position, Size size, Map<String, PositionCoord>? customPositions) {
@@ -192,6 +182,8 @@ class _VolleyballCourtWidgetState extends ConsumerState<VolleyballCourtWidget>
                 child: AnimatedBuilder(
                   animation: _animation,
                   builder: (context, child) {
+                    // Watch provider inside AnimatedBuilder to ensure rebuild when customPositions change
+                    final currentRotationState = ref.watch(rotationProvider);
                     return CustomPaint(
                       size: Size(courtWidth, courtHeight),
                       painter: VolleyballCourtPainter(
@@ -200,7 +192,7 @@ class _VolleyballCourtWidgetState extends ConsumerState<VolleyballCourtWidget>
                         animationValue: _animation.value,
                         rotation: widget.rotation,
                         phase: widget.phase,
-                        customPositions: rotationState.customPositions,
+                        customPositions: currentRotationState.customPositions,
                         courtColor: courtBgColor,
                         lineColor: linesColor,
                         playerColor: playerColor,
