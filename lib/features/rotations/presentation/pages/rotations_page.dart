@@ -203,6 +203,22 @@ class RotationsPage extends ConsumerWidget {
                           Expanded(
                             child: OutlinedButton.icon(
                               onPressed: () {
+                                ref.read(rotationProvider.notifier).rotateCounterClockwise();
+                              },
+                              icon: const Icon(Icons.rotate_left),
+                              label: const Padding(
+                                padding: EdgeInsets.symmetric(vertical: 12.0),
+                                child: Text('Back'),
+                              ),
+                              style: OutlinedButton.styleFrom(
+                                minimumSize: const Size(double.infinity, 50),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: OutlinedButton.icon(
+                              onPressed: () {
                                 ref.read(rotationProvider.notifier).rotateClockwise();
                               },
                               icon: const Icon(Icons.rotate_right),

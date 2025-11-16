@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/constants/rotation_positions.dart';
+import '../../features/rotations/domain/providers/rotation_provider.dart';
 
-class VolleyballCourtWidget extends StatefulWidget {
+class VolleyballCourtWidget extends ConsumerStatefulWidget {
   final List<String> playerPositions;
   final int? rotation; // If provided, use specific coordinates
   final Phase? phase; // If provided, use specific coordinates
@@ -20,15 +22,17 @@ class VolleyballCourtWidget extends StatefulWidget {
   });
 
   @override
-  State<VolleyballCourtWidget> createState() => _VolleyballCourtWidgetState();
+  ConsumerState<VolleyballCourtWidget> createState() => _VolleyballCourtWidgetState();
 }
 
-class _VolleyballCourtWidgetState extends State<VolleyballCourtWidget>
+class _VolleyballCourtWidgetState extends ConsumerState<VolleyballCourtWidget>
     with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
   late Animation<double> _animation;
   List<String> _previousPositions = [];
   List<String> _currentPositions = [];
+  String? _draggedPlayer;
+  Offset? _dragOffset;
 
   @override
   void initState() {
@@ -45,15 +49,64 @@ class _VolleyballCourtWidgetState extends State<VolleyballCourtWidget>
       parent: _animationController,
       curve: Curves.easeInOut,
     );
+    
+    // Ensure custom positions are cleared on initial load
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        final rotationState = ref.read(rotationProvider);
+        if (rotationState.customPositions != null && rotationState.customPositions!.isNotEmpty) {
+          ref.read(rotationProvider.notifier).clearCustomPositions();
+        }
+      }
+    });
+  }
+
+  String? _getPlayerAtPosition(Offset position, Size size, Map<String, PositionCoord>? customPositions) {
+    if (widget.rotation == null || widget.phase == null) return null;
+    
+    final baseCoords = RotationPositions.getPositionCoords(
+      widget.rotation!,
+      widget.phase!,
+    );
+    
+    // Merge custom positions with base positions
+    final coords = Map<String, PositionCoord>.from(baseCoords);
+    if (customPositions != null) {
+      customPositions.forEach((role, customCoord) {
+        coords[role] = customCoord;
+      });
+    }
+    
+    final playerRadius = size.height * 0.06;
+    
+    for (final entry in coords.entries) {
+      final playerPos = Offset(
+        entry.value.x * size.width,
+        entry.value.y * size.height,
+      );
+      
+      final distance = (position - playerPos).distance;
+      if (distance <= playerRadius * 1.5) {
+        return entry.key;
+      }
+    }
+    
+    return null;
   }
 
   @override
   void didUpdateWidget(VolleyballCourtWidget oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.playerPositions != widget.playerPositions) {
+    
+    if (oldWidget.playerPositions != widget.playerPositions ||
+        oldWidget.rotation != widget.rotation ||
+        oldWidget.phase != widget.phase) {
       _previousPositions = List<String>.from(_currentPositions);
       _currentPositions = List<String>.from(widget.playerPositions);
-      _animationController.forward(from: 0.0);
+      // Only animate if rotation or phase changed (not for drag & drop)
+      if (oldWidget.rotation != widget.rotation || oldWidget.phase != widget.phase) {
+        _animationController.forward(from: 0.0);
+      }
     }
   }
 
@@ -69,6 +122,9 @@ class _VolleyballCourtWidgetState extends State<VolleyballCourtWidget>
     final courtBgColor = widget.courtColor ?? theme.colorScheme.surface;
     final linesColor = widget.lineColor ?? theme.colorScheme.outline;
     final playerColor = widget.playerCircleColor ?? theme.colorScheme.primary;
+    
+    // Watch provider to rebuild when customPositions change
+    final rotationState = ref.watch(rotationProvider);
 
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -96,22 +152,63 @@ class _VolleyballCourtWidgetState extends State<VolleyballCourtWidget>
           child: SizedBox(
             width: courtWidth,
             height: courtHeight,
-            child: AnimatedBuilder(
-              animation: _animation,
-              builder: (context, child) {
-                return CustomPaint(
-                  painter: VolleyballCourtPainter(
-                    playerPositions: _currentPositions,
-                    previousPositions: _previousPositions,
-                    animationValue: _animation.value,
-                    rotation: widget.rotation,
-                    phase: widget.phase,
-                    courtColor: courtBgColor,
-                    lineColor: linesColor,
-                    playerColor: playerColor,
-                  ),
+            child: GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onPanStart: (details) {
+                final localPosition = details.localPosition;
+                final player = _getPlayerAtPosition(
+                  localPosition, 
+                  Size(courtWidth, courtHeight),
+                  rotationState.customPositions,
                 );
+                if (player != null) {
+                  setState(() {
+                    _draggedPlayer = player;
+                    _dragOffset = localPosition;
+                  });
+                }
               },
+              onPanUpdate: (details) {
+                if (_draggedPlayer != null) {
+                  // Update player position in provider
+                  final newX = (details.localPosition.dx / courtWidth).clamp(0.0, 1.0);
+                  final newY = (details.localPosition.dy / courtHeight).clamp(0.0, 1.0);
+                  final newPosition = PositionCoord(x: newX, y: newY);
+                  
+                  ref.read(rotationProvider.notifier).updatePlayerPosition(
+                    _draggedPlayer!,
+                    newPosition,
+                  );
+                }
+              },
+              onPanEnd: (details) {
+                setState(() {
+                  _draggedPlayer = null;
+                  _dragOffset = null;
+                });
+              },
+              child: Container(
+                color: Colors.transparent,
+                child: AnimatedBuilder(
+                  animation: _animation,
+                  builder: (context, child) {
+                    return CustomPaint(
+                      size: Size(courtWidth, courtHeight),
+                      painter: VolleyballCourtPainter(
+                        playerPositions: _currentPositions,
+                        previousPositions: _previousPositions,
+                        animationValue: _animation.value,
+                        rotation: widget.rotation,
+                        phase: widget.phase,
+                        customPositions: rotationState.customPositions,
+                        courtColor: courtBgColor,
+                        lineColor: linesColor,
+                        playerColor: playerColor,
+                      ),
+                    );
+                  },
+                ),
+              ),
             ),
           ),
         );
@@ -126,6 +223,7 @@ class VolleyballCourtPainter extends CustomPainter {
   final double animationValue;
   final int? rotation; // If provided, use specific coordinates
   final Phase? phase; // If provided, use specific coordinates
+  final Map<String, PositionCoord>? customPositions; // Override positions for drag & drop
   final Color courtColor;
   final Color lineColor;
   final Color playerColor;
@@ -136,6 +234,7 @@ class VolleyballCourtPainter extends CustomPainter {
     this.animationValue = 1.0,
     this.rotation,
     this.phase,
+    this.customPositions,
     required this.courtColor,
     required this.lineColor,
     required this.playerColor,
@@ -253,7 +352,17 @@ class VolleyballCourtPainter extends CustomPainter {
     
     if (rotation != null && phase != null) {
       // Use specific coordinates from RotationPositions
-      final coords = RotationPositions.getPositionCoords(rotation!, phase!);
+      final baseCoords = RotationPositions.getPositionCoords(rotation!, phase!);
+      
+      // Merge custom positions with base positions
+      // If a player has a custom position, use it; otherwise use base position
+      final coords = Map<String, PositionCoord>.from(baseCoords);
+      if (customPositions != null) {
+        customPositions!.forEach((role, customCoord) {
+          coords[role] = customCoord;
+        });
+      }
+      
       coords.forEach((role, coord) {
         playerCoords[role] = Offset(
           coord.x * size.width,  // x: 0.0 = back, 1.0 = front
@@ -374,6 +483,9 @@ class VolleyballCourtPainter extends CustomPainter {
     return oldDelegate.playerPositions != playerPositions ||
         oldDelegate.previousPositions != previousPositions ||
         oldDelegate.animationValue != animationValue ||
+        oldDelegate.rotation != rotation ||
+        oldDelegate.phase != phase ||
+        oldDelegate.customPositions != customPositions ||
         oldDelegate.courtColor != courtColor ||
         oldDelegate.lineColor != lineColor ||
         oldDelegate.playerColor != playerColor;

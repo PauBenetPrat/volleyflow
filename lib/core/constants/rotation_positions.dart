@@ -42,12 +42,12 @@ class RotationPositions {
     // Rotación 1
     1: {
       Phase.base: {
-        'Co': 1, // Position 1
-        'R1': 2, // Position 2
-        'C2': 3, // Position 3
-        'O': 4,  // Position 4
-        'R2': 5, // Position 5
-        'C1': 6, // Position 6
+        'Co': {'x': 0.25, 'y': 0.75}, // Position 1: back right
+        'R1': {'x': 0.75, 'y': 0.75}, // Position 2: front right
+        'C2': {'x': 0.75, 'y': 0.5}, // Position 3: front center
+        'O': {'x': 0.75, 'y': 0.25},  // Position 4: front left
+        'R2': {'x': 0.25, 'y': 0.25}, // Position 5: back left
+        'C1': {'x': 0.25, 'y': 0.5}, // Position 6: back center
       },
       Phase.sac: {
         'Co': {'x': 0.15, 'y': 0.85}, // Serves from back right corner
@@ -66,23 +66,23 @@ class RotationPositions {
         'C1': {'x': 0.25, 'y': 0.5},
       },
       Phase.defensa: {
-        'Co': 2, // At net
-        'R1': 1,
-        'C2': 3,
-        'O': 4,
-        'R2': 5,
-        'C1': 6,
+        'Co': {'x': 0.75, 'y': 0.75}, // At net (front right)
+        'R1': {'x': 0.25, 'y': 0.75}, // Back right
+        'C2': {'x': 0.75, 'y': 0.5}, // Front center
+        'O': {'x': 0.75, 'y': 0.25}, // Front left
+        'R2': {'x': 0.25, 'y': 0.25}, // Back left
+        'C1': {'x': 0.25, 'y': 0.5}, // Back center
       },
     },
     // Rotación 2
     2: {
       Phase.base: {
-        'Co': 2, // Front right
-        'R1': 3, // Front center
-        'C2': 4, // Front left
-        'O': 5,  // Back left
-        'R2': 6, // Back center
-        'C1': 1, // Back right
+        'Co': {'x': 0.75, 'y': 0.75}, // Front right
+        'R1': {'x': 0.75, 'y': 0.5}, // Front center
+        'C2': {'x': 0.75, 'y': 0.25}, // Front left
+        'O': {'x': 0.25, 'y': 0.25},  // Back left
+        'R2': {'x': 0.25, 'y': 0.5}, // Back center
+        'C1': {'x': 0.25, 'y': 0.75}, // Back right
       },
       Phase.sac: {
         'Co': {'x': 0.75, 'y': 0.75}, // Front right
@@ -101,23 +101,23 @@ class RotationPositions {
         'C1': {'x': 0.25, 'y': 0.25}, // Back left
       },
       Phase.defensa: {
-        'Co': 2, // At net
-        'R1': 3,
-        'C2': 4,
-        'O': 1,
-        'R2': 6,
-        'C1': 5,
+        'Co': {'x': 0.75, 'y': 0.75}, // At net (front right)
+        'R1': {'x': 0.75, 'y': 0.5}, // Front center
+        'C2': {'x': 0.75, 'y': 0.25}, // Front left
+        'O': {'x': 0.25, 'y': 0.75}, // Back right
+        'R2': {'x': 0.25, 'y': 0.5}, // Back center
+        'C1': {'x': 0.25, 'y': 0.25}, // Back left
       },
     },
     // Rotación 3
     3: {
       Phase.base: {
-        'Co': 3, // Front center
-        'R1': 4, // Front left
-        'C2': 5, // Back left
-        'O': 6,  // Back center
-        'R2': 1, // Back right
-        'C1': 2, // Front right
+        'Co': {'x': 0.75, 'y': 0.5}, // Front center
+        'R1': {'x': 0.75, 'y': 0.25}, // Front left
+        'C2': {'x': 0.25, 'y': 0.25}, // Back left
+        'O': {'x': 0.25, 'y': 0.5},  // Back center
+        'R2': {'x': 0.25, 'y': 0.75}, // Back right
+        'C1': {'x': 0.75, 'y': 0.75}, // Front right
       },
       Phase.sac: {
         'Co': {'x': 0.75, 'y': 0.5}, // Front center
@@ -136,23 +136,23 @@ class RotationPositions {
         'C1': {'x': 0.75, 'y': 0.5}, // Drops back (front center)
       },
       Phase.defensa: {
-        'Co': 2,
-        'R1': 4,
-        'C2': 5,
-        'O': 1,
-        'R2': 6,
-        'C1': 3,
+        'Co': {'x': 0.75, 'y': 0.75}, // At net (front right)
+        'R1': {'x': 0.75, 'y': 0.25}, // Front left
+        'C2': {'x': 0.25, 'y': 0.25}, // Back left
+        'O': {'x': 0.25, 'y': 0.75}, // Back right
+        'R2': {'x': 0.25, 'y': 0.5}, // Back center
+        'C1': {'x': 0.75, 'y': 0.5}, // Front center
       },
     },
     // Rotación 4
     4: {
       Phase.base: {
-        'Co': 4, // Front left
-        'R1': 5, // Back left
-        'C2': 6, // Back center
-        'O': 1,  // Back right
-        'R2': 2, // Front right
-        'C1': 3, // Front center
+        'Co': {'x': 0.75, 'y': 0.25}, // Front left
+        'R1': {'x': 0.25, 'y': 0.25}, // Back left
+        'C2': {'x': 0.25, 'y': 0.5}, // Back center
+        'O': {'x': 0.25, 'y': 0.75},  // Back right
+        'R2': {'x': 0.75, 'y': 0.75}, // Front right
+        'C1': {'x': 0.75, 'y': 0.5}, // Front center
       },
       Phase.sac: {
         'Co': {'x': 0.75, 'y': 0.25}, // Front left
@@ -171,23 +171,23 @@ class RotationPositions {
         'C1': {'x': 0.75, 'y': 0.5}, // Front center
       },
       Phase.defensa: {
-        'Co': 2,
-        'R1': 5,
-        'C2': 6,
-        'O': 1,
-        'R2': 4,
-        'C1': 3,
+        'Co': {'x': 0.75, 'y': 0.75}, // At net (front right)
+        'R1': {'x': 0.25, 'y': 0.25}, // Back left
+        'C2': {'x': 0.25, 'y': 0.5}, // Back center
+        'O': {'x': 0.25, 'y': 0.75}, // Back right
+        'R2': {'x': 0.75, 'y': 0.25}, // Front left
+        'C1': {'x': 0.75, 'y': 0.5}, // Front center
       },
     },
     // Rotación 5
     5: {
       Phase.base: {
-        'Co': 5, // Back left
-        'R1': 6, // Back center
-        'C2': 1, // Back right
-        'O': 2,  // Front right
-        'R2': 3, // Front center
-        'C1': 4, // Front left
+        'Co': {'x': 0.25, 'y': 0.25}, // Back left
+        'R1': {'x': 0.25, 'y': 0.5}, // Back center
+        'C2': {'x': 0.25, 'y': 0.75}, // Back right
+        'O': {'x': 0.75, 'y': 0.75},  // Front right
+        'R2': {'x': 0.75, 'y': 0.5}, // Front center
+        'C1': {'x': 0.75, 'y': 0.25}, // Front left
       },
       Phase.sac: {
         'Co': {'x': 0.25, 'y': 0.25}, // Back left
@@ -206,23 +206,23 @@ class RotationPositions {
         'C1': {'x': 0.75, 'y': 0.25}, // Front left
       },
       Phase.defensa: {
-        'Co': 2,
-        'R1': 6,
-        'C2': 1,
-        'O': 5,
-        'R2': 3,
-        'C1': 4,
+        'Co': {'x': 0.75, 'y': 0.75}, // At net (front right)
+        'R1': {'x': 0.25, 'y': 0.5}, // Back center
+        'C2': {'x': 0.25, 'y': 0.75}, // Back right
+        'O': {'x': 0.25, 'y': 0.25}, // Back left
+        'R2': {'x': 0.75, 'y': 0.5}, // Front center
+        'C1': {'x': 0.75, 'y': 0.25}, // Front left
       },
     },
     // Rotación 6
     6: {
       Phase.base: {
-        'Co': 6, // Back center
-        'R1': 1, // Back right
-        'C2': 2, // Front right
-        'O': 3,  // Front center
-        'R2': 4, // Front left
-        'C1': 5, // Back left
+        'Co': {'x': 0.25, 'y': 0.5}, // Back center
+        'R1': {'x': 0.25, 'y': 0.75}, // Back right
+        'C2': {'x': 0.75, 'y': 0.75}, // Front right
+        'O': {'x': 0.75, 'y': 0.5},  // Front center
+        'R2': {'x': 0.75, 'y': 0.25}, // Front left
+        'C1': {'x': 0.25, 'y': 0.25}, // Back left
       },
       Phase.sac: {
         'Co': {'x': 0.15, 'y': 0.85}, // Serves from back right corner
@@ -241,12 +241,12 @@ class RotationPositions {
         'C1': {'x': 0.24, 'y': 0.75}, // Slightly forward to receive
       },
       Phase.defensa: {
-        'Co': 2,
-        'R1': 6,
-        'C2': 5,
-        'O': 3,
-        'R2': 4,
-        'C1': 1,
+        'Co': {'x': 0.75, 'y': 0.75}, // At net (front right)
+        'R1': {'x': 0.25, 'y': 0.5}, // Back center
+        'C2': {'x': 0.25, 'y': 0.25}, // Back left
+        'O': {'x': 0.75, 'y': 0.5}, // Front center
+        'R2': {'x': 0.75, 'y': 0.25}, // Front left
+        'C1': {'x': 0.25, 'y': 0.75}, // Back right
       },
     },
   };
@@ -254,7 +254,20 @@ class RotationPositions {
   // Get positions for a specific rotation and phase
   // Returns a map: PlayerRole -> PositionCoord
   static Map<String, PositionCoord> getPositionCoords(int rotation, Phase phase) {
-    final phasePositions = positions[rotation]?[phase];
+    final rotationMap = positions[rotation];
+    if (rotationMap == null) {
+      // Default fallback - use standard positions
+      return {
+        'Co': PositionCoord.fromStandardPosition(1),
+        'R1': PositionCoord.fromStandardPosition(2),
+        'C2': PositionCoord.fromStandardPosition(3),
+        'O': PositionCoord.fromStandardPosition(4),
+        'R2': PositionCoord.fromStandardPosition(5),
+        'C1': PositionCoord.fromStandardPosition(6),
+      };
+    }
+    
+    final phasePositions = rotationMap[phase];
     if (phasePositions == null) {
       // Default fallback - use standard positions
       return {
@@ -270,19 +283,17 @@ class RotationPositions {
     final result = <String, PositionCoord>{};
     
     // Map each player role to their position coordinate
-    phasePositions.forEach((playerRole, position) {
+    // Convert to Map<String, dynamic> to handle type issues
+    final phaseMap = Map<String, dynamic>.from(phasePositions);
+    phaseMap.forEach((playerRole, position) {
       if (position is int) {
         // Standard position (1-6)
         result[playerRole] = PositionCoord.fromStandardPosition(position);
-      } else if (position is Map<String, dynamic>) {
-        // Custom coordinates
-        final x = (position['x'] as num?)?.toDouble() ?? 0.5;
-        final y = (position['y'] as num?)?.toDouble() ?? 0.5;
-        result[playerRole] = PositionCoord(x: x, y: y);
       } else if (position is Map) {
-        // Fallback for Map<Object?, Object?>
-        final x = (position['x'] as num?)?.toDouble() ?? 0.5;
-        final y = (position['y'] as num?)?.toDouble() ?? 0.5;
+        // Custom coordinates - handle both Map<String, dynamic> and Map<Object?, Object?>
+        final posMap = Map<String, dynamic>.from(position as Map);
+        final x = (posMap['x'] as num?)?.toDouble() ?? 0.5;
+        final y = (posMap['y'] as num?)?.toDouble() ?? 0.5;
         result[playerRole] = PositionCoord(x: x, y: y);
       }
     });
