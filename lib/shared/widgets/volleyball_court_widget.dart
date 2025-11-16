@@ -466,6 +466,32 @@ class VolleyballCourtPainter extends CustomPainter {
     // Obtenir jugadors en violació
     final playersInViolation = _getPlayersInViolation();
     
+    // Determinar quins jugadors són davanters segons la posició BASE
+    final frontRowPlayers = <String>{};
+    if (rotation != null) {
+      final basePositions = RotationPositions.getPositionCoords(rotation!, Phase.base);
+      for (final entry in basePositions.entries) {
+        final playerRole = entry.key;
+        final baseCoord = entry.value;
+        
+        // Trobar la posició estàndard més propera
+        int closestPos = CourtPosition.position1;
+        double minDist = double.infinity;
+        for (final pos in CourtPosition.allPositions) {
+          final stdCoord = PositionCoord.fromStandardPosition(pos);
+          final dist = (baseCoord.x - stdCoord.x).abs() + (baseCoord.y - stdCoord.y).abs();
+          if (dist < minDist) {
+            minDist = dist;
+            closestPos = pos;
+          }
+        }
+        
+        if (CourtPosition.isFrontRow(closestPos)) {
+          frontRowPlayers.add(playerRole);
+        }
+      }
+    }
+    
     for (final playerRole in rolesToDraw) {
       if (playerRole.isEmpty || !playerCoords.containsKey(playerRole)) continue;
       
@@ -487,12 +513,15 @@ class VolleyballCourtPainter extends CustomPainter {
       // Check if this player is in violation
       final isInViolation = playersInViolation.contains(playerRole);
       
+      // Check if this player is in front row
+      final isFrontRow = frontRowPlayers.contains(playerRole);
+      
       // Get color for this player role
       final roleColor = getRoleColor(playerRole);
       
-      // Use role color for circle, with reduced opacity for secondary players
+      // Use role color, with reduced opacity for secondary players
       // If in violation, use red color
-      final circlePaint = Paint()
+      final shapePaint = Paint()
         ..style = PaintingStyle.fill
         ..color = isInViolation
             ? Colors.red.withValues(alpha: 0.8)
@@ -500,16 +529,38 @@ class VolleyballCourtPainter extends CustomPainter {
                 ? roleColor.withValues(alpha: 0.7) // Lighter/dimmer for secondary
                 : roleColor);
       
-      // Draw circle with role-specific color at animated position
-      canvas.drawCircle(currentPosition, playerRadius, circlePaint);
-      
-      // Draw border for secondary players or players in violation
-      if (isSecondary || isInViolation) {
-        final borderPaint = Paint()
-          ..style = PaintingStyle.stroke
-          ..color = isInViolation ? Colors.red : roleColor
-          ..strokeWidth = isInViolation ? 3.0 : 2.0;
-        canvas.drawCircle(currentPosition, playerRadius, borderPaint);
+      // Draw triangle for front row players, circle for back row players
+      if (isFrontRow) {
+        // Draw triangle pointing up (towards net)
+        final trianglePath = Path();
+        final triangleSize = playerRadius * 1.2;
+        trianglePath.moveTo(currentPosition.dx, currentPosition.dy - triangleSize); // Top point
+        trianglePath.lineTo(currentPosition.dx - triangleSize, currentPosition.dy + triangleSize * 0.5); // Bottom left
+        trianglePath.lineTo(currentPosition.dx + triangleSize, currentPosition.dy + triangleSize * 0.5); // Bottom right
+        trianglePath.close();
+        
+        canvas.drawPath(trianglePath, shapePaint);
+        
+        // Draw border for secondary players or players in violation
+        if (isSecondary || isInViolation) {
+          final borderPaint = Paint()
+            ..style = PaintingStyle.stroke
+            ..color = isInViolation ? Colors.red : roleColor
+            ..strokeWidth = isInViolation ? 3.0 : 2.0;
+          canvas.drawPath(trianglePath, borderPaint);
+        }
+      } else {
+        // Draw circle for back row players
+        canvas.drawCircle(currentPosition, playerRadius, shapePaint);
+        
+        // Draw border for secondary players or players in violation
+        if (isSecondary || isInViolation) {
+          final borderPaint = Paint()
+            ..style = PaintingStyle.stroke
+            ..color = isInViolation ? Colors.red : roleColor
+            ..strokeWidth = isInViolation ? 3.0 : 2.0;
+          canvas.drawCircle(currentPosition, playerRadius, borderPaint);
+        }
       }
       
       // Draw player role with smaller text and contrasting white color
