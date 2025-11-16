@@ -86,27 +86,27 @@ class RotationPositions {
       },
       Phase.sac: {
         'Co': {'x': 0.15, 'y': 0.85}, // Serves from back right corner
-        'R1': {'x': 0.75, 'y': 0.75},
-        'C2': {'x': 0.75, 'y': 0.5},
-        'O': {'x': 0.75, 'y': 0.25},
-        'R2': {'x': 0.25, 'y': 0.25},
-        'C1': {'x': 0.25, 'y': 0.5},
+        'R1': {'x': 0.8766, 'y': 0.6108},
+        'C2': {'x': 0.8642, 'y': 0.4907},
+        'O': {'x': 0.8723, 'y': 0.3614},
+        'R2': {'x': 0.3159, 'y': 0.2824},
+        'C1': {'x': 0.2111, 'y': 0.3659},
       },
       Phase.recepcio: {
         'Co': {'x': 0.15, 'y': 0.85}, // Back right corner to receive
         'R1': {'x': 0.24, 'y': 0.75}, // Slightly forward to receive
-        'C2': {'x': 0.75, 'y': 0.5},
-        'O': {'x': 0.75, 'y': 0.25},
+        'C2': {'x': 0.7458, 'y': 0.4211},
+        'O': {'x': 0.8736, 'y': 0.0785},
         'R2': {'x': 0.25, 'y': 0.25},
         'C1': {'x': 0.25, 'y': 0.5},
       },
       Phase.defensa: {
-        'Co': {'x': 0.75, 'y': 0.75}, // At net (front right)
-        'R1': {'x': 0.25, 'y': 0.75}, // Back right
-        'C2': {'x': 0.75, 'y': 0.5}, // Front center
+        'Co': {'x': 0.5927, 'y': 0.7716}, // At net (front right)
+        'R1': {'x': 0.9236, 'y': 0.7456}, // Back right
+        'C2': {'x': 0.9258, 'y': 0.6023}, // Front center
         'O': {'x': 0.75, 'y': 0.25}, // Front left
-        'R2': {'x': 0.25, 'y': 0.25}, // Back left
-        'C1': {'x': 0.25, 'y': 0.5}, // Back center
+        'R2': {'x': 0.3519, 'y': 0.2149}, // Back left
+        'C1': {'x': 0.2240, 'y': 0.4830}, // Back center
       },
     },
     // Rotación 2

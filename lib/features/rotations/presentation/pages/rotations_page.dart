@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../shared/widgets/volleyball_court_widget.dart';
 import '../../domain/providers/rotation_provider.dart';
@@ -326,6 +327,19 @@ class RotationsPage extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Rotations'),
+        actions: [
+          // Toggle edit mode button
+          IconButton(
+            icon: Icon(
+              rotationState.isEditMode ? Icons.edit_off : Icons.edit,
+              color: rotationState.isEditMode ? Colors.orange : null,
+            ),
+            onPressed: () {
+              ref.read(rotationProvider.notifier).toggleEditMode();
+            },
+            tooltip: rotationState.isEditMode ? 'Desactivar mode edició' : 'Activar mode edició',
+          ),
+        ],
       ),
       body: SafeArea(
         child: isSmallScreen
@@ -349,9 +363,88 @@ class RotationsPage extends ConsumerWidget {
                       controlButtons,
                     ],
                   ),
+                  // Edit mode coordinates panel
+                  if (rotationState.isEditMode)
+                    Positioned(
+                      top: isSmallScreen ? 8.0 : 16.0,
+                      left: isSmallScreen ? 8.0 : 16.0,
+                      right: isSmallScreen ? 8.0 : 16.0,
+                      child: Material(
+                        elevation: 12,
+                        borderRadius: BorderRadius.circular(8),
+                        child: Container(
+                          padding: EdgeInsets.all(isSmallScreen ? 8.0 : 12.0),
+                          decoration: BoxDecoration(
+                            color: Colors.blue.shade50,
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: Colors.blue, width: 2),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Row(
+                                children: [
+                                  Icon(Icons.edit_location, color: Colors.blue.shade700, size: isSmallScreen ? 18 : 20),
+                                  SizedBox(width: 8),
+                                  Text(
+                                    'Mode Edició - R${rotationState.rotation} ${rotationState.phase.name.toUpperCase()}',
+                                    style: TextStyle(
+                                      color: Colors.blue.shade700,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: isSmallScreen ? 12 : 14,
+                                    ),
+                                  ),
+                                  Spacer(),
+                                  IconButton(
+                                    icon: Icon(Icons.copy, size: isSmallScreen ? 18 : 20),
+                                    color: Colors.blue.shade700,
+                                    onPressed: () {
+                                      final json = ref.read(rotationProvider.notifier).getCurrentCoordinatesJson();
+                                      Clipboard.setData(ClipboardData(text: json));
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        SnackBar(
+                                          content: Text('Coordenades copiades al portapapers!'),
+                                          duration: Duration(seconds: 2),
+                                        ),
+                                      );
+                                    },
+                                    tooltip: 'Copiar coordenades',
+                                  ),
+                                ],
+                              ),
+                              SizedBox(height: 8),
+                              Builder(
+                                builder: (context) {
+                                  // Watch provider to auto-refresh when positions change
+                                  final currentState = ref.watch(rotationProvider);
+                                  final json = ref.read(rotationProvider.notifier).getCurrentCoordinatesJson();
+                                  return Container(
+                                    constraints: BoxConstraints(
+                                      maxHeight: isSmallScreen ? 150 : 200,
+                                    ),
+                                    child: SingleChildScrollView(
+                                      child: SelectableText(
+                                        json,
+                                        style: TextStyle(
+                                          fontFamily: 'monospace',
+                                          fontSize: isSmallScreen ? 10 : 11,
+                                          color: Colors.blue.shade900,
+                                        ),
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
                   // Validation errors overlay (no afecta les dimensions)
                   if (rotationState.validationResult != null && 
-                      !rotationState.validationResult!.isValid)
+                      !rotationState.validationResult!.isValid &&
+                      !rotationState.isEditMode)
                     Positioned(
                       bottom: isSmallScreen ? 80 : 100,
                       left: isSmallScreen ? 8.0 : 16.0,
@@ -431,9 +524,88 @@ class RotationsPage extends ConsumerWidget {
                       ),
                     ],
                   ),
+                  // Edit mode coordinates panel
+                  if (rotationState.isEditMode)
+                    Positioned(
+                      top: 16.0,
+                      left: (isSmallScreen ? (isVerySmallScreen ? 80 : 100) : 120) + 16,
+                      right: 16,
+                      child: Material(
+                        elevation: 12,
+                        borderRadius: BorderRadius.circular(8),
+                        child: Container(
+                          padding: const EdgeInsets.all(12.0),
+                          decoration: BoxDecoration(
+                            color: Colors.blue.shade50,
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: Colors.blue, width: 2),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Row(
+                                children: [
+                                  Icon(Icons.edit_location, color: Colors.blue.shade700, size: 20),
+                                  SizedBox(width: 8),
+                                  Text(
+                                    'Mode Edició - R${rotationState.rotation} ${rotationState.phase.name.toUpperCase()}',
+                                    style: TextStyle(
+                                      color: Colors.blue.shade700,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                  Spacer(),
+                                  IconButton(
+                                    icon: Icon(Icons.copy, size: 20),
+                                    color: Colors.blue.shade700,
+                                    onPressed: () {
+                                      final json = ref.read(rotationProvider.notifier).getCurrentCoordinatesJson();
+                                      Clipboard.setData(ClipboardData(text: json));
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        SnackBar(
+                                          content: Text('Coordenades copiades al portapapers!'),
+                                          duration: Duration(seconds: 2),
+                                        ),
+                                      );
+                                    },
+                                    tooltip: 'Copiar coordenades',
+                                  ),
+                                ],
+                              ),
+                              SizedBox(height: 8),
+                              Builder(
+                                builder: (context) {
+                                  // Watch provider to auto-refresh when positions change
+                                  final currentState = ref.watch(rotationProvider);
+                                  final json = ref.read(rotationProvider.notifier).getCurrentCoordinatesJson();
+                                  return Container(
+                                    constraints: BoxConstraints(
+                                      maxHeight: 200,
+                                    ),
+                                    child: SingleChildScrollView(
+                                      child: SelectableText(
+                                        json,
+                                        style: TextStyle(
+                                          fontFamily: 'monospace',
+                                          fontSize: 11,
+                                          color: Colors.blue.shade900,
+                                        ),
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
                   // Validation errors overlay (no afecta les dimensions)
                   if (rotationState.validationResult != null && 
-                      !rotationState.validationResult!.isValid)
+                      !rotationState.validationResult!.isValid &&
+                      !rotationState.isEditMode)
                     Positioned(
                       bottom: 100,
                       left: (isSmallScreen ? (isVerySmallScreen ? 80 : 100) : 120) + 16,

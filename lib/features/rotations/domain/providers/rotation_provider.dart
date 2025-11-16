@@ -8,6 +8,7 @@ class RotationState {
   final List<String> positions; // Positions for current rotation and phase
   final Map<String, PositionCoord>? customPositions; // Override positions for drag & drop
   final RotationValidationResult? validationResult; // Resultat de la validació de regles
+  final bool isEditMode; // Mode d'edició per extreure coordenades
 
   RotationState({
     required this.rotation,
@@ -15,6 +16,7 @@ class RotationState {
     required this.positions,
     this.customPositions,
     this.validationResult,
+    this.isEditMode = false,
   });
 
   RotationState copyWith({
@@ -23,6 +25,7 @@ class RotationState {
     List<String>? positions,
     Map<String, PositionCoord>? customPositions,
     RotationValidationResult? validationResult,
+    bool? isEditMode,
     bool clearCustomPositions = false,
     bool clearValidation = false,
   }) {
@@ -36,6 +39,7 @@ class RotationState {
       validationResult: clearValidation 
           ? null 
           : (validationResult ?? this.validationResult),
+      isEditMode: isEditMode ?? this.isEditMode,
     );
   }
 }
@@ -148,6 +152,54 @@ class RotationNotifier extends StateNotifier<RotationState> {
 
   void clearCustomPositions() {
     state = state.copyWith(clearCustomPositions: true);
+  }
+
+  void toggleEditMode() {
+    state = state.copyWith(isEditMode: !state.isEditMode);
+  }
+
+  /// Obté les coordenades actuals en format JSON per copiar
+  /// Retorna el format complet amb rotació i fase
+  String getCurrentCoordinatesJson() {
+    final basePositions = RotationPositions.getPositionCoords(
+      state.rotation,
+      state.phase,
+    );
+    
+    // Merge base positions with custom positions
+    final allPositions = Map<String, PositionCoord>.from(basePositions);
+    if (state.customPositions != null) {
+      allPositions.addAll(state.customPositions!);
+    }
+    
+    // Convert to JSON format
+    final jsonMap = <String, Map<String, double>>{};
+    allPositions.forEach((role, coord) {
+      jsonMap[role] = {
+        'x': coord.x,
+        'y': coord.y,
+      };
+    });
+    
+    // Format as JSON string with rotation and phase
+    final buffer = StringBuffer();
+    buffer.writeln('"${state.rotation}": {');
+    buffer.writeln('  "${state.phase.name}": {');
+    
+    final entries = jsonMap.entries.toList();
+    for (int i = 0; i < entries.length; i++) {
+      final entry = entries[i];
+      final isLast = i == entries.length - 1;
+      buffer.writeln('    "${entry.key}": {');
+      buffer.writeln('      "x": ${entry.value['x']},');
+      buffer.writeln('      "y": ${entry.value['y']}');
+      buffer.writeln('    }${isLast ? '' : ','}');
+    }
+    
+    buffer.writeln('  }');
+    buffer.writeln('}');
+    
+    return buffer.toString();
   }
 }
 
