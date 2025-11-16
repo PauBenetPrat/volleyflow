@@ -47,84 +47,85 @@ class RotationsPage extends ConsumerWidget {
             ),
           ),
         ),
-        SizedBox(height: isSmallScreen ? 8 : 12),
-        SizedBox(
-          width: double.infinity,
-          child: ElevatedButton(
-            onPressed: () {
-              ref.read(rotationProvider.notifier).setPhase(Phase.sac);
-            },
-            style: ElevatedButton.styleFrom(
-              padding: EdgeInsets.symmetric(
-                vertical: isSmallScreen ? 12.0 : 16.0,
-              ),
-              backgroundColor: currentPhase == Phase.sac
-                  ? theme.colorScheme.primary
-                  : null,
-            ),
-            child: Text(
-              'SAC',
-              style: TextStyle(
-                color: currentPhase == Phase.sac
-                    ? Colors.white
-                    : null,
-                fontSize: isSmallScreen ? 12 : 14,
-              ),
-            ),
-          ),
-        ),
-        SizedBox(height: isSmallScreen ? 8 : 12),
-        SizedBox(
-          width: double.infinity,
-          child: ElevatedButton(
-            onPressed: () {
-              ref.read(rotationProvider.notifier).setPhase(Phase.recepcio);
-            },
-            style: ElevatedButton.styleFrom(
-              padding: EdgeInsets.symmetric(
-                vertical: isSmallScreen ? 12.0 : 16.0,
-              ),
-              backgroundColor: currentPhase == Phase.recepcio
-                  ? theme.colorScheme.primary
-                  : null,
-            ),
-            child: Text(
-              'RECEPCIO',
-              style: TextStyle(
-                color: currentPhase == Phase.recepcio
-                    ? Colors.white
-                    : null,
-                fontSize: isSmallScreen ? 12 : 14,
-              ),
-            ),
-          ),
-        ),
-        SizedBox(height: isSmallScreen ? 8 : 12),
-        SizedBox(
-          width: double.infinity,
-          child: ElevatedButton(
-            onPressed: () {
-              ref.read(rotationProvider.notifier).setPhase(Phase.defensa);
-            },
-            style: ElevatedButton.styleFrom(
-              padding: EdgeInsets.symmetric(
-                vertical: isSmallScreen ? 12.0 : 16.0,
-              ),
-              backgroundColor: currentPhase == Phase.defensa
-                  ? theme.colorScheme.primary
-                  : null,
-            ),
-            child: Text(
-              'DEFENSA',
-              style: TextStyle(
-                color: currentPhase == Phase.defensa
-                    ? Colors.white
-                    : null,
-                fontSize: isSmallScreen ? 12 : 14,
-              ),
-            ),
-          ),
-        ),
+        // Temporarily hidden: SAC, RECEPCIO, DEFENSA buttons
+        // SizedBox(height: isSmallScreen ? 8 : 12),
+        // SizedBox(
+        //   width: double.infinity,
+        //   child: ElevatedButton(
+        //     onPressed: () {
+        //       ref.read(rotationProvider.notifier).setPhase(Phase.sac);
+        //     },
+        //     style: ElevatedButton.styleFrom(
+        //       padding: EdgeInsets.symmetric(
+        //         vertical: isSmallScreen ? 12.0 : 16.0,
+        //       ),
+        //       backgroundColor: currentPhase == Phase.sac
+        //           ? theme.colorScheme.primary
+        //           : null,
+        //     ),
+        //     child: Text(
+        //       'SAC',
+        //       style: TextStyle(
+        //         color: currentPhase == Phase.sac
+        //             ? Colors.white
+        //             : null,
+        //         fontSize: isSmallScreen ? 12 : 14,
+        //       ),
+        //     ),
+        //   ),
+        // ),
+        // SizedBox(height: isSmallScreen ? 8 : 12),
+        // SizedBox(
+        //   width: double.infinity,
+        //   child: ElevatedButton(
+        //     onPressed: () {
+        //       ref.read(rotationProvider.notifier).setPhase(Phase.recepcio);
+        //     },
+        //     style: ElevatedButton.styleFrom(
+        //       padding: EdgeInsets.symmetric(
+        //         vertical: isSmallScreen ? 12.0 : 16.0,
+        //       ),
+        //       backgroundColor: currentPhase == Phase.recepcio
+        //           ? theme.colorScheme.primary
+        //           : null,
+        //     ),
+        //     child: Text(
+        //       'RECEPCIO',
+        //       style: TextStyle(
+        //         color: currentPhase == Phase.recepcio
+        //             ? Colors.white
+        //             : null,
+        //         fontSize: isSmallScreen ? 12 : 14,
+        //       ),
+        //     ),
+        //   ),
+        // ),
+        // SizedBox(height: isSmallScreen ? 8 : 12),
+        // SizedBox(
+        //   width: double.infinity,
+        //   child: ElevatedButton(
+        //     onPressed: () {
+        //       ref.read(rotationProvider.notifier).setPhase(Phase.defensa);
+        //     },
+        //     style: ElevatedButton.styleFrom(
+        //       padding: EdgeInsets.symmetric(
+        //         vertical: isSmallScreen ? 12.0 : 16.0,
+        //       ),
+        //       backgroundColor: currentPhase == Phase.defensa
+        //           ? theme.colorScheme.primary
+        //           : null,
+        //     ),
+        //     child: Text(
+        //       'DEFENSA',
+        //       style: TextStyle(
+        //         color: currentPhase == Phase.defensa
+        //             ? Colors.white
+        //             : null,
+        //         fontSize: isSmallScreen ? 12 : 14,
+        //       ),
+        //     ),
+        //   ),
+        // ),
       ],
     );
 
