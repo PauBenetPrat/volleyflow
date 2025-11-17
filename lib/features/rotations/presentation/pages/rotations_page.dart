@@ -15,6 +15,7 @@ class RotationsPage extends ConsumerWidget {
     final mediaQuery = MediaQuery.of(context);
     final isSmallScreen = mediaQuery.size.width < 600;
     final isVerySmallScreen = mediaQuery.size.width < 400;
+    final isPortrait = mediaQuery.size.height > mediaQuery.size.width;
 
     final currentRotation = rotationState.rotation;
     final currentPhase = rotationState.phase;
@@ -345,24 +346,260 @@ class RotationsPage extends ConsumerWidget {
         child: isSmallScreen
             ? Stack(
                 children: [
-                  Column(
-                    children: [
-                      // Court Display
-                      Expanded(
-                        child: Padding(
-                          padding: EdgeInsets.all(isSmallScreen ? 8.0 : 16.0),
-                          child: VolleyballCourtWidget(
-                            playerPositions: rotationState.positions,
-                            rotation: rotationState.rotation,
-                            phase: rotationState.phase,
-                            validationResult: rotationState.validationResult,
-                          ),
+                  isPortrait
+                      ? Column(
+                          children: [
+                            // Court Display
+                            Expanded(
+                              child: Padding(
+                                padding: EdgeInsets.all(isSmallScreen ? 8.0 : 16.0),
+                                child: VolleyballCourtWidget(
+                                  playerPositions: rotationState.positions,
+                                  rotation: rotationState.rotation,
+                                  phase: rotationState.phase,
+                                  validationResult: rotationState.validationResult,
+                                ),
+                              ),
+                            ),
+                            // Phase buttons between court and control buttons (portrait)
+                            Container(
+                              padding: EdgeInsets.symmetric(
+                                vertical: isSmallScreen ? 8.0 : 12.0,
+                                horizontal: isSmallScreen ? 8.0 : 16.0,
+                              ),
+                              decoration: BoxDecoration(
+                                color: theme.colorScheme.surface,
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withValues(alpha: 0.1),
+                                    blurRadius: 4,
+                                    offset: const Offset(0, -2),
+                                  ),
+                                ],
+                              ),
+                              child: SafeArea(
+                                child: Row(
+                                  children: [
+                                    Expanded(
+                                      child: ElevatedButton(
+                                        onPressed: () {
+                                          ref.read(rotationProvider.notifier).setPhase(Phase.base);
+                                        },
+                                        style: ElevatedButton.styleFrom(
+                                          padding: EdgeInsets.symmetric(
+                                            vertical: isVerySmallScreen ? 8.0 : 12.0,
+                                          ),
+                                          backgroundColor: currentPhase == Phase.base
+                                              ? theme.colorScheme.primary
+                                              : null,
+                                        ),
+                                        child: Text(
+                                          'BASE',
+                                          style: TextStyle(
+                                            color: currentPhase == Phase.base
+                                                ? Colors.white
+                                                : null,
+                                            fontSize: isVerySmallScreen ? 11 : 12,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    SizedBox(width: isVerySmallScreen ? 4 : 8),
+                                    Expanded(
+                                      child: ElevatedButton(
+                                        onPressed: () {
+                                          ref.read(rotationProvider.notifier).setPhase(Phase.sac);
+                                        },
+                                        style: ElevatedButton.styleFrom(
+                                          padding: EdgeInsets.symmetric(
+                                            vertical: isVerySmallScreen ? 8.0 : 12.0,
+                                          ),
+                                          backgroundColor: currentPhase == Phase.sac
+                                              ? theme.colorScheme.primary
+                                              : null,
+                                        ),
+                                        child: Text(
+                                          'SAC',
+                                          style: TextStyle(
+                                            color: currentPhase == Phase.sac
+                                                ? Colors.white
+                                                : null,
+                                            fontSize: isVerySmallScreen ? 11 : 12,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    SizedBox(width: isVerySmallScreen ? 4 : 8),
+                                    Expanded(
+                                      child: ElevatedButton(
+                                        onPressed: () {
+                                          ref.read(rotationProvider.notifier).setPhase(Phase.recepcio);
+                                        },
+                                        style: ElevatedButton.styleFrom(
+                                          padding: EdgeInsets.symmetric(
+                                            vertical: isVerySmallScreen ? 8.0 : 12.0,
+                                          ),
+                                          backgroundColor: currentPhase == Phase.recepcio
+                                              ? theme.colorScheme.primary
+                                              : null,
+                                        ),
+                                        child: Text(
+                                          'RECEPCIO',
+                                          style: TextStyle(
+                                            color: currentPhase == Phase.recepcio
+                                                ? Colors.white
+                                                : null,
+                                            fontSize: isVerySmallScreen ? 11 : 12,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    SizedBox(width: isVerySmallScreen ? 4 : 8),
+                                    Expanded(
+                                      child: ElevatedButton(
+                                        onPressed: () {
+                                          ref.read(rotationProvider.notifier).setPhase(Phase.defensa);
+                                        },
+                                        style: ElevatedButton.styleFrom(
+                                          padding: EdgeInsets.symmetric(
+                                            vertical: isVerySmallScreen ? 8.0 : 12.0,
+                                          ),
+                                          backgroundColor: currentPhase == Phase.defensa
+                                              ? theme.colorScheme.primary
+                                              : null,
+                                        ),
+                                        child: Text(
+                                          'DEFENSA',
+                                          style: TextStyle(
+                                            color: currentPhase == Phase.defensa
+                                                ? Colors.white
+                                                : null,
+                                            fontSize: isVerySmallScreen ? 11 : 12,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            // Control Buttons
+                            controlButtons,
+                          ],
+                        )
+                      : Row(
+                          children: [
+                            // Left side - Phase buttons
+                            leftPanel,
+                            // Right side - Court and controls
+                            Expanded(
+                              child: Column(
+                                children: [
+                                  // Court Display
+                                  Expanded(
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(16.0),
+                                      child: VolleyballCourtWidget(
+                                        playerPositions: rotationState.positions,
+                                        rotation: rotationState.rotation,
+                                        phase: rotationState.phase,
+                                        validationResult: rotationState.validationResult,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            // Right side - Control buttons (vertical stack)
+                            Container(
+                              width: isVerySmallScreen ? 80 : 100,
+                              padding: EdgeInsets.symmetric(
+                                vertical: isSmallScreen ? 12.0 : 16.0,
+                                horizontal: isSmallScreen ? 4.0 : 8.0,
+                              ),
+                              decoration: BoxDecoration(
+                                color: theme.colorScheme.surface,
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withValues(alpha: 0.1),
+                                    blurRadius: 4,
+                                    offset: const Offset(-2, 0),
+                                  ),
+                                ],
+                              ),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  SizedBox(
+                                    width: double.infinity,
+                                    child: OutlinedButton.icon(
+                                      onPressed: () {
+                                        ref.read(rotationProvider.notifier).rotateCounterClockwise();
+                                      },
+                                      icon: Icon(Icons.rotate_left, size: isVerySmallScreen ? 18 : 20),
+                                      label: Padding(
+                                        padding: EdgeInsets.symmetric(
+                                          vertical: isVerySmallScreen ? 8.0 : 12.0,
+                                        ),
+                                        child: Text(
+                                          'Back',
+                                          style: TextStyle(fontSize: isVerySmallScreen ? 12 : 14),
+                                        ),
+                                      ),
+                                      style: OutlinedButton.styleFrom(
+                                        minimumSize: Size(double.infinity, isVerySmallScreen ? 40 : 50),
+                                      ),
+                                    ),
+                                  ),
+                                  SizedBox(height: isVerySmallScreen ? 8 : 12),
+                                  SizedBox(
+                                    width: double.infinity,
+                                    child: OutlinedButton.icon(
+                                      onPressed: () {
+                                        ref.read(rotationProvider.notifier).rotateClockwise();
+                                      },
+                                      icon: Icon(Icons.rotate_right, size: isVerySmallScreen ? 18 : 20),
+                                      label: Padding(
+                                        padding: EdgeInsets.symmetric(
+                                          vertical: isVerySmallScreen ? 8.0 : 12.0,
+                                        ),
+                                        child: Text(
+                                          'Rotate',
+                                          style: TextStyle(fontSize: isVerySmallScreen ? 12 : 14),
+                                        ),
+                                      ),
+                                      style: OutlinedButton.styleFrom(
+                                        minimumSize: Size(double.infinity, isVerySmallScreen ? 40 : 50),
+                                      ),
+                                    ),
+                                  ),
+                                  SizedBox(height: isVerySmallScreen ? 8 : 12),
+                                  SizedBox(
+                                    width: double.infinity,
+                                    child: ElevatedButton.icon(
+                                      onPressed: () {
+                                        ref.read(rotationProvider.notifier).reset();
+                                      },
+                                      icon: Icon(Icons.refresh, size: isVerySmallScreen ? 18 : 20),
+                                      label: Padding(
+                                        padding: EdgeInsets.symmetric(
+                                          vertical: isVerySmallScreen ? 8.0 : 12.0,
+                                        ),
+                                        child: Text(
+                                          'Reset',
+                                          style: TextStyle(fontSize: isVerySmallScreen ? 12 : 14),
+                                        ),
+                                      ),
+                                      style: ElevatedButton.styleFrom(
+                                        minimumSize: Size(double.infinity, isVerySmallScreen ? 40 : 50),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
                         ),
-                      ),
-                      // Control Buttons
-                      controlButtons,
-                    ],
-                  ),
                   // Edit mode coordinates panel
                   if (rotationState.isEditMode)
                     Positioned(
@@ -497,33 +734,132 @@ class RotationsPage extends ConsumerWidget {
               )
             : Stack(
                 children: [
-                  Row(
-                    children: [
-                      // Left side buttons
-                      leftPanel,
-                      // Right side - Court and controls
-                      Expanded(
-                        child: Column(
+                  isPortrait
+                      ? Row(
                           children: [
-                            // Court Display
+                            // Left side buttons
+                            leftPanel,
+                            // Right side - Court and controls
                             Expanded(
-                              child: Padding(
-                                padding: const EdgeInsets.all(16.0),
-                                child: VolleyballCourtWidget(
-                                  playerPositions: rotationState.positions,
-                                  rotation: rotationState.rotation,
-                                  phase: rotationState.phase,
-                                  validationResult: rotationState.validationResult,
-                                ),
+                              child: Column(
+                                children: [
+                                  // Court Display
+                                  Expanded(
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(16.0),
+                                      child: VolleyballCourtWidget(
+                                        playerPositions: rotationState.positions,
+                                        rotation: rotationState.rotation,
+                                        phase: rotationState.phase,
+                                        validationResult: rotationState.validationResult,
+                                      ),
+                                    ),
+                                  ),
+                                  // Control Buttons
+                                  controlButtons,
+                                ],
                               ),
                             ),
-                            // Control Buttons
-                            controlButtons,
+                          ],
+                        )
+                      : Row(
+                          children: [
+                            // Left side - Phase buttons
+                            leftPanel,
+                            // Right side - Court
+                            Expanded(
+                              child: Column(
+                                children: [
+                                  // Court Display
+                                  Expanded(
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(16.0),
+                                      child: VolleyballCourtWidget(
+                                        playerPositions: rotationState.positions,
+                                        rotation: rotationState.rotation,
+                                        phase: rotationState.phase,
+                                        validationResult: rotationState.validationResult,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            // Right side - Control buttons (vertical stack)
+                            Container(
+                              width: 120,
+                              padding: const EdgeInsets.symmetric(
+                                vertical: 16.0,
+                                horizontal: 8.0,
+                              ),
+                              decoration: BoxDecoration(
+                                color: theme.colorScheme.surface,
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withValues(alpha: 0.1),
+                                    blurRadius: 4,
+                                    offset: const Offset(-2, 0),
+                                  ),
+                                ],
+                              ),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  SizedBox(
+                                    width: double.infinity,
+                                    child: OutlinedButton.icon(
+                                      onPressed: () {
+                                        ref.read(rotationProvider.notifier).rotateCounterClockwise();
+                                      },
+                                      icon: const Icon(Icons.rotate_left),
+                                      label: const Padding(
+                                        padding: EdgeInsets.symmetric(vertical: 12.0),
+                                        child: Text('Back'),
+                                      ),
+                                      style: OutlinedButton.styleFrom(
+                                        minimumSize: const Size(double.infinity, 50),
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 12),
+                                  SizedBox(
+                                    width: double.infinity,
+                                    child: OutlinedButton.icon(
+                                      onPressed: () {
+                                        ref.read(rotationProvider.notifier).rotateClockwise();
+                                      },
+                                      icon: const Icon(Icons.rotate_right),
+                                      label: const Padding(
+                                        padding: EdgeInsets.symmetric(vertical: 12.0),
+                                        child: Text('Rotate'),
+                                      ),
+                                      style: OutlinedButton.styleFrom(
+                                        minimumSize: const Size(double.infinity, 50),
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 12),
+                                  SizedBox(
+                                    width: double.infinity,
+                                    child: ElevatedButton.icon(
+                                      onPressed: () {
+                                        ref.read(rotationProvider.notifier).reset();
+                                      },
+                                      icon: const Icon(Icons.refresh),
+                                      label: const Padding(
+                                        padding: EdgeInsets.symmetric(vertical: 12.0),
+                                        child: Text('Reset'),
+                                      ),
+                                      style: ElevatedButton.styleFrom(
+                                        minimumSize: const Size(double.infinity, 50),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
                           ],
                         ),
-                      ),
-                    ],
-                  ),
                   // Edit mode coordinates panel
                   if (rotationState.isEditMode)
                     Positioned(

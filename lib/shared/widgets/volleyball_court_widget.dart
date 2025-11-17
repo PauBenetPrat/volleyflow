@@ -332,28 +332,37 @@ class VolleyballCourtPainter extends CustomPainter {
       netPaint,
     );
     
-    // Draw net label
-    final netTextSpan = TextSpan(
-      text: 'NET',
-      style: TextStyle(
-        color: Colors.red,
-        fontSize: 14,
-        fontWeight: FontWeight.bold,
-      ),
+    // Draw net label (vertical)
+    final netTextStyle = TextStyle(
+      color: Colors.red,
+      fontSize: 14,
+      fontWeight: FontWeight.bold,
     );
-    final netTextPainter = TextPainter(
-      text: netTextSpan,
-      textAlign: TextAlign.center,
-      textDirection: TextDirection.ltr,
-    );
-    netTextPainter.layout();
-    netTextPainter.paint(
-      canvas,
-      Offset(
-        netLineX - netTextPainter.width - 5,
-        size.height / 2 - netTextPainter.height / 2,
-      ),
-    );
+    
+    // Draw each letter vertically
+    final letters = ['N', 'E', 'T'];
+    final letterSpacing = 18.0; // Space between letters
+    final startY = size.height / 2 - (letters.length * letterSpacing) / 2;
+    
+    for (int i = 0; i < letters.length; i++) {
+      final letterTextSpan = TextSpan(
+        text: letters[i],
+        style: netTextStyle,
+      );
+      final letterTextPainter = TextPainter(
+        text: letterTextSpan,
+        textAlign: TextAlign.center,
+        textDirection: TextDirection.ltr,
+      );
+      letterTextPainter.layout();
+      letterTextPainter.paint(
+        canvas,
+        Offset(
+          netLineX - letterTextPainter.width - 5,
+          startY + (i * letterSpacing),
+        ),
+      );
+    }
 
     // Draw attack line (3m from net/front line)
     // Court is 9m wide, so 3m from front = 3/9 = 1/3 of court width
