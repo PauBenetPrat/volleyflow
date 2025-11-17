@@ -21,6 +21,7 @@ class RotationsPage extends ConsumerWidget {
     final currentRotation = rotationState.rotation;
     final currentPhase = rotationState.phase;
 
+
     // Phase buttons widget
     Widget phaseButtons = Column(
       mainAxisAlignment: MainAxisAlignment.start,
@@ -445,106 +446,111 @@ class RotationsPage extends ConsumerWidget {
                                 ],
                               ),
                               child: SafeArea(
-                                child: Row(
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    Expanded(
-                                      child: ElevatedButton(
-                                        onPressed: () {
-                                          ref.read(rotationProvider.notifier).setPhase(Phase.base);
-                                        },
-                                        style: ElevatedButton.styleFrom(
-                                          padding: EdgeInsets.symmetric(
-                                            vertical: isVerySmallScreen ? 8.0 : 12.0,
-                                          ),
-                                          backgroundColor: currentPhase == Phase.base
-                                              ? theme.colorScheme.primary
-                                              : null,
-                                        ),
-                                        child: Text(
-                                          'BASE',
-                                          style: TextStyle(
-                                            color: currentPhase == Phase.base
-                                                ? Colors.white
-                                                : null,
-                                            fontSize: isVerySmallScreen ? 11 : 12,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    SizedBox(width: isVerySmallScreen ? 4 : 8),
-                                    Expanded(
-                                      child: ElevatedButton(
-                                        onPressed: () {
-                                          ref.read(rotationProvider.notifier).setPhase(Phase.sac);
-                                        },
-                                        style: ElevatedButton.styleFrom(
-                                          padding: EdgeInsets.symmetric(
-                                            vertical: isVerySmallScreen ? 8.0 : 12.0,
-                                          ),
-                                          backgroundColor: currentPhase == Phase.sac
-                                              ? theme.colorScheme.primary
-                                              : null,
-                                        ),
-                                        child: Text(
-                                          'SAC',
-                                          style: TextStyle(
-                                            color: currentPhase == Phase.sac
-                                                ? Colors.white
-                                                : null,
-                                            fontSize: isVerySmallScreen ? 11 : 12,
+                                    Row(
+                                      children: [
+                                        Expanded(
+                                          child: ElevatedButton(
+                                            onPressed: () {
+                                              ref.read(rotationProvider.notifier).setPhase(Phase.base);
+                                            },
+                                            style: ElevatedButton.styleFrom(
+                                              padding: EdgeInsets.symmetric(
+                                                vertical: isVerySmallScreen ? 8.0 : 12.0,
+                                              ),
+                                              backgroundColor: currentPhase == Phase.base
+                                                  ? theme.colorScheme.primary
+                                                  : null,
+                                            ),
+                                            child: Text(
+                                              'BASE',
+                                              style: TextStyle(
+                                                color: currentPhase == Phase.base
+                                                    ? Colors.white
+                                                    : null,
+                                                fontSize: isVerySmallScreen ? 11 : 12,
+                                              ),
+                                            ),
                                           ),
                                         ),
-                                      ),
-                                    ),
-                                    SizedBox(width: isVerySmallScreen ? 4 : 8),
-                                    Expanded(
-                                      child: ElevatedButton(
-                                        onPressed: () {
-                                          ref.read(rotationProvider.notifier).setPhase(Phase.recepcio);
-                                        },
-                                        style: ElevatedButton.styleFrom(
-                                          padding: EdgeInsets.symmetric(
-                                            vertical: isVerySmallScreen ? 8.0 : 12.0,
-                                          ),
-                                          backgroundColor: currentPhase == Phase.recepcio
-                                              ? theme.colorScheme.primary
-                                              : null,
-                                        ),
-                                        child: Text(
-                                          'RECEPCIO',
-                                          style: TextStyle(
-                                            color: currentPhase == Phase.recepcio
-                                                ? Colors.white
-                                                : null,
-                                            fontSize: isVerySmallScreen ? 11 : 12,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    SizedBox(width: isVerySmallScreen ? 4 : 8),
-                                    Expanded(
-                                      child: ElevatedButton(
-                                        onPressed: () {
-                                          ref.read(rotationProvider.notifier).setPhase(Phase.defensa);
-                                        },
-                                        style: ElevatedButton.styleFrom(
-                                          padding: EdgeInsets.symmetric(
-                                            vertical: isVerySmallScreen ? 8.0 : 12.0,
-                                          ),
-                                          backgroundColor: currentPhase == Phase.defensa
-                                              ? theme.colorScheme.primary
-                                              : null,
-                                        ),
-                                        child: Text(
-                                          'DEFENSA',
-                                          style: TextStyle(
-                                            color: currentPhase == Phase.defensa
-                                                ? Colors.white
-                                                : null,
-                                            fontSize: isVerySmallScreen ? 11 : 12,
+                                        SizedBox(width: isVerySmallScreen ? 4 : 8),
+                                        Expanded(
+                                          child: ElevatedButton(
+                                            onPressed: () {
+                                              ref.read(rotationProvider.notifier).setPhase(Phase.sac);
+                                            },
+                                            style: ElevatedButton.styleFrom(
+                                              padding: EdgeInsets.symmetric(
+                                                vertical: isVerySmallScreen ? 8.0 : 12.0,
+                                              ),
+                                              backgroundColor: currentPhase == Phase.sac
+                                                  ? theme.colorScheme.primary
+                                                  : null,
+                                            ),
+                                            child: Text(
+                                              'SAC',
+                                              style: TextStyle(
+                                                color: currentPhase == Phase.sac
+                                                    ? Colors.white
+                                                    : null,
+                                                fontSize: isVerySmallScreen ? 11 : 12,
+                                              ),
+                                            ),
                                           ),
                                         ),
-                                      ),
+                                        SizedBox(width: isVerySmallScreen ? 4 : 8),
+                                        Expanded(
+                                          child: ElevatedButton(
+                                            onPressed: () {
+                                              ref.read(rotationProvider.notifier).setPhase(Phase.recepcio);
+                                            },
+                                            style: ElevatedButton.styleFrom(
+                                              padding: EdgeInsets.symmetric(
+                                                vertical: isVerySmallScreen ? 8.0 : 12.0,
+                                              ),
+                                              backgroundColor: currentPhase == Phase.recepcio
+                                                  ? theme.colorScheme.primary
+                                                  : null,
+                                            ),
+                                            child: Text(
+                                              'RECEPCIO',
+                                              style: TextStyle(
+                                                color: currentPhase == Phase.recepcio
+                                                    ? Colors.white
+                                                    : null,
+                                                fontSize: isVerySmallScreen ? 11 : 12,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                        SizedBox(width: isVerySmallScreen ? 4 : 8),
+                                        Expanded(
+                                          child: ElevatedButton(
+                                            onPressed: () {
+                                              ref.read(rotationProvider.notifier).setPhase(Phase.defensa);
+                                            },
+                                            style: ElevatedButton.styleFrom(
+                                              padding: EdgeInsets.symmetric(
+                                                vertical: isVerySmallScreen ? 8.0 : 12.0,
+                                              ),
+                                              backgroundColor: currentPhase == Phase.defensa
+                                                  ? theme.colorScheme.primary
+                                                  : null,
+                                            ),
+                                            child: Text(
+                                              'DEFENSA',
+                                              style: TextStyle(
+                                                color: currentPhase == Phase.defensa
+                                                    ? Colors.white
+                                                    : null,
+                                                fontSize: isVerySmallScreen ? 11 : 12,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                   ],
                                 ),
