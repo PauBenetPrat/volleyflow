@@ -717,13 +717,24 @@ class RotationsPage extends ConsumerWidget {
                                 children: [
                                   Icon(Icons.error_outline, color: Colors.white, size: isSmallScreen ? 18 : 20),
                                   SizedBox(width: 8),
-                                  Text(
-                                    'Falta de rotació',
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: isSmallScreen ? 12 : 14,
+                                  Expanded(
+                                    child: Text(
+                                      'Falta de rotació',
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: isSmallScreen ? 12 : 14,
+                                      ),
                                     ),
+                                  ),
+                                  IconButton(
+                                    icon: Icon(Icons.close, color: Colors.white, size: isSmallScreen ? 18 : 20),
+                                    onPressed: () {
+                                      ref.read(rotationProvider.notifier).clearValidation();
+                                    },
+                                    tooltip: 'Tancar',
+                                    padding: EdgeInsets.zero,
+                                    constraints: BoxConstraints(),
                                   ),
                                 ],
                               ),
@@ -973,17 +984,28 @@ class RotationsPage extends ConsumerWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              const Row(
+                              Row(
                                 children: [
-                                  Icon(Icons.error_outline, color: Colors.white, size: 20),
-                                  SizedBox(width: 8),
-                                  Text(
-                                    'Falta de rotació',
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 14,
+                                  const Icon(Icons.error_outline, color: Colors.white, size: 20),
+                                  const SizedBox(width: 8),
+                                  const Expanded(
+                                    child: Text(
+                                      'Falta de rotació',
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 14,
+                                      ),
                                     ),
+                                  ),
+                                  IconButton(
+                                    icon: const Icon(Icons.close, color: Colors.white, size: 20),
+                                    onPressed: () {
+                                      ref.read(rotationProvider.notifier).clearValidation();
+                                    },
+                                    tooltip: 'Tancar',
+                                    padding: EdgeInsets.zero,
+                                    constraints: const BoxConstraints(),
                                   ),
                                 ],
                               ),

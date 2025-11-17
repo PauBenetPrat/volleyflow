@@ -176,6 +176,10 @@ class RotationNotifier extends StateNotifier<RotationState> {
     state = state.copyWith(isPhaseLocked: !state.isPhaseLocked);
   }
 
+  void clearValidation() {
+    state = state.copyWith(clearValidation: true);
+  }
+
   /// Obté les coordenades actuals en format JSON per copiar
   /// Retorna el format complet amb rotació i fase
   String getCurrentCoordinatesJson() {
