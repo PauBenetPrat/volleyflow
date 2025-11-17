@@ -13,12 +13,19 @@ class HomePage extends StatelessWidget {
         title: const Text('Volleyball Coaching App'),
       ),
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(24.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            return SingleChildScrollView(
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                  minHeight: constraints.maxHeight,
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(24.0),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
               // App Icon/Logo placeholder
               Icon(
                 Icons.sports_volleyball,
@@ -75,7 +82,11 @@ class HomePage extends StatelessWidget {
                 onPressed: () => context.push('/about'),
               ),
             ],
-          ),
+                  ),
+                ),
+              ),
+            );
+          },
         ),
       ),
     );
