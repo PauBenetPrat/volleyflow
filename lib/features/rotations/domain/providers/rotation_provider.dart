@@ -49,6 +49,10 @@ class RotationState {
 }
 
 class RotationNotifier extends StateNotifier<RotationState> {
+  // Guarda les modificacions per a totes les rotacions i fases
+  // Format: rotation -> phase -> playerRole -> PositionCoord
+  final Map<int, Map<Phase, Map<String, PositionCoord>>> _savedModifications = {};
+
   RotationNotifier()
       : super(RotationState(
           rotation: CourtPosition.position1,
@@ -58,7 +62,61 @@ class RotationNotifier extends StateNotifier<RotationState> {
           isPhaseLocked: false,
         ));
 
+  /// Guarda les modificacions actuals abans de canviar de rotació/fase
+  /// Només guarda les modificacions que són diferents de les posicions base
+  void _saveCurrentModifications() {
+    if (state.customPositions != null && state.customPositions!.isNotEmpty) {
+      // Obtenir posicions base per comparar
+      final basePositions = RotationPositions.getPositionCoords(
+        state.rotation,
+        state.phase,
+      );
+      
+      // Filtrar només les modificacions que són diferents de les posicions base
+      final realModifications = <String, PositionCoord>{};
+      for (final entry in state.customPositions!.entries) {
+        final baseCoord = basePositions[entry.key];
+        // Només guardar si és diferent de la base
+        if (baseCoord == null || 
+            (baseCoord.x != entry.value.x || baseCoord.y != entry.value.y)) {
+          realModifications[entry.key] = entry.value;
+        }
+      }
+      
+      // Guardar només si hi ha modificacions reals
+      if (realModifications.isNotEmpty) {
+        _savedModifications.putIfAbsent(state.rotation, () => {});
+        _savedModifications[state.rotation]!.putIfAbsent(state.phase, () => {});
+        _savedModifications[state.rotation]![state.phase] = realModifications;
+      } else {
+        // Si no hi ha modificacions reals, eliminar l'entrada
+        if (_savedModifications.containsKey(state.rotation)) {
+          _savedModifications[state.rotation]!.remove(state.phase);
+          if (_savedModifications[state.rotation]!.isEmpty) {
+            _savedModifications.remove(state.rotation);
+          }
+        }
+      }
+    } else {
+      // Si no hi ha customPositions, eliminar l'entrada per aquesta rotació/fase
+      if (_savedModifications.containsKey(state.rotation)) {
+        _savedModifications[state.rotation]!.remove(state.phase);
+        if (_savedModifications[state.rotation]!.isEmpty) {
+          _savedModifications.remove(state.rotation);
+        }
+      }
+    }
+  }
+
+  /// Carrega les modificacions guardades per la rotació i fase actuals
+  Map<String, PositionCoord>? _loadModifications(int rotation, Phase phase) {
+    return _savedModifications[rotation]?[phase];
+  }
+
   void rotateClockwise() {
+    // Guardar modificacions actuals abans de canviar
+    _saveCurrentModifications();
+    
     // Move to next rotation in clockwise direction (1->6->5->4->3->2->1)
     final newRotation = state.rotation <= CourtPosition.position1 
         ? CourtPosition.position6 
@@ -68,16 +126,23 @@ class RotationNotifier extends StateNotifier<RotationState> {
     final newPhase = state.isPhaseLocked ? state.phase : Phase.base;
     final newPositions = RotationPositions.getPositions(newRotation, newPhase);
     
+    // Carregar modificacions guardades per la nova rotació/fase
+    final savedMods = _loadModifications(newRotation, newPhase);
+    
     state = state.copyWith(
       rotation: newRotation,
       phase: newPhase,
       positions: newPositions,
-      clearCustomPositions: true, // Clear custom positions when rotating
+      customPositions: savedMods, // Pot ser null si no hi ha modificacions
+      clearCustomPositions: savedMods == null, // Netejar si no hi ha modificacions
       clearValidation: true, // Clear validation when rotating
     );
   }
 
   void rotateCounterClockwise() {
+    // Guardar modificacions actuals abans de canviar
+    _saveCurrentModifications();
+    
     // Move to previous rotation in counter-clockwise direction (1->2->3->4->5->6->1)
     final newRotation = state.rotation >= CourtPosition.position6 
         ? CourtPosition.position1 
@@ -87,26 +152,41 @@ class RotationNotifier extends StateNotifier<RotationState> {
     final newPhase = state.isPhaseLocked ? state.phase : Phase.base;
     final newPositions = RotationPositions.getPositions(newRotation, newPhase);
     
+    // Carregar modificacions guardades per la nova rotació/fase
+    final savedMods = _loadModifications(newRotation, newPhase);
+    
     state = state.copyWith(
       rotation: newRotation,
       phase: newPhase,
       positions: newPositions,
-      clearCustomPositions: true, // Clear custom positions when rotating
+      customPositions: savedMods, // Pot ser null si no hi ha modificacions
+      clearCustomPositions: savedMods == null, // Netejar si no hi ha modificacions
       clearValidation: true, // Clear validation when rotating
     );
   }
 
   void setPhase(Phase phase) {
+    // Guardar modificacions actuals abans de canviar
+    _saveCurrentModifications();
+    
     final newPositions = RotationPositions.getPositions(state.rotation, phase);
+    
+    // Carregar modificacions guardades per la nova fase
+    final savedMods = _loadModifications(state.rotation, phase);
+    
     state = state.copyWith(
       phase: phase,
       positions: newPositions,
-      clearCustomPositions: true, // Clear custom positions when changing phase
+      customPositions: savedMods, // Pot ser null si no hi ha modificacions
+      clearCustomPositions: savedMods == null, // Netejar si no hi ha modificacions
       clearValidation: true, // Clear validation when changing phase
     );
   }
 
   void reset() {
+    // Netejar totes les modificacions guardades
+    _savedModifications.clear();
+    
     state = RotationState(
       rotation: CourtPosition.position1,
       phase: Phase.base,
@@ -119,17 +199,52 @@ class RotationNotifier extends StateNotifier<RotationState> {
   }
 
   void updatePlayerPosition(String playerRole, PositionCoord newPosition) {
-    // Create or update custom positions map
-    final updatedCustomPositions = Map<String, PositionCoord>.from(
-      state.customPositions ?? {},
-    );
-    updatedCustomPositions[playerRole] = newPosition;
-    
-    // Obtenir totes les posicions actuals (base + custom)
+    // Obtenir posicions base per comparar
     final basePositions = RotationPositions.getPositionCoords(
       state.rotation,
       state.phase,
     );
+    
+    // Crear map de custom positions només amb jugadors que han estat modificats
+    // (és a dir, que la seva posició és diferent de la base)
+    final updatedCustomPositions = <String, PositionCoord>{};
+    
+    // Mantenir les modificacions existents que encara són vàlides
+    if (state.customPositions != null) {
+      for (final entry in state.customPositions!.entries) {
+        final baseCoord = basePositions[entry.key];
+        // Només mantenir si és diferent de la base
+        if (baseCoord == null || 
+            (baseCoord.x != entry.value.x || baseCoord.y != entry.value.y)) {
+          updatedCustomPositions[entry.key] = entry.value;
+        }
+      }
+    }
+    
+    // Afegir/actualitzar el jugador que s'ha mogut
+    final baseCoord = basePositions[playerRole];
+    // Només guardar si és diferent de la base
+    if (baseCoord == null || 
+        (baseCoord.x != newPosition.x || baseCoord.y != newPosition.y)) {
+      updatedCustomPositions[playerRole] = newPosition;
+    }
+    
+    // Guardar a les modificacions persistents (només si hi ha modificacions)
+    if (updatedCustomPositions.isNotEmpty) {
+      _savedModifications.putIfAbsent(state.rotation, () => {});
+      _savedModifications[state.rotation]!.putIfAbsent(state.phase, () => {});
+      _savedModifications[state.rotation]![state.phase] = Map<String, PositionCoord>.from(updatedCustomPositions);
+    } else {
+      // Si no hi ha modificacions, eliminar l'entrada
+      if (_savedModifications.containsKey(state.rotation)) {
+        _savedModifications[state.rotation]!.remove(state.phase);
+        if (_savedModifications[state.rotation]!.isEmpty) {
+          _savedModifications.remove(state.rotation);
+        }
+      }
+    }
+    
+    // Obtenir totes les posicions actuals (base + custom) per validació
     final allPositions = Map<String, PositionCoord>.from(basePositions);
     allPositions.addAll(updatedCustomPositions);
     
@@ -143,7 +258,7 @@ class RotationNotifier extends StateNotifier<RotationState> {
     }
     
     state = state.copyWith(
-      customPositions: updatedCustomPositions,
+      customPositions: updatedCustomPositions.isNotEmpty ? updatedCustomPositions : null,
       validationResult: validationResult,
     );
   }
@@ -151,15 +266,54 @@ class RotationNotifier extends StateNotifier<RotationState> {
   /// Actualitza la posició d'un jugador sense fer validació
   /// Utilitzat durant el drag per mantenir el moviment fluid
   void updatePlayerPositionWithoutValidation(String playerRole, PositionCoord newPosition) {
-    // Create or update custom positions map
-    final updatedCustomPositions = Map<String, PositionCoord>.from(
-      state.customPositions ?? {},
+    // Obtenir posicions base per comparar
+    final basePositions = RotationPositions.getPositionCoords(
+      state.rotation,
+      state.phase,
     );
-    updatedCustomPositions[playerRole] = newPosition;
+    
+    // Crear map de custom positions només amb jugadors que han estat modificats
+    final updatedCustomPositions = <String, PositionCoord>{};
+    
+    // Mantenir les modificacions existents que encara són vàlides
+    if (state.customPositions != null) {
+      for (final entry in state.customPositions!.entries) {
+        final baseCoord = basePositions[entry.key];
+        // Només mantenir si és diferent de la base
+        if (baseCoord == null || 
+            (baseCoord.x != entry.value.x || baseCoord.y != entry.value.y)) {
+          updatedCustomPositions[entry.key] = entry.value;
+        }
+      }
+    }
+    
+    // Afegir/actualitzar el jugador que s'ha mogut
+    final baseCoord = basePositions[playerRole];
+    // Només guardar si és diferent de la base
+    if (baseCoord == null || 
+        (baseCoord.x != newPosition.x || baseCoord.y != newPosition.y)) {
+      updatedCustomPositions[playerRole] = newPosition;
+    }
+    
+    // Guardar a les modificacions persistents (només si hi ha modificacions)
+    // Sense validació per evitar flickering durant el drag
+    if (updatedCustomPositions.isNotEmpty) {
+      _savedModifications.putIfAbsent(state.rotation, () => {});
+      _savedModifications[state.rotation]!.putIfAbsent(state.phase, () => {});
+      _savedModifications[state.rotation]![state.phase] = Map<String, PositionCoord>.from(updatedCustomPositions);
+    } else {
+      // Si no hi ha modificacions, eliminar l'entrada
+      if (_savedModifications.containsKey(state.rotation)) {
+        _savedModifications[state.rotation]!.remove(state.phase);
+        if (_savedModifications[state.rotation]!.isEmpty) {
+          _savedModifications.remove(state.rotation);
+        }
+      }
+    }
     
     // Actualitzar només la posició, mantenint el resultat de validació anterior
     state = state.copyWith(
-      customPositions: updatedCustomPositions,
+      customPositions: updatedCustomPositions.isNotEmpty ? updatedCustomPositions : null,
       // No canviem validationResult per evitar flickering
     );
   }
@@ -180,9 +334,80 @@ class RotationNotifier extends StateNotifier<RotationState> {
     state = state.copyWith(clearValidation: true);
   }
 
-  /// Obté les coordenades actuals en format JSON per copiar
-  /// Retorna el format complet amb rotació i fase
-  String getCurrentCoordinatesJson() {
+  /// Obté totes les coordenades modificades en format JSON per copiar
+  /// Retorna el format complet amb totes les rotacions i fases que tenen modificacions
+  /// Format útil per definir les posicions per defecte
+  String getAllCoordinatesJson() {
+    // Primer, guardar les modificacions actuals
+    _saveCurrentModifications();
+    
+    // Si no hi ha modificacions, retornar només la rotació i fase actuals
+    if (_savedModifications.isEmpty) {
+      return _getCurrentRotationPhaseJson();
+    }
+    
+    final buffer = StringBuffer();
+    buffer.writeln('{');
+    
+    // Ordenar rotacions (1-6)
+    final sortedRotations = _savedModifications.keys.toList()..sort();
+    
+    for (int r = 0; r < sortedRotations.length; r++) {
+      final rotation = sortedRotations[r];
+      final isLastRotation = r == sortedRotations.length - 1;
+      
+      buffer.writeln('  "$rotation": {');
+      
+      // Ordenar fases: base, sac, recepcio, defensa
+      final phaseOrder = [Phase.base, Phase.sac, Phase.recepcio, Phase.defensa];
+      final phases = _savedModifications[rotation]!;
+      
+      // Filtrar només les fases que existeixen
+      final existingPhases = phaseOrder.where((phase) => phases.containsKey(phase)).toList();
+      
+      for (int p = 0; p < existingPhases.length; p++) {
+        final phase = existingPhases[p];
+        final isLastPhase = p == existingPhases.length - 1;
+        final phaseMods = phases[phase]!;
+        
+        buffer.writeln('    "${phase.name}": {');
+        
+        // Ordenar jugadors: Co, C1, C2, R1, R2, O
+        final playerOrder = ['Co', 'C1', 'C2', 'R1', 'R2', 'O'];
+        final entries = phaseMods.entries.toList();
+        final sortedEntries = <MapEntry<String, PositionCoord>>[];
+        
+        for (final player in playerOrder) {
+          final entry = entries.firstWhere(
+            (e) => e.key == player,
+            orElse: () => MapEntry('', PositionCoord(x: 0, y: 0)),
+          );
+          if (entry.key.isNotEmpty) {
+            sortedEntries.add(entry);
+          }
+        }
+        
+        for (int i = 0; i < sortedEntries.length; i++) {
+          final entry = sortedEntries[i];
+          final isLastPlayer = i == sortedEntries.length - 1;
+          buffer.writeln('      "${entry.key}": {');
+          buffer.writeln('        "x": ${entry.value.x},');
+          buffer.writeln('        "y": ${entry.value.y}');
+          buffer.writeln('      }${isLastPlayer ? '' : ','}');
+        }
+        
+        buffer.writeln('    }${isLastPhase ? '' : ','}');
+      }
+      
+      buffer.writeln('  }${isLastRotation ? '' : ','}');
+    }
+    
+    buffer.writeln('}');
+    return buffer.toString();
+  }
+  
+  /// Obté les coordenades de la rotació i fase actuals en format JSON
+  String _getCurrentRotationPhaseJson() {
     final basePositions = RotationPositions.getPositionCoords(
       state.rotation,
       state.phase,
@@ -205,23 +430,40 @@ class RotationNotifier extends StateNotifier<RotationState> {
     
     // Format as JSON string with rotation and phase
     final buffer = StringBuffer();
-    buffer.writeln('"${state.rotation}": {');
-    buffer.writeln('  "${state.phase.name}": {');
+    buffer.writeln('{');
+    buffer.writeln('  "$state.rotation": {');
+    buffer.writeln('    "${state.phase.name}": {');
     
-    final entries = jsonMap.entries.toList();
-    for (int i = 0; i < entries.length; i++) {
-      final entry = entries[i];
-      final isLast = i == entries.length - 1;
-      buffer.writeln('    "${entry.key}": {');
-      buffer.writeln('      "x": ${entry.value['x']},');
-      buffer.writeln('      "y": ${entry.value['y']}');
-      buffer.writeln('    }${isLast ? '' : ','}');
+    // Ordenar jugadors: Co, C1, C2, R1, R2, O
+    final playerOrder = ['Co', 'C1', 'C2', 'R1', 'R2', 'O'];
+    final sortedEntries = <MapEntry<String, Map<String, double>>>[];
+    
+    for (final player in playerOrder) {
+      if (jsonMap.containsKey(player)) {
+        sortedEntries.add(MapEntry(player, jsonMap[player]!));
+      }
     }
     
+    for (int i = 0; i < sortedEntries.length; i++) {
+      final entry = sortedEntries[i];
+      final isLast = i == sortedEntries.length - 1;
+      buffer.writeln('      "${entry.key}": {');
+      buffer.writeln('        "x": ${entry.value['x']},');
+      buffer.writeln('        "y": ${entry.value['y']}');
+      buffer.writeln('      }${isLast ? '' : ','}');
+    }
+    
+    buffer.writeln('    }');
     buffer.writeln('  }');
     buffer.writeln('}');
     
     return buffer.toString();
+  }
+  
+  /// Mètode legacy per compatibilitat
+  @Deprecated('Use getAllCoordinatesJson() instead')
+  String getCurrentCoordinatesJson() {
+    return _getCurrentRotationPhaseJson();
   }
 }
 
