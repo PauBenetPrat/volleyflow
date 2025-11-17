@@ -329,6 +329,19 @@ class RotationsPage extends ConsumerWidget {
       appBar: AppBar(
         title: const Text('Rotations'),
         actions: [
+          // Toggle phase lock button
+          IconButton(
+            icon: Icon(
+              rotationState.isPhaseLocked ? Icons.lock : Icons.lock_open,
+              color: rotationState.isPhaseLocked ? Colors.green : null,
+            ),
+            onPressed: () {
+              ref.read(rotationProvider.notifier).togglePhaseLock();
+            },
+            tooltip: rotationState.isPhaseLocked 
+                ? 'Desbloquejar fase (tornar a BASE en rotar)' 
+                : 'Bloquejar fase (mantenir fase actual en rotar)',
+          ),
           // Toggle edit mode button
           IconButton(
             icon: Icon(

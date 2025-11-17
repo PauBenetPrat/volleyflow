@@ -9,6 +9,7 @@ class RotationState {
   final Map<String, PositionCoord>? customPositions; // Override positions for drag & drop
   final RotationValidationResult? validationResult; // Resultat de la validació de regles
   final bool isEditMode; // Mode d'edició per extreure coordenades
+  final bool isPhaseLocked; // Si la fase està bloquejada, es manté en rotar
 
   RotationState({
     required this.rotation,
@@ -17,6 +18,7 @@ class RotationState {
     this.customPositions,
     this.validationResult,
     this.isEditMode = false,
+    this.isPhaseLocked = false,
   });
 
   RotationState copyWith({
@@ -26,6 +28,7 @@ class RotationState {
     Map<String, PositionCoord>? customPositions,
     RotationValidationResult? validationResult,
     bool? isEditMode,
+    bool? isPhaseLocked,
     bool clearCustomPositions = false,
     bool clearValidation = false,
   }) {
@@ -40,6 +43,7 @@ class RotationState {
           ? null 
           : (validationResult ?? this.validationResult),
       isEditMode: isEditMode ?? this.isEditMode,
+      isPhaseLocked: isPhaseLocked ?? this.isPhaseLocked,
     );
   }
 }
@@ -50,18 +54,23 @@ class RotationNotifier extends StateNotifier<RotationState> {
           rotation: CourtPosition.position1,
           phase: Phase.base,
           positions: RotationPositions.getPositions(CourtPosition.position1, Phase.base),
+          isEditMode: false,
+          isPhaseLocked: false,
         ));
 
   void rotateClockwise() {
-    // Move to next rotation in clockwise direction (1->6->5->4->3->2->1) and set phase to BASE
+    // Move to next rotation in clockwise direction (1->6->5->4->3->2->1)
     final newRotation = state.rotation <= CourtPosition.position1 
         ? CourtPosition.position6 
         : state.rotation - 1;
-    final newPositions = RotationPositions.getPositions(newRotation, Phase.base);
+    
+    // Si la fase està bloquejada, mantenir-la; si no, tornar a BASE
+    final newPhase = state.isPhaseLocked ? state.phase : Phase.base;
+    final newPositions = RotationPositions.getPositions(newRotation, newPhase);
     
     state = state.copyWith(
       rotation: newRotation,
-      phase: Phase.base,
+      phase: newPhase,
       positions: newPositions,
       clearCustomPositions: true, // Clear custom positions when rotating
       clearValidation: true, // Clear validation when rotating
@@ -69,15 +78,18 @@ class RotationNotifier extends StateNotifier<RotationState> {
   }
 
   void rotateCounterClockwise() {
-    // Move to previous rotation in counter-clockwise direction (1->2->3->4->5->6->1) and set phase to BASE
+    // Move to previous rotation in counter-clockwise direction (1->2->3->4->5->6->1)
     final newRotation = state.rotation >= CourtPosition.position6 
         ? CourtPosition.position1 
         : state.rotation + 1;
-    final newPositions = RotationPositions.getPositions(newRotation, Phase.base);
+    
+    // Si la fase està bloquejada, mantenir-la; si no, tornar a BASE
+    final newPhase = state.isPhaseLocked ? state.phase : Phase.base;
+    final newPositions = RotationPositions.getPositions(newRotation, newPhase);
     
     state = state.copyWith(
       rotation: newRotation,
-      phase: Phase.base,
+      phase: newPhase,
       positions: newPositions,
       clearCustomPositions: true, // Clear custom positions when rotating
       clearValidation: true, // Clear validation when rotating
@@ -101,6 +113,8 @@ class RotationNotifier extends StateNotifier<RotationState> {
       positions: RotationPositions.getPositions(CourtPosition.position1, Phase.base),
       customPositions: null,
       validationResult: null,
+      isEditMode: false,
+      isPhaseLocked: false,
     );
   }
 
@@ -156,6 +170,10 @@ class RotationNotifier extends StateNotifier<RotationState> {
 
   void toggleEditMode() {
     state = state.copyWith(isEditMode: !state.isEditMode);
+  }
+
+  void togglePhaseLock() {
+    state = state.copyWith(isPhaseLocked: !state.isPhaseLocked);
   }
 
   /// Obté les coordenades actuals en format JSON per copiar
