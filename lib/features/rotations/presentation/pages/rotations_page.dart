@@ -15,7 +15,8 @@ class RotationsPage extends ConsumerWidget {
     final mediaQuery = MediaQuery.of(context);
     final isSmallScreen = mediaQuery.size.width < 600;
     final isVerySmallScreen = mediaQuery.size.width < 400;
-    final isPortrait = mediaQuery.size.height > mediaQuery.size.width;
+    // Use orientation for more reliable detection, especially for square screens
+    final isPortrait = mediaQuery.orientation == Orientation.portrait;
 
     final currentRotation = rotationState.rotation;
     final currentPhase = rotationState.phase;
@@ -158,7 +159,8 @@ class RotationsPage extends ConsumerWidget {
       ),
     );
 
-    // Left side panel
+    // Left side panel (phases centered vertically)
+    // In small horizontal screens, include rotation indicator at top
     Widget leftPanel = Container(
       width: isSmallScreen ? (isVerySmallScreen ? 80 : 100) : 120,
       padding: EdgeInsets.symmetric(
@@ -176,11 +178,91 @@ class RotationsPage extends ConsumerWidget {
         ],
       ),
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          rotationIndicator,
-          Expanded(child: phaseButtons),
+          // Show rotation indicator at top in small horizontal screens only
+          // Only show in landscape orientation to avoid issues with square screens
+          if (isSmallScreen && mediaQuery.orientation == Orientation.landscape)
+            Container(
+              width: double.infinity,
+              margin: EdgeInsets.only(bottom: isSmallScreen ? 16.0 : 24.0),
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: theme.colorScheme.primary,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.2),
+                    blurRadius: 4,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: AspectRatio(
+                aspectRatio: 1.0,
+                child: Center(
+                  child: Text(
+                    'R$currentRotation',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: isSmallScreen ? 16 : 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          phaseButtons,
         ],
+      ),
+    );
+
+    // Floating rotation indicator (always visible)
+    Widget floatingRotationIndicator = Positioned(
+      top: isSmallScreen ? 8.0 : 16.0,
+      left: isSmallScreen ? 8.0 : 16.0,
+      child: Material(
+        elevation: 4,
+        borderRadius: BorderRadius.circular(8),
+        color: Colors.transparent,
+        child: Container(
+          padding: EdgeInsets.symmetric(
+            horizontal: isSmallScreen ? 12.0 : 16.0,
+            vertical: isSmallScreen ? 8.0 : 12.0,
+          ),
+          decoration: BoxDecoration(
+            color: theme.colorScheme.primary,
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Text(
+            'R$currentRotation',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: isSmallScreen ? 16 : 18,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+      ),
+    );
+
+    // Floating reset button (always visible, top right)
+    Widget floatingResetButton = Positioned(
+      top: isSmallScreen ? 8.0 : 16.0,
+      right: isSmallScreen ? 8.0 : 16.0,
+      child: Material(
+        elevation: 4,
+        borderRadius: BorderRadius.circular(8),
+        child: IconButton(
+          onPressed: () {
+            ref.read(rotationProvider.notifier).reset();
+          },
+          icon: Icon(Icons.refresh, size: isSmallScreen ? 20 : 24),
+          tooltip: 'Reset',
+          style: IconButton.styleFrom(
+            backgroundColor: theme.colorScheme.surface,
+            padding: EdgeInsets.all(isSmallScreen ? 8.0 : 12.0),
+          ),
+        ),
       ),
     );
 
@@ -237,7 +319,9 @@ class RotationsPage extends ConsumerWidget {
                             ),
                             child: Text(
                               'Rotate',
-                              style: TextStyle(fontSize: isVerySmallScreen ? 12 : 14),
+                              style: TextStyle(fontSize: isVerySmallScreen ? 11 : 13),
+                              softWrap: false,
+                              overflow: TextOverflow.visible,
                             ),
                           ),
                           style: OutlinedButton.styleFrom(
@@ -246,28 +330,6 @@ class RotationsPage extends ConsumerWidget {
                         ),
                       ),
                     ],
-                  ),
-                  SizedBox(height: isVerySmallScreen ? 8 : 12),
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton.icon(
-                      onPressed: () {
-                        ref.read(rotationProvider.notifier).reset();
-                      },
-                      icon: Icon(Icons.refresh, size: isVerySmallScreen ? 18 : 20),
-                      label: Padding(
-                        padding: EdgeInsets.symmetric(
-                          vertical: isVerySmallScreen ? 8.0 : 12.0,
-                        ),
-                        child: Text(
-                          'Reset',
-                          style: TextStyle(fontSize: isVerySmallScreen ? 12 : 14),
-                        ),
-                      ),
-                      style: ElevatedButton.styleFrom(
-                        minimumSize: Size(double.infinity, isVerySmallScreen ? 40 : 50),
-                      ),
-                    ),
                   ),
                 ],
               )
@@ -297,25 +359,13 @@ class RotationsPage extends ConsumerWidget {
                       icon: const Icon(Icons.rotate_right),
                       label: const Padding(
                         padding: EdgeInsets.symmetric(vertical: 12.0),
-                        child: Text('Rotate'),
+                        child: Text(
+                          'Rotate',
+                          softWrap: false,
+                          overflow: TextOverflow.visible,
+                        ),
                       ),
                       style: OutlinedButton.styleFrom(
-                        minimumSize: const Size(double.infinity, 50),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: ElevatedButton.icon(
-                      onPressed: () {
-                        ref.read(rotationProvider.notifier).reset();
-                      },
-                      icon: const Icon(Icons.refresh),
-                      label: const Padding(
-                        padding: EdgeInsets.symmetric(vertical: 12.0),
-                        child: Text('Reset'),
-                      ),
-                      style: ElevatedButton.styleFrom(
                         minimumSize: const Size(double.infinity, 50),
                       ),
                     ),
@@ -578,32 +628,12 @@ class RotationsPage extends ConsumerWidget {
                                         ),
                                         child: Text(
                                           'Rotate',
-                                          style: TextStyle(fontSize: isVerySmallScreen ? 12 : 14),
+                                          style: TextStyle(fontSize: isVerySmallScreen ? 11 : 13),
+                                          softWrap: false,
+                                          overflow: TextOverflow.visible,
                                         ),
                                       ),
                                       style: OutlinedButton.styleFrom(
-                                        minimumSize: Size(double.infinity, isVerySmallScreen ? 40 : 50),
-                                      ),
-                                    ),
-                                  ),
-                                  SizedBox(height: isVerySmallScreen ? 8 : 12),
-                                  SizedBox(
-                                    width: double.infinity,
-                                    child: ElevatedButton.icon(
-                                      onPressed: () {
-                                        ref.read(rotationProvider.notifier).reset();
-                                      },
-                                      icon: Icon(Icons.refresh, size: isVerySmallScreen ? 18 : 20),
-                                      label: Padding(
-                                        padding: EdgeInsets.symmetric(
-                                          vertical: isVerySmallScreen ? 8.0 : 12.0,
-                                        ),
-                                        child: Text(
-                                          'Reset',
-                                          style: TextStyle(fontSize: isVerySmallScreen ? 12 : 14),
-                                        ),
-                                      ),
-                                      style: ElevatedButton.styleFrom(
                                         minimumSize: Size(double.infinity, isVerySmallScreen ? 40 : 50),
                                       ),
                                     ),
@@ -691,6 +721,10 @@ class RotationsPage extends ConsumerWidget {
                         ),
                       ),
                     ),
+                  // Floating rotation indicator (only in large screens or portrait)
+                  if (!isSmallScreen || isPortrait) floatingRotationIndicator,
+                  // Floating reset button (always visible, top right)
+                  floatingResetButton,
                   // Validation errors overlay (no afecta les dimensions)
                   if (rotationState.validationResult != null && 
                       !rotationState.validationResult!.isValid &&
@@ -862,23 +896,6 @@ class RotationsPage extends ConsumerWidget {
                                       ),
                                     ),
                                   ),
-                                  const SizedBox(height: 12),
-                                  SizedBox(
-                                    width: double.infinity,
-                                    child: ElevatedButton.icon(
-                                      onPressed: () {
-                                        ref.read(rotationProvider.notifier).reset();
-                                      },
-                                      icon: const Icon(Icons.refresh),
-                                      label: const Padding(
-                                        padding: EdgeInsets.symmetric(vertical: 12.0),
-                                        child: Text('Reset'),
-                                      ),
-                                      style: ElevatedButton.styleFrom(
-                                        minimumSize: const Size(double.infinity, 50),
-                                      ),
-                                    ),
-                                  ),
                                 ],
                               ),
                             ),
@@ -1025,6 +1042,10 @@ class RotationsPage extends ConsumerWidget {
                         ),
                       ),
                     ),
+                  // Floating rotation indicator (only in large screens or portrait)
+                  if (!isSmallScreen || isPortrait) floatingRotationIndicator,
+                  // Floating reset button (always visible, top right)
+                  floatingResetButton,
                 ],
               ),
       ),
