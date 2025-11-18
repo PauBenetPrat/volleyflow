@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/constants/rotation_positions.dart';
 import '../../../../core/constants/rotation_validator.dart';
@@ -10,6 +11,8 @@ class RotationState {
   final RotationValidationResult? validationResult; // Resultat de la validació de regles
   final bool isEditMode; // Mode d'edició per extreure coordenades
   final bool isPhaseLocked; // Si la fase està bloquejada, es manté en rotar
+  final bool isDrawingMode; // Mode de dibuix sobre el camp
+  final List<List<Offset>> drawings; // Llista de traços (cada traç és una llista de punts)
 
   RotationState({
     required this.rotation,
@@ -19,6 +22,8 @@ class RotationState {
     this.validationResult,
     this.isEditMode = false,
     this.isPhaseLocked = false,
+    this.isDrawingMode = false,
+    this.drawings = const [],
   });
 
   RotationState copyWith({
@@ -29,8 +34,11 @@ class RotationState {
     RotationValidationResult? validationResult,
     bool? isEditMode,
     bool? isPhaseLocked,
+    bool? isDrawingMode,
+    List<List<Offset>>? drawings,
     bool clearCustomPositions = false,
     bool clearValidation = false,
+    bool clearDrawings = false,
   }) {
     return RotationState(
       rotation: rotation ?? this.rotation,
@@ -44,6 +52,8 @@ class RotationState {
           : (validationResult ?? this.validationResult),
       isEditMode: isEditMode ?? this.isEditMode,
       isPhaseLocked: isPhaseLocked ?? this.isPhaseLocked,
+      isDrawingMode: isDrawingMode ?? this.isDrawingMode,
+      drawings: clearDrawings ? [] : (drawings ?? this.drawings),
     );
   }
 }
@@ -60,6 +70,8 @@ class RotationNotifier extends StateNotifier<RotationState> {
           positions: RotationPositions.getPositions(CourtPosition.position1, Phase.base),
           isEditMode: false,
           isPhaseLocked: false,
+          isDrawingMode: false,
+          drawings: [],
         ));
 
   /// Guarda les modificacions actuals abans de canviar de rotació/fase
@@ -195,6 +207,8 @@ class RotationNotifier extends StateNotifier<RotationState> {
       validationResult: null,
       isEditMode: false,
       isPhaseLocked: false,
+      isDrawingMode: false,
+      drawings: [],
     );
   }
 
@@ -332,6 +346,39 @@ class RotationNotifier extends StateNotifier<RotationState> {
 
   void clearValidation() {
     state = state.copyWith(clearValidation: true);
+  }
+
+  void toggleDrawingMode() {
+    state = state.copyWith(isDrawingMode: !state.isDrawingMode);
+  }
+
+  void addDrawingPoint(Offset point) {
+    final currentDrawings = state.drawings.map((stroke) => List<Offset>.from(stroke)).toList();
+    if (currentDrawings.isEmpty) {
+      // Començar un nou traç
+      currentDrawings.add([point]);
+    } else {
+      // Afegir punt al traç actual
+      currentDrawings.last.add(point);
+    }
+    state = state.copyWith(drawings: currentDrawings);
+  }
+
+  void startNewDrawing(Offset point) {
+    final currentDrawings = state.drawings.map((stroke) => List<Offset>.from(stroke)).toList();
+    currentDrawings.add([point]);
+    state = state.copyWith(drawings: currentDrawings);
+  }
+
+  void clearDrawings() {
+    state = state.copyWith(clearDrawings: true);
+  }
+
+  void undoLastDrawing() {
+    if (state.drawings.isEmpty) return;
+    final currentDrawings = state.drawings.map((stroke) => List<Offset>.from(stroke)).toList();
+    currentDrawings.removeLast();
+    state = state.copyWith(drawings: currentDrawings);
   }
 
   /// Obté totes les coordenades modificades en format JSON per copiar

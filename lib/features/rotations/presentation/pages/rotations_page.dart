@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../shared/widgets/volleyball_court_widget.dart';
@@ -246,26 +247,6 @@ class RotationsPage extends ConsumerWidget {
       ),
     );
 
-    // Floating reset button (always visible, top right)
-    Widget floatingResetButton = Positioned(
-      top: isSmallScreen ? 8.0 : 16.0,
-      right: isSmallScreen ? 8.0 : 16.0,
-      child: Material(
-        elevation: 4,
-        borderRadius: BorderRadius.circular(8),
-        child: IconButton(
-          onPressed: () {
-            ref.read(rotationProvider.notifier).reset();
-          },
-          icon: Icon(Icons.refresh, size: isSmallScreen ? 20 : 24),
-          tooltip: 'Reset',
-          style: IconButton.styleFrom(
-            backgroundColor: theme.colorScheme.surface,
-            padding: EdgeInsets.all(isSmallScreen ? 8.0 : 12.0),
-          ),
-        ),
-      ),
-    );
 
     // Control buttons
     Widget controlButtons = Container(
@@ -380,6 +361,41 @@ class RotationsPage extends ConsumerWidget {
       appBar: AppBar(
         title: const Text('Rotations'),
         actions: [
+          // Drawing mode toggle
+          IconButton(
+            icon: Icon(
+              rotationState.isDrawingMode
+                  ? Icons.edit
+                  : Icons.edit_outlined,
+            ),
+            tooltip: rotationState.isDrawingMode
+                ? 'Desactivar mode dibuix'
+                : 'Activar mode dibuix',
+            onPressed: () {
+              ref.read(rotationProvider.notifier).toggleDrawingMode();
+            },
+            color: rotationState.isDrawingMode
+                ? theme.colorScheme.primary
+                : null,
+          ),
+          // Undo last drawing button (only visible when there are drawings)
+          if (rotationState.drawings.isNotEmpty)
+            IconButton(
+              icon: const Icon(Icons.undo),
+              tooltip: 'Desfer últim traç',
+              onPressed: () {
+                ref.read(rotationProvider.notifier).undoLastDrawing();
+              },
+            ),
+          // Clear all drawings button (only visible when there are drawings)
+          if (rotationState.drawings.isNotEmpty)
+            IconButton(
+              icon: const Icon(Icons.delete_outline),
+              tooltip: 'Esborrar tots els dibuixos',
+              onPressed: () {
+                ref.read(rotationProvider.notifier).clearDrawings();
+              },
+            ),
           // Toggle phase lock button
           IconButton(
             icon: Icon(
@@ -393,20 +409,29 @@ class RotationsPage extends ConsumerWidget {
                 ? 'Desbloquejar fase (tornar a BASE en rotar)' 
                 : 'Bloquejar fase (mantenir fase actual en rotar)',
           ),
-          // Copy coordinates button
+          // Copy coordinates button (only in debug mode)
+          if (kDebugMode)
+            IconButton(
+              icon: Icon(Icons.copy),
+              onPressed: () {
+                final json = ref.read(rotationProvider.notifier).getAllCoordinatesJson();
+                Clipboard.setData(ClipboardData(text: json));
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('Coordenades copiades al portapapers!'),
+                    duration: Duration(seconds: 2),
+                  ),
+                );
+              },
+              tooltip: 'Copiar coordenades al portapapers',
+            ),
+          // Reset button
           IconButton(
-            icon: Icon(Icons.copy),
+            icon: Icon(Icons.refresh),
             onPressed: () {
-              final json = ref.read(rotationProvider.notifier).getAllCoordinatesJson();
-              Clipboard.setData(ClipboardData(text: json));
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text('Coordenades copiades al portapapers!'),
-                  duration: Duration(seconds: 2),
-                ),
-              );
+              ref.read(rotationProvider.notifier).reset();
             },
-            tooltip: 'Copiar coordenades al portapapers',
+            tooltip: 'Reset',
           ),
         ],
       ),
@@ -655,8 +680,6 @@ class RotationsPage extends ConsumerWidget {
                         ),
                   // Floating rotation indicator (only in large screens or portrait)
                   if (!isSmallScreen || isPortrait) floatingRotationIndicator,
-                  // Floating reset button (always visible, top right)
-                  floatingResetButton,
                   // Validation errors overlay (no afecta les dimensions)
                   if (rotationState.validationResult != null && 
                       !rotationState.validationResult!.isValid)
@@ -896,8 +919,6 @@ class RotationsPage extends ConsumerWidget {
                     ),
                   // Floating rotation indicator (only in large screens or portrait)
                   if (!isSmallScreen || isPortrait) floatingRotationIndicator,
-                  // Floating reset button (always visible, top right)
-                  floatingResetButton,
                 ],
               ),
       ),

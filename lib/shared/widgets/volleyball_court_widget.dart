@@ -77,10 +77,42 @@ class _VolleyballCourtWidgetState extends ConsumerState<VolleyballCourtWidget>
     final playerRadius = size.height * 0.06;
     
     for (final entry in coords.entries) {
-      final playerPos = Offset(
-        entry.value.x * size.width,
-        entry.value.y * size.height,
-      );
+      // Check if player is on bench (y > 1.0)
+      final isOnBench = entry.value.y > 1.0;
+      final playerPos = isOnBench
+          ? Offset(
+              entry.value.x * size.width,
+              (entry.value.y - 1.0) * size.height, // Normalize bench Y to 0-1
+            )
+          : Offset(
+              entry.value.x * size.width,
+              entry.value.y * size.height,
+            );
+      
+      final distance = (position - playerPos).distance;
+      if (distance <= playerRadius * 1.5) {
+        return entry.key;
+      }
+    }
+    
+    return null;
+  }
+
+  String? _getPlayerAtBenchPosition(Offset position, Size size, Map<String, PositionCoord>? customPositions) {
+    if (widget.rotation == null || widget.phase == null) return null;
+    if (customPositions == null) return null;
+    
+    final playerRadius = size.height * 0.06;
+    
+    // Check only players that are on bench (y > 1.0)
+    for (final entry in customPositions.entries) {
+      final coord = entry.value;
+      if (coord.y <= 1.0) continue; // Not on bench
+      
+      // Calculate position on bench (normalize y from 1.0-2.0 to 0.0-1.0)
+      final benchY = (coord.y - 1.0) * size.height;
+      final benchX = coord.x * size.width;
+      final playerPos = Offset(benchX, benchY);
       
       final distance = (position - playerPos).distance;
       if (distance <= playerRadius * 1.5) {
@@ -137,8 +169,15 @@ class _VolleyballCourtWidgetState extends ConsumerState<VolleyballCourtWidget>
         // Court aspect ratio: 9m x 9m = 1:1 (single half court)
         const courtAspectRatio = 1.0;
         
+        // Reserve space for bench at the bottom (15% of court height)
+        // TEMPORARILY HIDDEN: const benchHeightRatio = 0.15;
+        
         double courtWidth;
         double courtHeight;
+        // TEMPORARILY HIDDEN: double benchHeight;
+        
+        // Calculate available height for court (excluding bench)
+        // TEMPORARILY HIDDEN: final availableHeightForCourt = availableHeight / (1 + benchHeightRatio);
         
         if (availableWidth / availableHeight > courtAspectRatio) {
           // Height is the limiting factor
@@ -149,6 +188,9 @@ class _VolleyballCourtWidgetState extends ConsumerState<VolleyballCourtWidget>
           courtWidth = availableWidth;
           courtHeight = courtWidth / courtAspectRatio;
         }
+        
+        // TEMPORARILY HIDDEN: Calculate bench height based on court height
+        // TEMPORARILY HIDDEN: benchHeight = courtHeight * benchHeightRatio;
 
         return Center(
           child: SizedBox(
@@ -157,22 +199,32 @@ class _VolleyballCourtWidgetState extends ConsumerState<VolleyballCourtWidget>
             child: GestureDetector(
               behavior: HitTestBehavior.opaque,
               onPanStart: (details) {
-                final localPosition = details.localPosition;
-                final player = _getPlayerAtPosition(
-                  localPosition, 
-                  Size(courtWidth, courtHeight),
-                  rotationState.customPositions,
-                );
-                if (player != null) {
-                  setState(() {
-                    _draggedPlayer = player;
-                    _dragOffset = localPosition;
-                  });
+                if (rotationState.isDrawingMode) {
+                  // Mode dibuix: començar un nou traç
+                  ref.read(rotationProvider.notifier).startNewDrawing(details.localPosition);
+                } else {
+                  // Mode normal: moure jugadors
+                  final localPosition = details.localPosition;
+                  final player = _getPlayerAtPosition(
+                    localPosition, 
+                    Size(courtWidth, courtHeight),
+                    rotationState.customPositions,
+                  );
+                  if (player != null) {
+                    setState(() {
+                      _draggedPlayer = player;
+                      _dragOffset = localPosition;
+                    });
+                  }
                 }
               },
               onPanUpdate: (details) {
-                if (_draggedPlayer != null) {
-                  // Update player position in provider
+                if (rotationState.isDrawingMode) {
+                  // Mode dibuix: afegir punt al traç actual
+                  ref.read(rotationProvider.notifier).addDrawingPoint(details.localPosition);
+                } else if (_draggedPlayer != null) {
+                  // Mode normal: moure jugadors
+                  // Update player position on court (bench is hidden)
                   final newX = (details.localPosition.dx / courtWidth).clamp(0.0, 1.0);
                   final newY = (details.localPosition.dy / courtHeight).clamp(0.0, 1.0);
                   final newPosition = PositionCoord(x: newX, y: newY);
@@ -198,24 +250,29 @@ class _VolleyballCourtWidgetState extends ConsumerState<VolleyballCourtWidget>
                 }
               },
               onPanEnd: (details) {
-                // Always validate one final time when drag ends
-                if (_draggedPlayer != null) {
-                  final rotationState = ref.read(rotationProvider);
-                  if (rotationState.customPositions != null && 
-                      rotationState.customPositions!.containsKey(_draggedPlayer)) {
-                    final finalPosition = rotationState.customPositions![_draggedPlayer]!;
-                    ref.read(rotationProvider.notifier).updatePlayerPosition(
-                      _draggedPlayer!,
-                      finalPosition,
-                    );
+                if (rotationState.isDrawingMode) {
+                  // Mode dibuix: no cal fer res, el traç ja està completat
+                } else {
+                  // Mode normal: validar posició final del jugador
+                  // Always validate one final time when drag ends
+                  if (_draggedPlayer != null) {
+                    final rotationState = ref.read(rotationProvider);
+                    if (rotationState.customPositions != null && 
+                        rotationState.customPositions!.containsKey(_draggedPlayer)) {
+                      final finalPosition = rotationState.customPositions![_draggedPlayer]!;
+                      ref.read(rotationProvider.notifier).updatePlayerPosition(
+                        _draggedPlayer!,
+                        finalPosition,
+                      );
+                    }
                   }
+                  
+                  setState(() {
+                    _draggedPlayer = null;
+                    _dragOffset = null;
+                    _lastValidationTime = null;
+                  });
                 }
-                
-                setState(() {
-                  _draggedPlayer = null;
-                  _dragOffset = null;
-                  _lastValidationTime = null;
-                });
               },
               child: Container(
                 color: Colors.transparent,
@@ -236,6 +293,7 @@ class _VolleyballCourtWidgetState extends ConsumerState<VolleyballCourtWidget>
                         previousPhase: _previousPhase,
                         customPositions: currentRotationState.customPositions,
                         validationResult: widget.validationResult,
+                        drawings: currentRotationState.drawings,
                         courtColor: courtBgColor,
                         lineColor: linesColor,
                         playerColor: playerColor,
@@ -247,6 +305,123 @@ class _VolleyballCourtWidgetState extends ConsumerState<VolleyballCourtWidget>
             ),
           ),
         );
+        /* TEMPORARILY HIDDEN: Bench area
+              SizedBox(
+                width: courtWidth,
+                height: benchHeight,
+                child: GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+              onPanStart: (details) {
+                final localPosition = details.localPosition;
+                // Check for players on bench (y > 1.0)
+                final player = _getPlayerAtBenchPosition(
+                  localPosition, 
+                  Size(courtWidth, benchHeight),
+                  rotationState.customPositions,
+                );
+                if (player != null) {
+                  setState(() {
+                    _draggedPlayer = player;
+                    _dragOffset = localPosition;
+                  });
+                }
+              },
+                  onPanUpdate: (details) {
+                    if (_draggedPlayer != null) {
+                      // Check if drag is moving back to court area (above bench)
+                      final globalPosition = details.globalPosition;
+                      final renderBox = context.findRenderObject() as RenderBox?;
+                      if (renderBox != null) {
+                        final localPosition = renderBox.globalToLocal(globalPosition);
+                        final isMovingToCourt = localPosition.dy < courtHeight;
+                        
+                        if (isMovingToCourt) {
+                          // Calculate position on court (y <= 1.0)
+                          final newX = (localPosition.dx / courtWidth).clamp(0.0, 1.0);
+                          final newY = (localPosition.dy / courtHeight).clamp(0.0, 1.0);
+                          final newPosition = PositionCoord(x: newX, y: newY);
+                          
+                          // Throttle validation during drag
+                          final now = DateTime.now();
+                          final shouldValidate = _lastValidationTime == null ||
+                              now.difference(_lastValidationTime!).inMilliseconds >= _validationThrottleMs;
+                          
+                          if (shouldValidate) {
+                            ref.read(rotationProvider.notifier).updatePlayerPosition(
+                              _draggedPlayer!,
+                              newPosition,
+                            );
+                            _lastValidationTime = now;
+                          } else {
+                            ref.read(rotationProvider.notifier).updatePlayerPositionWithoutValidation(
+                              _draggedPlayer!,
+                              newPosition,
+                            );
+                          }
+                        } else {
+                          // Update player position on bench (y > 1.0)
+                          final benchY = (details.localPosition.dy / benchHeight).clamp(0.0, 1.0);
+                          final newX = (details.localPosition.dx / courtWidth).clamp(0.0, 1.0);
+                          final newY = 1.0 + benchY; // Y > 1.0 means on bench
+                          final newPosition = PositionCoord(x: newX, y: newY);
+                          
+                          // Throttle validation during drag
+                          final now = DateTime.now();
+                          final shouldValidate = _lastValidationTime == null ||
+                              now.difference(_lastValidationTime!).inMilliseconds >= _validationThrottleMs;
+                          
+                          if (shouldValidate) {
+                            ref.read(rotationProvider.notifier).updatePlayerPosition(
+                              _draggedPlayer!,
+                              newPosition,
+                            );
+                            _lastValidationTime = now;
+                          } else {
+                            ref.read(rotationProvider.notifier).updatePlayerPositionWithoutValidation(
+                              _draggedPlayer!,
+                              newPosition,
+                            );
+                          }
+                        }
+                      }
+                    }
+                  },
+                  onPanEnd: (details) {
+                    // Always validate one final time when drag ends
+                    if (_draggedPlayer != null) {
+                      final rotationState = ref.read(rotationProvider);
+                      if (rotationState.customPositions != null && 
+                          rotationState.customPositions!.containsKey(_draggedPlayer)) {
+                        final finalPosition = rotationState.customPositions![_draggedPlayer]!;
+                        ref.read(rotationProvider.notifier).updatePlayerPosition(
+                          _draggedPlayer!,
+                          finalPosition,
+                        );
+                      }
+                    }
+                    
+                    setState(() {
+                      _draggedPlayer = null;
+                      _dragOffset = null;
+                      _lastValidationTime = null;
+                    });
+                  },
+                  child: Container(
+                    color: Colors.transparent,
+                    child: CustomPaint(
+                      size: Size(courtWidth, benchHeight),
+                      painter: BenchPainter(
+                        customPositions: rotationState.customPositions,
+                        courtColor: courtBgColor,
+                        lineColor: linesColor,
+                        playerColor: playerColor,
+                        courtHeight: courtHeight,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+        */
       },
     );
   }
@@ -262,6 +437,7 @@ class VolleyballCourtPainter extends CustomPainter {
   final Phase? previousPhase; // Previous phase for animation
   final Map<String, PositionCoord>? customPositions; // Override positions for drag & drop
   final RotationValidationResult? validationResult; // Resultat de validació
+  final List<List<Offset>> drawings; // Dibuixos sobre el camp
   final Color courtColor;
   final Color lineColor;
   final Color playerColor;
@@ -276,6 +452,7 @@ class VolleyballCourtPainter extends CustomPainter {
     this.previousPhase,
     this.customPositions,
     this.validationResult,
+    this.drawings = const [],
     required this.courtColor,
     required this.lineColor,
     required this.playerColor,
@@ -435,10 +612,19 @@ class VolleyballCourtPainter extends CustomPainter {
       }
       
       coords.forEach((role, coord) {
-        playerCoords[role] = Offset(
-          coord.x * size.width,  // x: 0.0 = back, 1.0 = front
-          coord.y * size.height, // y: 0.0 = top, 1.0 = bottom
-        );
+        // If y > 1.0, player is on bench, so don't draw on court
+        if (coord.y > 1.0) {
+          // Still store the coordinate but mark it as on bench
+          playerCoords[role] = Offset(
+            coord.x * size.width,
+            size.height + 1, // Mark as off-court (on bench)
+          );
+        } else {
+          playerCoords[role] = Offset(
+            coord.x * size.width,  // x: 0.0 = back, 1.0 = front
+            coord.y * size.height, // y: 0.0 = top, 1.0 = bottom
+          );
+        }
       });
       
       // Get previous coordinates if available
@@ -492,6 +678,27 @@ class VolleyballCourtPainter extends CustomPainter {
       }
     }
 
+    // Draw drawings first (so they appear behind players)
+    if (drawings.isNotEmpty) {
+      final drawingPaint = Paint()
+        ..style = PaintingStyle.stroke
+        ..color = Colors.yellow.withValues(alpha: 0.8)
+        ..strokeWidth = 3.0
+        ..strokeCap = StrokeCap.round
+        ..strokeJoin = StrokeJoin.round;
+      
+      for (final stroke in drawings) {
+        if (stroke.length < 2) continue;
+        
+        final path = Path();
+        path.moveTo(stroke[0].dx, stroke[0].dy);
+        for (int i = 1; i < stroke.length; i++) {
+          path.lineTo(stroke[i].dx, stroke[i].dy);
+        }
+        canvas.drawPath(path, drawingPaint);
+      }
+    }
+
     // Draw players based on current positions with animation
     // If we have specific coordinates, draw all roles from coords
     // Otherwise, draw from playerPositions list
@@ -531,6 +738,10 @@ class VolleyballCourtPainter extends CustomPainter {
     for (final playerRole in rolesToDraw) {
       if (playerRole.isEmpty || !playerCoords.containsKey(playerRole)) continue;
       
+      // Skip players that are on the bench (y > 1.0) - they will be drawn in BenchPainter
+      final playerCoord = playerCoords[playerRole]!;
+      if (playerCoord.dy > size.height) continue; // Player is on bench
+      
       // Find where this player was in previous positions
       Offset? previousPosition;
       if (previousPlayerCoords != null && animationValue < 1.0) {
@@ -567,12 +778,12 @@ class VolleyballCourtPainter extends CustomPainter {
       
       // Draw triangle for front row players, circle for back row players
       if (isFrontRow) {
-        // Draw triangle pointing up (towards net)
+        // Draw triangle pointing right (towards net) - rotated 90 degrees clockwise
         final trianglePath = Path();
         final triangleSize = playerRadius * 1.2;
-        trianglePath.moveTo(currentPosition.dx, currentPosition.dy - triangleSize); // Top point
-        trianglePath.lineTo(currentPosition.dx - triangleSize, currentPosition.dy + triangleSize * 0.5); // Bottom left
-        trianglePath.lineTo(currentPosition.dx + triangleSize, currentPosition.dy + triangleSize * 0.5); // Bottom right
+        trianglePath.moveTo(currentPosition.dx + triangleSize, currentPosition.dy); // Right point (towards net)
+        trianglePath.lineTo(currentPosition.dx - triangleSize * 0.5, currentPosition.dy - triangleSize); // Top left
+        trianglePath.lineTo(currentPosition.dx - triangleSize * 0.5, currentPosition.dy + triangleSize); // Bottom left
         trianglePath.close();
         
         canvas.drawPath(trianglePath, shapePaint);
@@ -633,9 +844,207 @@ class VolleyballCourtPainter extends CustomPainter {
         oldDelegate.phase != phase ||
         oldDelegate.customPositions != customPositions ||
         oldDelegate.validationResult != validationResult ||
+        oldDelegate.drawings != drawings ||
         oldDelegate.courtColor != courtColor ||
         oldDelegate.lineColor != lineColor ||
         oldDelegate.playerColor != playerColor;
+  }
+}
+
+class BenchPainter extends CustomPainter {
+  final Map<String, PositionCoord>? customPositions;
+  final Color courtColor;
+  final Color lineColor;
+  final Color playerColor;
+  final double courtHeight; // Used to calculate player radius
+
+  BenchPainter({
+    this.customPositions,
+    required this.courtColor,
+    required this.lineColor,
+    required this.playerColor,
+    required this.courtHeight,
+  });
+
+  // List of substitute players (bench players)
+  static const List<String> substitutePlayers = ['S1', 'S2', 'S3'];
+
+  // Helper function to get color for each player role
+  Color getRoleColor(String role) {
+    switch (role) {
+      case 'Co':
+        return Colors.blue; // Setter (Colocador) - Blue
+      case 'C1':
+      case 'C2':
+        return Colors.green; // Middle Blocker (Central) - Green
+      case 'O':
+        return Colors.purple; // Opposite (Opuesto) - Purple
+      case 'R1':
+      case 'R2':
+        return Colors.orange; // Outside Hitter (Receptor) - Orange
+      default:
+        return Colors.white;
+    }
+  }
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..style = PaintingStyle.fill
+      ..color = courtColor.withValues(alpha: 0.3); // Lighter background for bench
+
+    final linePaint = Paint()
+      ..style = PaintingStyle.stroke
+      ..color = lineColor
+      ..strokeWidth = 2.0;
+
+    // Draw bench background rectangle
+    final benchRect = Rect.fromLTWH(0, 0, size.width, size.height);
+    canvas.drawRect(benchRect, paint);
+    canvas.drawRect(benchRect, linePaint);
+
+    // Draw "BANQUETA" label
+    final textStyle = TextStyle(
+      color: lineColor,
+      fontSize: 12,
+      fontWeight: FontWeight.bold,
+    );
+    final textSpan = TextSpan(
+      text: 'BANQUETA',
+      style: textStyle,
+    );
+    final textPainter = TextPainter(
+      text: textSpan,
+      textAlign: TextAlign.center,
+      textDirection: TextDirection.ltr,
+    );
+    textPainter.layout();
+    textPainter.paint(
+      canvas,
+      Offset(
+        (size.width - textPainter.width) / 2,
+        4.0,
+      ),
+    );
+
+    final playerRadius = courtHeight * 0.06; // Use same radius as court players
+    const playerRoles = ['Co', 'C1', 'C2', 'R1', 'R2', 'O'];
+
+    // Draw regular players that are on bench (y > 1.0)
+    if (customPositions != null) {
+      for (final role in playerRoles) {
+        if (!customPositions!.containsKey(role)) continue;
+        
+        final coord = customPositions![role]!;
+        // Only draw if player is on bench (y > 1.0)
+        if (coord.y <= 1.0) continue;
+
+        // Calculate position on bench (normalize y from 1.0-2.0 to 0.0-1.0)
+        final benchY = (coord.y - 1.0) * size.height;
+        final benchX = coord.x * size.width;
+        final playerPos = Offset(benchX, benchY);
+
+        // Get color for this player role
+        final roleColor = getRoleColor(role);
+        final isSecondary = role == 'C2' || role == 'R2';
+
+        // Draw circle for bench players
+        final shapePaint = Paint()
+          ..style = PaintingStyle.fill
+          ..color = isSecondary 
+              ? roleColor.withValues(alpha: 0.7) 
+              : roleColor;
+        
+        canvas.drawCircle(playerPos, playerRadius, shapePaint);
+        
+        // Draw border for secondary players
+        if (isSecondary) {
+          final borderPaint = Paint()
+            ..style = PaintingStyle.stroke
+            ..color = roleColor
+            ..strokeWidth = 2.0;
+          canvas.drawCircle(playerPos, playerRadius, borderPaint);
+        }
+        
+        // Draw player role text
+        final textSpan = TextSpan(
+          text: role,
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: playerRadius * 0.9,
+            fontWeight: isSecondary ? FontWeight.w600 : FontWeight.bold,
+          ),
+        );
+        final textPainter = TextPainter(
+          text: textSpan,
+          textAlign: TextAlign.center,
+          textDirection: TextDirection.ltr,
+        );
+        textPainter.layout();
+        textPainter.paint(
+          canvas,
+          Offset(
+            playerPos.dx - textPainter.width / 2,
+            playerPos.dy - textPainter.height / 2,
+          ),
+        );
+      }
+    }
+
+    // Draw substitute players (always on bench, in gray)
+    final benchSpacing = size.width / (substitutePlayers.length + 1);
+    for (int i = 0; i < substitutePlayers.length; i++) {
+      final substituteRole = substitutePlayers[i];
+      final benchX = benchSpacing * (i + 1);
+      final benchY = size.height / 2;
+      final playerPos = Offset(benchX, benchY);
+
+      // Draw circle in gray for substitute players
+      final shapePaint = Paint()
+        ..style = PaintingStyle.fill
+        ..color = Colors.grey.withValues(alpha: 0.7);
+      
+      canvas.drawCircle(playerPos, playerRadius, shapePaint);
+      
+      // Draw border
+      final borderPaint = Paint()
+        ..style = PaintingStyle.stroke
+        ..color = Colors.grey
+        ..strokeWidth = 2.0;
+      canvas.drawCircle(playerPos, playerRadius, borderPaint);
+      
+      // Draw substitute player label
+      final textSpan = TextSpan(
+        text: substituteRole,
+        style: TextStyle(
+          color: Colors.white,
+          fontSize: playerRadius * 0.9,
+          fontWeight: FontWeight.bold,
+        ),
+      );
+      final textPainter = TextPainter(
+        text: textSpan,
+        textAlign: TextAlign.center,
+        textDirection: TextDirection.ltr,
+      );
+      textPainter.layout();
+      textPainter.paint(
+        canvas,
+        Offset(
+          playerPos.dx - textPainter.width / 2,
+          playerPos.dy - textPainter.height / 2,
+        ),
+      );
+    }
+  }
+
+  @override
+  bool shouldRepaint(BenchPainter oldDelegate) {
+    return oldDelegate.customPositions != customPositions ||
+        oldDelegate.courtColor != courtColor ||
+        oldDelegate.lineColor != lineColor ||
+        oldDelegate.playerColor != playerColor ||
+        oldDelegate.courtHeight != courtHeight;
   }
 }
 
