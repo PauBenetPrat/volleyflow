@@ -73,14 +73,85 @@ flutter build web --base-href "/volleyflow/"
 - Verify that the build completed successfully
 - Check Settings → Pages for deployment status
 
-## Custom Domain (Optional)
+## Custom Domain Setup (volleyflow.net)
 
-To use a custom domain:
+### Step 1: Configure DNS at Namecheap
 
-1. Add a `CNAME` file in the `web/` folder with your domain name
-2. Configure DNS records at your domain provider:
-   - Type: `CNAME`
-   - Name: `@` or `www`
+1. Log in to your Namecheap account: https://ap.www.namecheap.com/
+2. Go to **Domain List** and click **Manage** next to `volleyflow.net`
+3. Go to the **Advanced DNS** tab
+4. Add the following DNS records:
+
+   **For the root domain (volleyflow.net):**
+   - Type: `A Record`
+   - Host: `@`
+   - Value: `185.199.108.153`
+   - TTL: Automatic (or 30 min)
+   
+   - Type: `A Record`
+   - Host: `@`
+   - Value: `185.199.109.153`
+   - TTL: Automatic (or 30 min)
+   
+   - Type: `A Record`
+   - Host: `@`
+   - Value: `185.199.110.153`
+   - TTL: Automatic (or 30 min)
+   
+   - Type: `A Record`
+   - Host: `@`
+   - Value: `185.199.111.153`
+   - TTL: Automatic (or 30 min)
+
+   **For www subdomain (www.volleyflow.net):**
+   - Type: `CNAME Record`
+   - Host: `www`
    - Value: `paubenetprat.github.io`
-3. In GitHub Settings → Pages, add your custom domain
-4. GitHub will automatically configure SSL for your domain
+   - TTL: Automatic (or 30 min)
+
+5. **Save** all changes
+
+> **Note**: These are GitHub Pages' IP addresses. They may change, so check [GitHub's documentation](https://docs.github.com/en/pages/configuring-a-custom-domain-for-your-github-pages-site/managing-a-custom-domain-for-your-github-pages-site) for the latest IPs.
+
+### Step 2: Configure Domain in GitHub
+
+1. Go to your repository: `https://github.com/PauBenetPrat/volleyflow`
+2. Navigate to **Settings** → **Pages**
+3. Under **Custom domain**, enter: `volleyflow.net`
+4. Check **Enforce HTTPS** (this will be available after DNS propagates)
+5. Click **Save**
+
+### Step 3: Wait for DNS Propagation
+
+- DNS changes can take **15 minutes to 48 hours** to propagate
+- You can check propagation status at: https://www.whatsmydns.net/
+- Search for `volleyflow.net` and look for the A records to show the GitHub IPs
+
+### Step 4: Verify SSL Certificate
+
+- After DNS propagates, GitHub will automatically provision an SSL certificate
+- This usually takes **10-30 minutes** after DNS is configured
+- You'll see a green checkmark next to "Enforce HTTPS" when it's ready
+
+### Step 5: Access Your App
+
+Once everything is configured:
+- **Main domain**: `https://volleyflow.net`
+- **WWW subdomain**: `https://www.volleyflow.net` (optional, redirects to main)
+
+### Troubleshooting Custom Domain
+
+**Domain not working:**
+- Wait 24-48 hours for full DNS propagation
+- Verify A records are correct at https://www.whatsmydns.net/
+- Check that the domain is correctly set in GitHub Settings → Pages
+
+**SSL certificate not ready:**
+- Wait 10-30 minutes after DNS is configured
+- Make sure "Enforce HTTPS" is enabled in GitHub Settings → Pages
+- Try accessing `http://volleyflow.net` first (without HTTPS)
+
+**404 errors:**
+- Make sure the `base-href` in the workflow is set to `"/"` (already configured)
+- Clear your browser cache
+- Try accessing in incognito mode
