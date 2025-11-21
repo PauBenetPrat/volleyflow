@@ -56,7 +56,7 @@ flutter build web --base-href "/volleyflow/"
 ## Troubleshooting
 
 ### Build fails with "flutter: command not found"
-- Make sure the Flutter version in `.github/workflows/deploy-netlify.yml` matches your local version
+- Make sure the Flutter version in `.github/workflows/deploy-pages.yml` matches your local version
 - Check that the workflow file is correctly committed to your repository
 
 ### Pages not showing up
