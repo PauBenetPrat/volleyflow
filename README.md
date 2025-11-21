@@ -51,7 +51,7 @@ flutter run
 
 ## Deployment
 
-- **Web**: Automatically deployed to Netlify using GitHub Actions. See [DEPLOYMENT.md](DEPLOYMENT.md) for setup instructions.
+- **Web**: Automatically deployed to GitHub Pages using GitHub Actions (100% free, no credit limits). See [DEPLOYMENT.md](DEPLOYMENT.md) for setup instructions.
 - **iOS**: See [IOS_DEPLOYMENT.md](IOS_DEPLOYMENT.md) for instructions on building and distributing the iOS app.
 
 ## Future Enhancements
