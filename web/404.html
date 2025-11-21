@@ -7,15 +7,19 @@
     // GitHub Pages serves 404.html for unknown routes
     // Redirect to index.html so Flutter can handle the routing
     var path = window.location.pathname;
-    var basePath = '/volleyflow';
     
-    // Check if we're on custom domain (no /volleyflow in path)
-    if (!path.startsWith('/volleyflow')) {
-      basePath = '';
+    // Skip redirect for assets and API calls
+    if (path.startsWith('/assets/') || 
+        path.startsWith('/icons/') || 
+        path.endsWith('.js') || 
+        path.endsWith('.wasm') ||
+        path.endsWith('.png') ||
+        path.endsWith('.json')) {
+      return;
     }
     
     // Redirect to index.html
-    window.location.replace(basePath + '/index.html' + window.location.search + window.location.hash);
+    window.location.replace('/index.html' + window.location.search + window.location.hash);
   </script>
 </head>
 <body>
