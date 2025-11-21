@@ -396,19 +396,6 @@ class RotationsPage extends ConsumerWidget {
                 ref.read(rotationProvider.notifier).clearDrawings();
               },
             ),
-          // Toggle phase lock button
-          IconButton(
-            icon: Icon(
-              rotationState.isPhaseLocked ? Icons.lock : Icons.lock_open,
-              color: rotationState.isPhaseLocked ? Colors.green : null,
-            ),
-            onPressed: () {
-              ref.read(rotationProvider.notifier).togglePhaseLock();
-            },
-            tooltip: rotationState.isPhaseLocked 
-                ? 'Desbloquejar fase (tornar a BASE en rotar)' 
-                : 'Bloquejar fase (mantenir fase actual en rotar)',
-          ),
           // Copy coordinates button (only in debug mode)
           if (kDebugMode)
             IconButton(

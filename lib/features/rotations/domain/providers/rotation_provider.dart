@@ -125,7 +125,7 @@ class RotationNotifier extends StateNotifier<RotationState> {
     return _savedModifications[rotation]?[phase];
   }
 
-  void rotateClockwise() {
+  void rotateClockwise({bool maintainPhase = true}) {
     // Guardar modificacions actuals abans de canviar
     _saveCurrentModifications();
     
@@ -134,8 +134,8 @@ class RotationNotifier extends StateNotifier<RotationState> {
         ? CourtPosition.position6 
         : state.rotation - 1;
     
-    // Si la fase està bloquejada, mantenir-la; si no, tornar a BASE
-    final newPhase = state.isPhaseLocked ? state.phase : Phase.base;
+    // Si maintainPhase és true, mantenir la fase; si no, tornar a BASE
+    final newPhase = maintainPhase ? state.phase : Phase.base;
     final newPositions = RotationPositions.getPositions(newRotation, newPhase);
     
     // Carregar modificacions guardades per la nova rotació/fase
@@ -151,7 +151,7 @@ class RotationNotifier extends StateNotifier<RotationState> {
     );
   }
 
-  void rotateCounterClockwise() {
+  void rotateCounterClockwise({bool maintainPhase = true}) {
     // Guardar modificacions actuals abans de canviar
     _saveCurrentModifications();
     
@@ -160,8 +160,8 @@ class RotationNotifier extends StateNotifier<RotationState> {
         ? CourtPosition.position1 
         : state.rotation + 1;
     
-    // Si la fase està bloquejada, mantenir-la; si no, tornar a BASE
-    final newPhase = state.isPhaseLocked ? state.phase : Phase.base;
+    // Si maintainPhase és true, mantenir la fase; si no, tornar a BASE
+    final newPhase = maintainPhase ? state.phase : Phase.base;
     final newPositions = RotationPositions.getPositions(newRotation, newPhase);
     
     // Carregar modificacions guardades per la nova rotació/fase
