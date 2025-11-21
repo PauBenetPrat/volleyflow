@@ -151,7 +151,21 @@ Once everything is configured:
 - Make sure "Enforce HTTPS" is enabled in GitHub Settings → Pages
 - Try accessing `http://volleyflow.net` first (without HTTPS)
 
-**404 errors:**
+**404 errors or black screen:**
 - Make sure the `base-href` in the workflow is set to `"/"` (already configured)
-- Clear your browser cache
-- Try accessing in incognito mode
+- Clear your browser cache (Ctrl+Shift+Delete or Cmd+Shift+Delete)
+- Try accessing in incognito/private mode
+- Check browser console (F12) for JavaScript errors
+- Verify that `404.html` exists in the build output (automatically copied by workflow)
+
+**Debugging black screen:**
+1. Open browser developer tools (F12)
+2. Check the **Console** tab for JavaScript errors (red messages)
+3. Check the **Network** tab to see if assets (JS, CSS, WASM files) are loading
+   - Look for failed requests (red status codes)
+   - Verify files are loading from `volleyflow.net`, not `github.io`
+4. Verify the domain is correctly configured:
+   - GitHub Settings → Pages → Custom domain should show `volleyflow.net`
+   - "Enforce HTTPS" should be checked (after SSL is ready)
+5. Try accessing `http://volleyflow.net` (without HTTPS) to rule out SSL issues
+6. Check if the latest deployment completed successfully in GitHub Actions

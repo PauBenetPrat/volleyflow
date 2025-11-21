@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>VolleyFlow</title>
+  <script>
+    // GitHub Pages serves 404.html for unknown routes
+    // Redirect to index.html so Flutter can handle the routing
+    var path = window.location.pathname;
+    if (path !== '/' && !path.startsWith('/assets/') && !path.startsWith('/icons/') && !path.endsWith('.js') && !path.endsWith('.wasm')) {
+      window.location.href = '/';
+    } else {
+      window.location.href = '/index.html';
+    }
+  </script>
+</head>
+<body>
+  <p>Redirecting...</p>
+</body>
+</html>
+

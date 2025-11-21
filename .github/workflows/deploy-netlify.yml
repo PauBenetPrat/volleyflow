@@ -29,6 +29,9 @@ jobs:
     - name: Build web
       run: flutter build web --base-href "/"
     
+    - name: Copy 404.html for GitHub Pages routing
+      run: cp web/404.html build/web/404.html
+    
     - name: Setup Pages
       uses: actions/configure-pages@v4
     
