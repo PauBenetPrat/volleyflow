@@ -104,10 +104,10 @@ class RotationsPage extends ConsumerWidget {
     final currentRotation = rotationState.rotation;
     final currentPhase = rotationState.phase;
 
-    // Show dialog to select rotation system if not selected
+    // Set default rotation system if not selected (don't show dialog)
     if (rotationState.rotationSystem == null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        _showRotationSystemDialog(context, ref, l10n, theme);
+        ref.read(rotationProvider.notifier).setRotationSystem('4-2-no-libero');
       });
     }
 
