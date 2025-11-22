@@ -58,21 +58,23 @@ class RotationState {
   }
 }
 
-class RotationNotifier extends StateNotifier<RotationState> {
+class RotationNotifier extends Notifier<RotationState> {
   // Guarda les modificacions per a totes les rotacions i fases
   // Format: rotation -> phase -> playerRole -> PositionCoord
   final Map<int, Map<Phase, Map<String, PositionCoord>>> _savedModifications = {};
 
-  RotationNotifier()
-      : super(RotationState(
-          rotation: CourtPosition.position1,
-          phase: Phase.base,
-          positions: RotationPositions.getPositions(CourtPosition.position1, Phase.base),
-          isEditMode: false,
-          isPhaseLocked: false,
-          isDrawingMode: false,
-          drawings: [],
-        ));
+  @override
+  RotationState build() {
+    return RotationState(
+      rotation: CourtPosition.position1,
+      phase: Phase.base,
+      positions: RotationPositions.getPositions(CourtPosition.position1, Phase.base),
+      isEditMode: false,
+      isPhaseLocked: false,
+      isDrawingMode: false,
+      drawings: [],
+    );
+  }
 
   /// Guarda les modificacions actuals abans de canviar de rotació/fase
   /// Només guarda les modificacions que són diferents de les posicions base
@@ -514,7 +516,7 @@ class RotationNotifier extends StateNotifier<RotationState> {
   }
 }
 
-final rotationProvider = StateNotifierProvider.autoDispose<RotationNotifier, RotationState>((ref) {
+final rotationProvider = NotifierProvider.autoDispose<RotationNotifier, RotationState>(() {
   return RotationNotifier();
 });
 
