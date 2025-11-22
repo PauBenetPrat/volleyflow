@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/constants/rotation_positions.dart';
 import '../../core/constants/rotation_validator.dart';
+import '../../core/constants/player_roles.dart';
 import '../../features/rotations/domain/providers/rotation_provider.dart';
+import '../../l10n/app_localizations.dart';
 
 class VolleyballCourtWidget extends ConsumerStatefulWidget {
   final List<String> playerPositions;
@@ -12,6 +14,7 @@ class VolleyballCourtWidget extends ConsumerStatefulWidget {
   final Color? lineColor;
   final Color? playerCircleColor;
   final RotationValidationResult? validationResult; // Resultat de validació
+  final bool showGrid; // Mostrar/amagar la graella
 
   const VolleyballCourtWidget({
     super.key,
@@ -22,6 +25,7 @@ class VolleyballCourtWidget extends ConsumerStatefulWidget {
     this.lineColor,
     this.playerCircleColor,
     this.validationResult,
+    this.showGrid = false,
   });
 
   @override
@@ -85,9 +89,9 @@ class _VolleyballCourtWidgetState extends ConsumerState<VolleyballCourtWidget>
               (entry.value.y - 1.0) * size.height, // Normalize bench Y to 0-1
             )
           : Offset(
-              entry.value.x * size.width,
-              entry.value.y * size.height,
-            );
+        entry.value.x * size.width,
+        entry.value.y * size.height,
+      );
       
       final distance = (position - playerPos).distance;
       if (distance <= playerRadius * 1.5) {
@@ -144,6 +148,66 @@ class _VolleyballCourtWidgetState extends ConsumerState<VolleyballCourtWidget>
     }
   }
 
+  void _showPlayerInfoDialog(BuildContext context, String playerRole) {
+    final l10n = AppLocalizations.of(context)!;
+    final displayAbbr = PlayerRole.getDisplayAbbreviation(playerRole);
+    
+    // Get role name and description
+    String roleName;
+    String roleDescription;
+    
+    switch (playerRole) {
+      case PlayerRole.setter:
+        roleName = l10n.roleSetterName;
+        roleDescription = l10n.roleSetterDescription;
+        break;
+      case PlayerRole.middleBlocker1:
+      case PlayerRole.middleBlocker2:
+        roleName = l10n.roleMiddleBlockerName;
+        roleDescription = l10n.roleMiddleBlockerDescription;
+        break;
+      case PlayerRole.opposite:
+        roleName = l10n.roleOppositeName;
+        roleDescription = l10n.roleOppositeDescription;
+        break;
+      case PlayerRole.outsideHitter1:
+      case PlayerRole.outsideHitter2:
+        roleName = l10n.roleOutsideHitterName;
+        roleDescription = l10n.roleOutsideHitterDescription;
+        break;
+      case PlayerRole.libero:
+        roleName = l10n.roleLiberoName;
+        roleDescription = l10n.roleLiberoDescription;
+        break;
+      default:
+        roleName = playerRole;
+        roleDescription = '';
+    }
+    
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Row(
+          children: [
+            Text(
+              displayAbbr,
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(width: 8),
+            Expanded(child: Text(roleName)),
+          ],
+        ),
+        content: Text(roleDescription),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: Text(l10n.ok),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   void dispose() {
     _animationController.dispose();
@@ -198,23 +262,37 @@ class _VolleyballCourtWidgetState extends ConsumerState<VolleyballCourtWidget>
             height: courtHeight,
             child: GestureDetector(
               behavior: HitTestBehavior.opaque,
+              onDoubleTapDown: (details) {
+                // Mostrar informació del jugador en doble clic
+                if (!rotationState.isDrawingMode) {
+                  final localPosition = details.localPosition;
+                  final player = _getPlayerAtPosition(
+                    localPosition,
+                    Size(courtWidth, courtHeight),
+                    rotationState.customPositions,
+                  );
+                  if (player != null) {
+                    _showPlayerInfoDialog(context, player);
+                  }
+                }
+              },
               onPanStart: (details) {
                 if (rotationState.isDrawingMode) {
                   // Mode dibuix: començar un nou traç
                   ref.read(rotationProvider.notifier).startNewDrawing(details.localPosition);
                 } else {
                   // Mode normal: moure jugadors
-                  final localPosition = details.localPosition;
-                  final player = _getPlayerAtPosition(
-                    localPosition, 
-                    Size(courtWidth, courtHeight),
-                    rotationState.customPositions,
-                  );
-                  if (player != null) {
-                    setState(() {
-                      _draggedPlayer = player;
-                      _dragOffset = localPosition;
-                    });
+                final localPosition = details.localPosition;
+                final player = _getPlayerAtPosition(
+                  localPosition, 
+                  Size(courtWidth, courtHeight),
+                  rotationState.customPositions,
+                );
+                if (player != null) {
+                  setState(() {
+                    _draggedPlayer = player;
+                    _dragOffset = localPosition;
+                  });
                   }
                 }
               },
@@ -235,10 +313,10 @@ class _VolleyballCourtWidgetState extends ConsumerState<VolleyballCourtWidget>
                       now.difference(_lastValidationTime!).inMilliseconds >= _validationThrottleMs;
                   
                   if (shouldValidate) {
-                    ref.read(rotationProvider.notifier).updatePlayerPosition(
-                      _draggedPlayer!,
-                      newPosition,
-                    );
+                  ref.read(rotationProvider.notifier).updatePlayerPosition(
+                    _draggedPlayer!,
+                    newPosition,
+                  );
                     _lastValidationTime = now;
                   } else {
                     // Update position without validation to keep smooth dragging
@@ -267,11 +345,11 @@ class _VolleyballCourtWidgetState extends ConsumerState<VolleyballCourtWidget>
                     }
                   }
                   
-                  setState(() {
-                    _draggedPlayer = null;
-                    _dragOffset = null;
+                setState(() {
+                  _draggedPlayer = null;
+                  _dragOffset = null;
                     _lastValidationTime = null;
-                  });
+                });
                 }
               },
               child: Container(
@@ -294,6 +372,7 @@ class _VolleyballCourtWidgetState extends ConsumerState<VolleyballCourtWidget>
                         customPositions: currentRotationState.customPositions,
                         validationResult: widget.validationResult,
                         drawings: currentRotationState.drawings,
+                        showGrid: currentRotationState.showGrid,
                         courtColor: courtBgColor,
                         lineColor: linesColor,
                         playerColor: playerColor,
@@ -438,6 +517,7 @@ class VolleyballCourtPainter extends CustomPainter {
   final Map<String, PositionCoord>? customPositions; // Override positions for drag & drop
   final RotationValidationResult? validationResult; // Resultat de validació
   final List<List<Offset>> drawings; // Dibuixos sobre el camp
+  final bool showGrid; // Mostrar/amagar la graella
   final Color courtColor;
   final Color lineColor;
   final Color playerColor;
@@ -453,6 +533,7 @@ class VolleyballCourtPainter extends CustomPainter {
     this.customPositions,
     this.validationResult,
     this.drawings = const [],
+    this.showGrid = false,
     required this.courtColor,
     required this.lineColor,
     required this.playerColor,
@@ -477,6 +558,39 @@ class VolleyballCourtPainter extends CustomPainter {
       }
     }
     return playersInViolation;
+  }
+  
+  // Helper method to draw zone number
+  void _drawZoneNumber(Canvas canvas, String number, Offset center, TextStyle textStyle) {
+    final textSpan = TextSpan(
+      text: number,
+      style: textStyle,
+    );
+    final textPainter = TextPainter(
+      text: textSpan,
+      textAlign: TextAlign.center,
+      textDirection: TextDirection.ltr,
+    );
+    textPainter.layout();
+    textPainter.paint(
+      canvas,
+      Offset(
+        center.dx - textPainter.width / 2,
+        center.dy - textPainter.height / 2,
+      ),
+    );
+  }
+
+  // Converteix les claus internes a les noves abreviatures en els missatges d'error
+  static String convertErrorToDisplayAbbreviations(String error) {
+    const playerRoles = ['Co', 'C1', 'C2', 'R1', 'R2', 'O'];
+    String displayError = error;
+    for (final role in playerRoles) {
+      final displayAbbr = PlayerRole.getDisplayAbbreviation(role);
+      // Reemplaçar les claus internes amb les noves abreviatures
+      displayError = displayError.replaceAll(RegExp('\\b$role\\b'), displayAbbr);
+    }
+    return displayError;
   }
 
   @override
@@ -511,9 +625,9 @@ class VolleyballCourtPainter extends CustomPainter {
     
     // Draw net label (vertical)
     final netTextStyle = TextStyle(
-      color: Colors.red,
-      fontSize: 14,
-      fontWeight: FontWeight.bold,
+        color: Colors.red,
+        fontSize: 14,
+        fontWeight: FontWeight.bold,
     );
     
     // Draw each letter vertically
@@ -525,20 +639,20 @@ class VolleyballCourtPainter extends CustomPainter {
       final letterTextSpan = TextSpan(
         text: letters[i],
         style: netTextStyle,
-      );
+    );
       final letterTextPainter = TextPainter(
         text: letterTextSpan,
-        textAlign: TextAlign.center,
-        textDirection: TextDirection.ltr,
-      );
+      textAlign: TextAlign.center,
+      textDirection: TextDirection.ltr,
+    );
       letterTextPainter.layout();
       letterTextPainter.paint(
-        canvas,
-        Offset(
+      canvas,
+      Offset(
           netLineX - letterTextPainter.width - 5,
           startY + (i * letterSpacing),
-        ),
-      );
+      ),
+    );
     }
 
     // Draw attack line (3m from net/front line)
@@ -550,6 +664,7 @@ class VolleyballCourtPainter extends CustomPainter {
       Offset(attackLineX, size.height),
       linePaint,
     );
+
 
     // Draw player positions on the court
     // Volleyball positions layout (9m x 9m court):
@@ -620,10 +735,10 @@ class VolleyballCourtPainter extends CustomPainter {
             size.height + 1, // Mark as off-court (on bench)
           );
         } else {
-          playerCoords[role] = Offset(
-            coord.x * size.width,  // x: 0.0 = back, 1.0 = front
-            coord.y * size.height, // y: 0.0 = top, 1.0 = bottom
-          );
+        playerCoords[role] = Offset(
+          coord.x * size.width,  // x: 0.0 = back, 1.0 = front
+          coord.y * size.height, // y: 0.0 = top, 1.0 = bottom
+        );
         }
       });
       
@@ -646,15 +761,15 @@ class VolleyballCourtPainter extends CustomPainter {
         } else {
           // Fallback: use standard positions for previous
           for (int i = 0; i < previousPositions!.length && i < CourtPosition.allPositions.length; i++) {
-            final role = previousPositions![i];
-            if (role.isNotEmpty) {
-              // Use standard position mapping for previous
+          final role = previousPositions![i];
+          if (role.isNotEmpty) {
+            // Use standard position mapping for previous
               final position = CourtPosition.allPositions[i];
               final stdCoords = PositionCoord.fromStandardPosition(position);
-              previousPlayerCoords![role] = Offset(
-                stdCoords.x * size.width,
-                stdCoords.y * size.height,
-              );
+            previousPlayerCoords![role] = Offset(
+              stdCoords.x * size.width,
+              stdCoords.y * size.height,
+            );
             }
           }
         }
@@ -676,6 +791,72 @@ class VolleyballCourtPainter extends CustomPainter {
           playerCoords[role] = positionCoordinates[i];
         }
       }
+    }
+
+    // Draw grid lines to divide court into 6 zones (3 rows x 2 columns) - only if showGrid is true
+    // Draw grid after players so it's visible on top
+    if (showGrid) {
+      // Grid lines: 1 vertical line (dividing into 2 columns) and 2 horizontal lines (dividing into 3 rows)
+      final gridPaint = Paint()
+        ..style = PaintingStyle.stroke
+        ..color = lineColor.withValues(alpha: 0.5) // More visible color for grid
+        ..strokeWidth = 1.5; // Slightly thicker for visibility
+      
+      // Vertical line: divide court into 2 columns (each 4.5m wide)
+      final verticalLineX = size.width / 2; // Middle
+      canvas.drawLine(
+        Offset(verticalLineX, 0),
+        Offset(verticalLineX, size.height),
+        gridPaint,
+      );
+      
+      // Horizontal lines: divide court into 3 rows (each 3m tall)
+      final horizontalLine1Y = size.height / 3; // First third
+      final horizontalLine2Y = size.height * 2 / 3; // Second third
+      canvas.drawLine(
+        Offset(0, horizontalLine1Y),
+        Offset(size.width, horizontalLine1Y),
+        gridPaint,
+      );
+      canvas.drawLine(
+        Offset(0, horizontalLine2Y),
+        Offset(size.width, horizontalLine2Y),
+        gridPaint,
+      );
+
+      // Draw zone numbers (1-6) in counter-clockwise order starting from bottom-left
+      // Zones layout:
+      // Top:     [5] [4]
+      // Middle:  [6] [3]
+      // Bottom:  [1] [2]
+      final textStyle = TextStyle(
+        color: lineColor.withValues(alpha: 0.7),
+        fontSize: size.height * 0.08,
+        fontWeight: FontWeight.bold,
+      );
+      
+      // Calculate zone dimensions
+      final zoneWidth = size.width / 2;
+      final zoneHeight = size.height / 3;
+      final padding = size.width * 0.08; // More padding from the right edge
+      
+      // Zone 1: Bottom-left - right side, vertically centered
+      _drawZoneNumber(canvas, '1', Offset(zoneWidth - padding, size.height - zoneHeight / 2), textStyle);
+      
+      // Zone 2: Bottom-right - right side, vertically centered
+      _drawZoneNumber(canvas, '2', Offset(size.width - padding, size.height - zoneHeight / 2), textStyle);
+      
+      // Zone 3: Middle-right - right side, vertically centered
+      _drawZoneNumber(canvas, '3', Offset(size.width - padding, size.height / 2), textStyle);
+      
+      // Zone 4: Top-right - right side, vertically centered
+      _drawZoneNumber(canvas, '4', Offset(size.width - padding, zoneHeight / 2), textStyle);
+      
+      // Zone 5: Top-left - right side, vertically centered
+      _drawZoneNumber(canvas, '5', Offset(zoneWidth - padding, zoneHeight / 2), textStyle);
+      
+      // Zone 6: Middle-left - right side, vertically centered
+      _drawZoneNumber(canvas, '6', Offset(zoneWidth - padding, size.height / 2), textStyle);
     }
 
     // Draw drawings first (so they appear behind players)
@@ -773,7 +954,7 @@ class VolleyballCourtPainter extends CustomPainter {
         ..color = isInViolation
             ? Colors.red.withValues(alpha: 0.8)
             : (isSecondary 
-                ? roleColor.withValues(alpha: 0.7) // Lighter/dimmer for secondary
+            ? roleColor.withValues(alpha: 0.7) // Lighter/dimmer for secondary
                 : roleColor);
       
       // Draw triangle for front row players, circle for back row players
@@ -799,20 +980,22 @@ class VolleyballCourtPainter extends CustomPainter {
       } else {
         // Draw circle for back row players
         canvas.drawCircle(currentPosition, playerRadius, shapePaint);
-        
+      
         // Draw border for secondary players or players in violation
         if (isSecondary || isInViolation) {
-          final borderPaint = Paint()
-            ..style = PaintingStyle.stroke
+        final borderPaint = Paint()
+          ..style = PaintingStyle.stroke
             ..color = isInViolation ? Colors.red : roleColor
             ..strokeWidth = isInViolation ? 3.0 : 2.0;
-          canvas.drawCircle(currentPosition, playerRadius, borderPaint);
+        canvas.drawCircle(currentPosition, playerRadius, borderPaint);
         }
       }
       
       // Draw player role with smaller text and contrasting white color
+      // Use new abbreviations (S, OH, OPP, MB) instead of internal keys
+      final displayAbbr = PlayerRole.getDisplayAbbreviation(playerRole);
       final textSpan = TextSpan(
-        text: playerRole,
+        text: displayAbbr,
         style: TextStyle(
           color: Colors.white, // Contrasting white text
           fontSize: playerRadius * 0.9, // Smaller text
@@ -968,7 +1151,7 @@ class BenchPainter extends CustomPainter {
         
         // Draw player role text
         final textSpan = TextSpan(
-          text: role,
+          text: PlayerRole.getDisplayAbbreviation(role),
           style: TextStyle(
             color: Colors.white,
             fontSize: playerRadius * 0.9,

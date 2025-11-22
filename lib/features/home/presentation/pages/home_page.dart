@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:volleyball_coaching_app/l10n/app_localizations.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -7,10 +8,11 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
     
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Volleyball Coaching App'),
+        title: Text(l10n.volleyballCoachingApp),
       ),
       body: SafeArea(
         child: LayoutBuilder(
@@ -36,7 +38,7 @@ class HomePage extends StatelessWidget {
               
               // Title
               Text(
-                'Welcome',
+                l10n.welcome,
                 style: theme.textTheme.headlineMedium?.copyWith(
                   fontWeight: FontWeight.bold,
                 ),
@@ -44,7 +46,7 @@ class HomePage extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               Text(
-                'Manage your team\'s rotations and positions',
+                l10n.welcomeSubtitle,
                 style: theme.textTheme.bodyLarge?.copyWith(
                   color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
                 ),
@@ -55,19 +57,25 @@ class HomePage extends StatelessWidget {
               // Menu Buttons
               _MenuButton(
                 icon: Icons.rotate_right,
-                label: 'Rotations',
+                label: l10n.rotations,
                 onPressed: () => context.push('/rotations'),
               ),
               const SizedBox(height: 16),
               _MenuButton(
                 icon: Icons.gavel,
-                label: 'Referee / Match',
+                label: l10n.refereeMatch,
                 onPressed: () => context.push('/match'),
               ),
               const SizedBox(height: 16),
               _MenuButton(
+                icon: Icons.settings,
+                label: l10n.settings,
+                onPressed: () => context.push('/settings'),
+              ),
+              const SizedBox(height: 16),
+              _MenuButton(
                 icon: Icons.info_outline,
-                label: 'About',
+                label: l10n.about,
                 onPressed: () => context.push('/about'),
               ),
             ],

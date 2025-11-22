@@ -1,0 +1,280 @@
+{
+  "@@locale": "en",
+  "appTitle": "VolleyFlow",
+  "@appTitle": {
+    "description": "Application title"
+  },
+  "volleyballCoachingApp": "Volleyball Coaching App",
+  "@volleyballCoachingApp": {
+    "description": "Home page title"
+  },
+  "welcome": "Welcome",
+  "@welcome": {
+    "description": "Welcome message"
+  },
+  "welcomeSubtitle": "Manage your team's rotations and positions",
+  "@welcomeSubtitle": {
+    "description": "Welcome subtitle"
+  },
+  "rotations": "Rotations",
+  "@rotations": {
+    "description": "Rotations menu item"
+  },
+  "refereeMatch": "Referee / Match",
+  "@refereeMatch": {
+    "description": "Referee/Match menu item"
+  },
+  "about": "About",
+  "@about": {
+    "description": "About menu item"
+  },
+  "base": "BASE",
+  "@base": {
+    "description": "Base phase"
+  },
+  "sac": "SAC",
+  "@sac": {
+    "description": "Sac phase"
+  },
+  "recepcio": "RECEPCIO",
+  "@recepcio": {
+    "description": "Reception phase"
+  },
+  "defensa": "DEFENSA",
+  "@defensa": {
+    "description": "Defense phase"
+  },
+  "rotationTitle": "4-2 (no libero)",
+  "@rotationTitle": {
+    "description": "Rotation system title"
+  },
+  "rotationSystem42": "4-2",
+  "@rotationSystem42": {
+    "description": "4-2 rotation system"
+  },
+  "rotationSystem42NoLibero": "4-2 (no libero)",
+  "@rotationSystem42NoLibero": {
+    "description": "4-2 no libero rotation system"
+  },
+  "rotationSystem51": "5-1",
+  "@rotationSystem51": {
+    "description": "5-1 rotation system"
+  },
+  "rotationSystemPlayers": "Players",
+  "@rotationSystemPlayers": {
+    "description": "Players rotation system"
+  },
+  "featureComingSoon": "{displayName} feature coming soon!",
+  "@featureComingSoon": {
+    "description": "Feature coming soon message",
+    "placeholders": {
+      "displayName": {
+        "type": "String"
+      }
+    }
+  },
+  "activateDrawingMode": "Activate drawing mode",
+  "@activateDrawingMode": {
+    "description": "Tooltip for activate drawing mode"
+  },
+  "deactivateDrawingMode": "Deactivate drawing mode",
+  "@deactivateDrawingMode": {
+    "description": "Tooltip for deactivate drawing mode"
+  },
+  "undoLastStroke": "Undo last stroke",
+  "@undoLastStroke": {
+    "description": "Tooltip for undo last drawing stroke"
+  },
+  "clearAllDrawings": "Clear all drawings",
+  "@clearAllDrawings": {
+    "description": "Tooltip for clear all drawings"
+  },
+  "coordinatesCopied": "Coordinates copied to clipboard!",
+  "@coordinatesCopied": {
+    "description": "Message when coordinates are copied"
+  },
+  "copyCoordinates": "Copy coordinates to clipboard",
+  "@copyCoordinates": {
+    "description": "Tooltip for copy coordinates"
+  },
+  "reset": "Reset",
+  "@reset": {
+    "description": "Tooltip for reset button"
+  },
+  "rotationValidationError": "Rotation error",
+  "@rotationValidationError": {
+    "description": "Rotation validation error title"
+  },
+  "close": "Close",
+  "@close": {
+    "description": "Close button"
+  },
+  "rotateTooltip": "Click: rotate forward | Double click: rotate backward",
+  "@rotateTooltip": {
+    "description": "Tooltip for rotate button"
+  },
+  "version": "Version 1.0.0",
+  "@version": {
+    "description": "App version"
+  },
+  "purpose": "Purpose",
+  "@purpose": {
+    "description": "Purpose section title"
+  },
+  "purposeText": "This app is designed to help volleyball coaches and players visualize and manage team rotations and positions on the court.",
+  "@purposeText": {
+    "description": "Purpose description"
+  },
+  "features": "Features",
+  "@features": {
+    "description": "Features section title"
+  },
+  "featureRotations": "Visualize team rotations on a standard volleyball court",
+  "@featureRotations": {
+    "description": "Feature: rotations"
+  },
+  "featurePositions": "Track player positions in real-time",
+  "@featurePositions": {
+    "description": "Feature: positions"
+  },
+  "featureReset": "Easily rotate and reset positions",
+  "@featureReset": {
+    "description": "Feature: reset"
+  },
+  "developer": "Developer",
+  "@developer": {
+    "description": "Developer section title"
+  },
+  "developedBy": "Developed by Pau Benet Prat",
+  "@developedBy": {
+    "description": "Developer name"
+  },
+  "githubRepository": "GitHub Repository",
+  "@githubRepository": {
+    "description": "GitHub repository link"
+  },
+  "linkedinProfile": "LinkedIn Profile",
+  "@linkedinProfile": {
+    "description": "LinkedIn profile link"
+  },
+  "aboutNote": "This is an MVP version. More features will be added in future updates. Found a bug or have an idea? Check out the GitHub repository!",
+  "@aboutNote": {
+    "description": "About page note"
+  },
+  "matchControl": "Match Control",
+  "@matchControl": {
+    "description": "Match control page title"
+  },
+  "matchInProgress": "Match in Progress",
+  "@matchInProgress": {
+    "description": "Match in progress status"
+  },
+  "matchNotStarted": "Match Not Started",
+  "@matchNotStarted": {
+    "description": "Match not started status"
+  },
+  "set": "Set {setNumber}",
+  "@set": {
+    "description": "Set number",
+    "placeholders": {
+      "setNumber": {
+        "type": "int"
+      }
+    }
+  },
+  "teamA": "Team A",
+  "@teamA": {
+    "description": "Team A label"
+  },
+  "teamB": "Team B",
+  "@teamB": {
+    "description": "Team B label"
+  },
+  "sets": "Sets: {count}",
+  "@sets": {
+    "description": "Sets count",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "startMatch": "Start Match",
+  "@startMatch": {
+    "description": "Start match button"
+  },
+  "resetMatch": "Reset Match",
+  "@resetMatch": {
+    "description": "Reset match button"
+  },
+  "matchWon": "Match Won!",
+  "@matchWon": {
+    "description": "Match won dialog title"
+  },
+  "matchWonMessage": "{winner} wins the match!",
+  "@matchWonMessage": {
+    "description": "Match won message",
+    "placeholders": {
+      "winner": {
+        "type": "String"
+      }
+    }
+  },
+  "ok": "OK",
+  "@ok": {
+    "description": "OK button"
+  },
+  "settings": "Settings",
+  "@settings": {
+    "description": "Settings page title"
+  },
+  "language": "Language",
+  "@language": {
+    "description": "Language selection label"
+  },
+  "systemDefault": "System Default",
+  "@systemDefault": {
+    "description": "System default language option"
+  },
+  "roleSetterName": "Setter",
+  "@roleSetterName": {
+    "description": "Setter role name"
+  },
+  "roleSetterDescription": "Setter. Makes the second pass and organizes the attack.",
+  "@roleSetterDescription": {
+    "description": "Setter role description"
+  },
+  "roleMiddleBlockerName": "Middle Blocker",
+  "@roleMiddleBlockerName": {
+    "description": "Middle Blocker role name"
+  },
+  "roleMiddleBlockerDescription": "Middle Blocker. Specialized in blocking and quick attacks.",
+  "@roleMiddleBlockerDescription": {
+    "description": "Middle Blocker role description"
+  },
+  "roleOppositeName": "Opposite",
+  "@roleOppositeName": {
+    "description": "Opposite role name"
+  },
+  "roleOppositeDescription": "Opposite. Main attacker, plays opposite to the setter (position 2 or 1).",
+  "@roleOppositeDescription": {
+    "description": "Opposite role description"
+  },
+  "roleOutsideHitterName": "Outside Hitter",
+  "@roleOutsideHitterName": {
+    "description": "Outside Hitter role name"
+  },
+  "roleOutsideHitterDescription": "Outside Hitter (also called \"wing\" or \"double\"). Plays at positions 4 and 6.",
+  "@roleOutsideHitterDescription": {
+    "description": "Outside Hitter role description"
+  },
+  "roleLiberoName": "Libero",
+  "@roleLiberoName": {
+    "description": "Libero role name"
+  },
+  "roleLiberoDescription": "Libero. Defensive specialist player. Cannot attack or block, wears a different jersey.",
+  "@roleLiberoDescription": {
+    "description": "Libero role description"
+  }
+}
+

@@ -13,6 +13,7 @@ class RotationState {
   final bool isPhaseLocked; // Si la fase està bloquejada, es manté en rotar
   final bool isDrawingMode; // Mode de dibuix sobre el camp
   final List<List<Offset>> drawings; // Llista de traços (cada traç és una llista de punts)
+  final bool showGrid; // Mostrar/amagar la graella del camp
 
   RotationState({
     required this.rotation,
@@ -24,6 +25,7 @@ class RotationState {
     this.isPhaseLocked = false,
     this.isDrawingMode = false,
     this.drawings = const [],
+    this.showGrid = false,
   });
 
   RotationState copyWith({
@@ -36,6 +38,7 @@ class RotationState {
     bool? isPhaseLocked,
     bool? isDrawingMode,
     List<List<Offset>>? drawings,
+    bool? showGrid,
     bool clearCustomPositions = false,
     bool clearValidation = false,
     bool clearDrawings = false,
@@ -54,25 +57,29 @@ class RotationState {
       isPhaseLocked: isPhaseLocked ?? this.isPhaseLocked,
       isDrawingMode: isDrawingMode ?? this.isDrawingMode,
       drawings: clearDrawings ? [] : (drawings ?? this.drawings),
+      showGrid: showGrid ?? this.showGrid,
     );
   }
 }
 
-class RotationNotifier extends StateNotifier<RotationState> {
+class RotationNotifier extends Notifier<RotationState> {
   // Guarda les modificacions per a totes les rotacions i fases
   // Format: rotation -> phase -> playerRole -> PositionCoord
   final Map<int, Map<Phase, Map<String, PositionCoord>>> _savedModifications = {};
 
-  RotationNotifier()
-      : super(RotationState(
-          rotation: CourtPosition.position1,
-          phase: Phase.base,
-          positions: RotationPositions.getPositions(CourtPosition.position1, Phase.base),
-          isEditMode: false,
-          isPhaseLocked: false,
-          isDrawingMode: false,
-          drawings: [],
-        ));
+  @override
+  RotationState build() {
+    return RotationState(
+      rotation: CourtPosition.position1,
+      phase: Phase.base,
+      positions: RotationPositions.getPositions(CourtPosition.position1, Phase.base),
+      isEditMode: false,
+      isPhaseLocked: false,
+      isDrawingMode: false,
+      drawings: [],
+      showGrid: false,
+    );
+  }
 
   /// Guarda les modificacions actuals abans de canviar de rotació/fase
   /// Només guarda les modificacions que són diferents de les posicions base
@@ -209,6 +216,7 @@ class RotationNotifier extends StateNotifier<RotationState> {
       isPhaseLocked: false,
       isDrawingMode: false,
       drawings: [],
+      showGrid: state.showGrid, // Mantenir l'estat de la graella al reset
     );
   }
 
@@ -350,6 +358,10 @@ class RotationNotifier extends StateNotifier<RotationState> {
 
   void toggleDrawingMode() {
     state = state.copyWith(isDrawingMode: !state.isDrawingMode);
+  }
+
+  void toggleGrid() {
+    state = state.copyWith(showGrid: !state.showGrid);
   }
 
   void addDrawingPoint(Offset point) {
@@ -514,7 +526,7 @@ class RotationNotifier extends StateNotifier<RotationState> {
   }
 }
 
-final rotationProvider = StateNotifierProvider.autoDispose<RotationNotifier, RotationState>((ref) {
+final rotationProvider = NotifierProvider.autoDispose<RotationNotifier, RotationState>(() {
   return RotationNotifier();
 });
 
