@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:volleyball_coaching_app/l10n/app_localizations.dart';
 
 class MatchPage extends StatefulWidget {
   const MatchPage({super.key});
@@ -62,7 +63,8 @@ class _MatchPageState extends State<MatchPage> {
 
         // Check if match is won (best of 5 sets)
         if (_teamASets >= 3 || _teamBSets >= 3) {
-          _showMatchWinnerDialog(isTeamA ? 'Team A' : 'Team B');
+          final l10n = AppLocalizations.of(context)!;
+          _showMatchWinnerDialog(isTeamA ? l10n.teamA : l10n.teamB);
         } else {
           // Start next set
           _setNumber++;
@@ -86,18 +88,19 @@ class _MatchPageState extends State<MatchPage> {
   }
 
   void _showMatchWinnerDialog(String winner) {
+    final l10n = AppLocalizations.of(context)!;
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Match Won!'),
-        content: Text('$winner wins the match!'),
+        title: Text(l10n.matchWon),
+        content: Text(l10n.matchWonMessage(winner)),
         actions: [
           TextButton(
             onPressed: () {
               Navigator.of(context).pop();
               _resetMatch();
             },
-            child: const Text('OK'),
+            child: Text(l10n.ok),
           ),
         ],
       ),
@@ -109,10 +112,11 @@ class _MatchPageState extends State<MatchPage> {
     final theme = Theme.of(context);
     final mediaQuery = MediaQuery.of(context);
     final isSmallScreen = mediaQuery.size.width < 600;
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Match Control'),
+        title: Text(l10n.matchControl),
       ),
       body: SafeArea(
         child: Padding(
@@ -127,7 +131,7 @@ class _MatchPageState extends State<MatchPage> {
                   child: Column(
                     children: [
                       Text(
-                        _isMatchActive ? 'Match in Progress' : 'Match Not Started',
+                        _isMatchActive ? l10n.matchInProgress : l10n.matchNotStarted,
                         style: theme.textTheme.titleLarge?.copyWith(
                           fontWeight: FontWeight.bold,
                           color: _isMatchActive 
@@ -137,7 +141,7 @@ class _MatchPageState extends State<MatchPage> {
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        'Set $_setNumber',
+                        l10n.set(_setNumber),
                         style: theme.textTheme.titleMedium,
                       ),
                     ],
@@ -158,7 +162,7 @@ class _MatchPageState extends State<MatchPage> {
                         child: Column(
                           children: [
                             Text(
-                              'Team A',
+                              l10n.teamA,
                               style: theme.textTheme.titleLarge?.copyWith(
                                 fontWeight: FontWeight.bold,
                               ),
@@ -173,7 +177,7 @@ class _MatchPageState extends State<MatchPage> {
                             ),
                             const SizedBox(height: 8),
                             Text(
-                              'Sets: $_teamASets',
+                              l10n.sets(_teamASets),
                               style: theme.textTheme.bodyLarge,
                             ),
                           ],
@@ -191,7 +195,7 @@ class _MatchPageState extends State<MatchPage> {
                         child: Column(
                           children: [
                             Text(
-                              'Team B',
+                              l10n.teamB,
                               style: theme.textTheme.titleLarge?.copyWith(
                                 fontWeight: FontWeight.bold,
                               ),
@@ -206,7 +210,7 @@ class _MatchPageState extends State<MatchPage> {
                             ),
                             const SizedBox(height: 8),
                             Text(
-                              'Sets: $_teamBSets',
+                              l10n.sets(_teamBSets),
                               style: theme.textTheme.bodyLarge,
                             ),
                           ],
@@ -229,9 +233,9 @@ class _MatchPageState extends State<MatchPage> {
                           OutlinedButton.icon(
                             onPressed: () => _incrementScore(true),
                             icon: const Icon(Icons.add),
-                            label: const Padding(
-                              padding: EdgeInsets.symmetric(vertical: 12.0),
-                              child: Text('Team A'),
+                            label: Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 12.0),
+                              child: Text(l10n.teamA),
                             ),
                             style: OutlinedButton.styleFrom(
                               minimumSize: const Size(double.infinity, 50),
@@ -241,9 +245,9 @@ class _MatchPageState extends State<MatchPage> {
                           ElevatedButton.icon(
                             onPressed: () => _decrementScore(true),
                             icon: const Icon(Icons.remove),
-                            label: const Padding(
-                              padding: EdgeInsets.symmetric(vertical: 12.0),
-                              child: Text('Team A'),
+                            label: Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 12.0),
+                              child: Text(l10n.teamA),
                             ),
                             style: ElevatedButton.styleFrom(
                               minimumSize: const Size(double.infinity, 50),
@@ -260,9 +264,9 @@ class _MatchPageState extends State<MatchPage> {
                           OutlinedButton.icon(
                             onPressed: () => _incrementScore(false),
                             icon: const Icon(Icons.add),
-                            label: const Padding(
-                              padding: EdgeInsets.symmetric(vertical: 12.0),
-                              child: Text('Team B'),
+                            label: Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 12.0),
+                              child: Text(l10n.teamB),
                             ),
                             style: OutlinedButton.styleFrom(
                               minimumSize: const Size(double.infinity, 50),
@@ -272,9 +276,9 @@ class _MatchPageState extends State<MatchPage> {
                           ElevatedButton.icon(
                             onPressed: () => _decrementScore(false),
                             icon: const Icon(Icons.remove),
-                            label: const Padding(
-                              padding: EdgeInsets.symmetric(vertical: 12.0),
-                              child: Text('Team B'),
+                            label: Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 12.0),
+                              child: Text(l10n.teamB),
                             ),
                             style: ElevatedButton.styleFrom(
                               minimumSize: const Size(double.infinity, 50),
@@ -294,9 +298,9 @@ class _MatchPageState extends State<MatchPage> {
                 ElevatedButton.icon(
                   onPressed: _startMatch,
                   icon: const Icon(Icons.play_arrow),
-                  label: const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 16.0),
-                    child: Text('Start Match'),
+                  label: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 16.0),
+                    child: Text(l10n.startMatch),
                   ),
                   style: ElevatedButton.styleFrom(
                     minimumSize: const Size(double.infinity, 60),
@@ -306,9 +310,9 @@ class _MatchPageState extends State<MatchPage> {
                 OutlinedButton.icon(
                   onPressed: _resetMatch,
                   icon: const Icon(Icons.stop),
-                  label: const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 16.0),
-                    child: Text('Reset Match'),
+                  label: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 16.0),
+                    child: Text(l10n.resetMatch),
                   ),
                   style: OutlinedButton.styleFrom(
                     minimumSize: const Size(double.infinity, 60),

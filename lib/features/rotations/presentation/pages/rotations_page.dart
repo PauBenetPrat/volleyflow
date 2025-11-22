@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:volleyball_coaching_app/l10n/app_localizations.dart';
 import '../../../../shared/widgets/volleyball_court_widget.dart';
 import '../../domain/providers/rotation_provider.dart';
 import '../../../../core/constants/rotation_positions.dart';
@@ -13,6 +14,7 @@ class RotationsPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final rotationState = ref.watch(rotationProvider);
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
     final mediaQuery = MediaQuery.of(context);
     final isSmallScreen = mediaQuery.size.width < 600;
     final isVerySmallScreen = mediaQuery.size.width < 400;
@@ -42,7 +44,7 @@ class RotationsPage extends ConsumerWidget {
                   : null,
             ),
             child: Text(
-              'BASE',
+              l10n.base,
               style: TextStyle(
                 color: currentPhase == Phase.base
                     ? Colors.white
@@ -68,7 +70,7 @@ class RotationsPage extends ConsumerWidget {
                   : null,
             ),
             child: Text(
-              'SAC',
+              l10n.sac,
               style: TextStyle(
                 color: currentPhase == Phase.sac
                     ? Colors.white
@@ -94,7 +96,7 @@ class RotationsPage extends ConsumerWidget {
                   : null,
             ),
             child: Text(
-              'RECEPCIO',
+              l10n.recepcio,
               style: TextStyle(
                 color: currentPhase == Phase.recepcio
                     ? Colors.white
@@ -120,7 +122,7 @@ class RotationsPage extends ConsumerWidget {
                   : null,
             ),
             child: Text(
-              'DEFENSA',
+              l10n.defensa,
               style: TextStyle(
                 color: currentPhase == Phase.defensa
                     ? Colors.white
@@ -216,7 +218,7 @@ class RotationsPage extends ConsumerWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                '4-2 (no libero)',
+                l10n.rotationTitle,
                 style: const TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.w600,
@@ -232,10 +234,12 @@ class RotationsPage extends ConsumerWidget {
           color: theme.colorScheme.surface,
           onSelected: (String value) {
             if (value == '4-2' || value == '5-1' || value == 'Players') {
-              final displayName = value == '4-2' ? '4-2' : value;
+              final displayName = value == '4-2' 
+                  ? l10n.rotationSystem42 
+                  : (value == '5-1' ? l10n.rotationSystem51 : l10n.rotationSystemPlayers);
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
-                  content: Text('$displayName feature coming soon!'),
+                  content: Text(l10n.featureComingSoon(displayName)),
                   duration: const Duration(seconds: 2),
                 ),
               );
@@ -243,21 +247,21 @@ class RotationsPage extends ConsumerWidget {
             // '4-2-no-libero' és el mode actual, no fa res
           },
           itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-            const PopupMenuItem<String>(
+            PopupMenuItem<String>(
               value: '4-2',
-              child: Text('4-2'),
+              child: Text(l10n.rotationSystem42),
             ),
-            const PopupMenuItem<String>(
+            PopupMenuItem<String>(
               value: '4-2-no-libero',
-              child: Text('4-2 (no libero)'),
+              child: Text(l10n.rotationSystem42NoLibero),
             ),
-            const PopupMenuItem<String>(
+            PopupMenuItem<String>(
               value: '5-1',
-              child: Text('5-1'),
+              child: Text(l10n.rotationSystem51),
             ),
-            const PopupMenuItem<String>(
+            PopupMenuItem<String>(
               value: 'Players',
-              child: Text('Players'),
+              child: Text(l10n.rotationSystemPlayers),
             ),
           ],
         ),
@@ -270,8 +274,8 @@ class RotationsPage extends ConsumerWidget {
                   : Icons.edit_outlined,
             ),
             tooltip: rotationState.isDrawingMode
-                ? 'Desactivar mode dibuix'
-                : 'Activar mode dibuix',
+                ? l10n.deactivateDrawingMode
+                : l10n.activateDrawingMode,
             onPressed: () {
               ref.read(rotationProvider.notifier).toggleDrawingMode();
             },
@@ -283,7 +287,7 @@ class RotationsPage extends ConsumerWidget {
           if (rotationState.drawings.isNotEmpty)
             IconButton(
               icon: const Icon(Icons.undo),
-              tooltip: 'Desfer últim traç',
+              tooltip: l10n.undoLastStroke,
               onPressed: () {
                 ref.read(rotationProvider.notifier).undoLastDrawing();
               },
@@ -292,7 +296,7 @@ class RotationsPage extends ConsumerWidget {
           if (rotationState.drawings.isNotEmpty)
             IconButton(
               icon: const Icon(Icons.delete_outline),
-              tooltip: 'Esborrar tots els dibuixos',
+              tooltip: l10n.clearAllDrawings,
               onPressed: () {
                 ref.read(rotationProvider.notifier).clearDrawings();
               },
@@ -306,12 +310,12 @@ class RotationsPage extends ConsumerWidget {
                 Clipboard.setData(ClipboardData(text: json));
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
-                    content: Text('Coordenades copiades al portapapers!'),
+                    content: Text(l10n.coordinatesCopied),
                     duration: Duration(seconds: 2),
                   ),
                 );
               },
-              tooltip: 'Copiar coordenades al portapapers',
+              tooltip: l10n.copyCoordinates,
             ),
           // Reset button
           IconButton(
@@ -319,7 +323,7 @@ class RotationsPage extends ConsumerWidget {
             onPressed: () {
               ref.read(rotationProvider.notifier).reset();
             },
-            tooltip: 'Reset',
+            tooltip: l10n.reset,
           ),
         ],
       ),
@@ -378,7 +382,7 @@ class RotationsPage extends ConsumerWidget {
                                                   : null,
                                             ),
                                             child: Text(
-                                              'BASE',
+                                              l10n.base,
                                               style: TextStyle(
                                                 color: currentPhase == Phase.base
                                                     ? Colors.white
@@ -403,7 +407,7 @@ class RotationsPage extends ConsumerWidget {
                                                   : null,
                                             ),
                                             child: Text(
-                                              'SAC',
+                                              l10n.sac,
                                               style: TextStyle(
                                                 color: currentPhase == Phase.sac
                                                     ? Colors.white
@@ -428,7 +432,7 @@ class RotationsPage extends ConsumerWidget {
                                                   : null,
                                             ),
                                             child: Text(
-                                              'RECEPCIO',
+                                              l10n.recepcio,
                                               style: TextStyle(
                                                 color: currentPhase == Phase.recepcio
                                                     ? Colors.white
@@ -453,7 +457,7 @@ class RotationsPage extends ConsumerWidget {
                                                   : null,
                                             ),
                                             child: Text(
-                                              'DEFENSA',
+                                              l10n.defensa,
                                               style: TextStyle(
                                                 color: currentPhase == Phase.defensa
                                                     ? Colors.white
@@ -555,7 +559,7 @@ class RotationsPage extends ConsumerWidget {
                                   SizedBox(width: 8),
                                   Expanded(
                                     child: Text(
-                                      'Falta de rotació',
+                                      l10n.rotationValidationError,
                                       style: TextStyle(
                                         color: Colors.white,
                                         fontWeight: FontWeight.bold,
@@ -568,7 +572,7 @@ class RotationsPage extends ConsumerWidget {
                                     onPressed: () {
                                       ref.read(rotationProvider.notifier).clearValidation();
                                     },
-                                    tooltip: 'Tancar',
+                                    tooltip: l10n.close,
                                     padding: EdgeInsets.zero,
                                     constraints: BoxConstraints(),
                                   ),
@@ -702,10 +706,10 @@ class RotationsPage extends ConsumerWidget {
                                 children: [
                                   const Icon(Icons.error_outline, color: Colors.white, size: 20),
                                   const SizedBox(width: 8),
-                                  const Expanded(
+                                  Expanded(
                                     child: Text(
-                                      'Falta de rotació',
-                                      style: TextStyle(
+                                      l10n.rotationValidationError,
+                                      style: const TextStyle(
                                         color: Colors.white,
                                         fontWeight: FontWeight.bold,
                                         fontSize: 14,
@@ -717,7 +721,7 @@ class RotationsPage extends ConsumerWidget {
                                     onPressed: () {
                                       ref.read(rotationProvider.notifier).clearValidation();
                                     },
-                                    tooltip: 'Tancar',
+                                    tooltip: l10n.close,
                                     padding: EdgeInsets.zero,
                                     constraints: const BoxConstraints(),
                                   ),
@@ -763,6 +767,7 @@ class _RotateButton extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
     
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
@@ -770,7 +775,7 @@ class _RotateButton extends ConsumerWidget {
         ref.read(rotationProvider.notifier).rotateCounterClockwise();
       },
       child: Tooltip(
-        message: 'Clic: rotar endavant | Doble clic: rotar endarrere',
+        message: l10n.rotateTooltip,
         child: isCircular
             ? _buildCircularButton(theme)
             : _buildRectangularButton(theme),

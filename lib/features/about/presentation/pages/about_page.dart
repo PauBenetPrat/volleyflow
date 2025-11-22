@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:volleyball_coaching_app/l10n/app_localizations.dart';
 
 class AboutPage extends StatelessWidget {
   const AboutPage({super.key});
@@ -14,10 +15,11 @@ class AboutPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
     
     return Scaffold(
       appBar: AppBar(
-        title: const Text('About'),
+        title: Text(l10n.about),
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -37,7 +39,7 @@ class AboutPage extends StatelessWidget {
               
               // Title
               Text(
-                'VolleyFlow',
+                l10n.appTitle,
                 style: theme.textTheme.headlineMedium?.copyWith(
                   fontWeight: FontWeight.bold,
                 ),
@@ -46,7 +48,7 @@ class AboutPage extends StatelessWidget {
               const SizedBox(height: 8),
               
               Text(
-                'Version 1.0.0',
+                l10n.version,
                 style: theme.textTheme.bodyMedium?.copyWith(
                   color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
                 ),
@@ -56,52 +58,52 @@ class AboutPage extends StatelessWidget {
               
               // Purpose Section
               Text(
-                'Purpose',
+                l10n.purpose,
                 style: theme.textTheme.titleLarge?.copyWith(
                   fontWeight: FontWeight.bold,
                 ),
               ),
               const SizedBox(height: 12),
               Text(
-                'This app is designed to help volleyball coaches and players visualize and manage team rotations and positions on the court.',
+                l10n.purposeText,
                 style: theme.textTheme.bodyLarge,
               ),
               const SizedBox(height: 24),
               
               // Features Section
               Text(
-                'Features',
+                l10n.features,
                 style: theme.textTheme.titleLarge?.copyWith(
                   fontWeight: FontWeight.bold,
                 ),
               ),
               const SizedBox(height: 12),
-              const _FeatureItem(
+              _FeatureItem(
                 icon: Icons.rotate_right,
-                text: 'Visualize team rotations on a standard volleyball court',
+                text: l10n.featureRotations,
               ),
               const SizedBox(height: 8),
-              const _FeatureItem(
+              _FeatureItem(
                 icon: Icons.location_on,
-                text: 'Track player positions in real-time',
+                text: l10n.featurePositions,
               ),
               const SizedBox(height: 8),
-              const _FeatureItem(
+              _FeatureItem(
                 icon: Icons.refresh,
-                text: 'Easily rotate and reset positions',
+                text: l10n.featureReset,
               ),
               const SizedBox(height: 24),
               
               // Author Section
               Text(
-                'Developer',
+                l10n.developer,
                 style: theme.textTheme.titleLarge?.copyWith(
                   fontWeight: FontWeight.bold,
                 ),
               ),
               const SizedBox(height: 12),
               Text(
-                'Developed by Pau Benet Prat',
+                l10n.developedBy,
                 style: theme.textTheme.bodyLarge,
               ),
               const SizedBox(height: 16),
@@ -109,14 +111,14 @@ class AboutPage extends StatelessWidget {
               // Links
               _LinkButton(
                 icon: Icons.code,
-                label: 'GitHub Repository',
+                label: l10n.githubRepository,
                 url: 'https://github.com/PauBenetPrat/volleyflow',
                 onTap: () => _launchURL('https://github.com/PauBenetPrat/volleyflow'),
               ),
               const SizedBox(height: 12),
               _LinkButton(
                 icon: Icons.work,
-                label: 'LinkedIn Profile',
+                label: l10n.linkedinProfile,
                 url: 'https://www.linkedin.com/in/pau-benet-prat-9a747692/',
                 onTap: () => _launchURL('https://www.linkedin.com/in/pau-benet-prat-9a747692/'),
               ),
@@ -140,7 +142,7 @@ class AboutPage extends StatelessWidget {
                     const SizedBox(width: 12),
                     Expanded(
                       child: Text(
-                        'This is an MVP version. More features will be added in future updates. Found a bug or have an idea? Check out the GitHub repository!',
+                        l10n.aboutNote,
                         style: theme.textTheme.bodyMedium,
                       ),
                     ),
@@ -159,7 +161,7 @@ class _FeatureItem extends StatelessWidget {
   final IconData icon;
   final String text;
 
-  const _FeatureItem({
+  _FeatureItem({
     required this.icon,
     required this.text,
   });
