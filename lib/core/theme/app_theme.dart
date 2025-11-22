@@ -2,12 +2,15 @@ import 'package:flutter/material.dart';
 
 class AppTheme {
   static ThemeData get lightTheme {
+    final colorScheme = ColorScheme.fromSeed(
+      seedColor: Colors.orange,
+      brightness: Brightness.light,
+    );
+    
     return ThemeData(
       useMaterial3: true,
-      colorScheme: ColorScheme.fromSeed(
-        seedColor: Colors.orange,
-        brightness: Brightness.light,
-      ),
+      colorScheme: colorScheme,
+      scaffoldBackgroundColor: colorScheme.surface,
       appBarTheme: const AppBarTheme(
         centerTitle: true,
         elevation: 0,
@@ -30,12 +33,15 @@ class AppTheme {
   }
 
   static ThemeData get darkTheme {
+    final colorScheme = ColorScheme.fromSeed(
+      seedColor: Colors.orange,
+      brightness: Brightness.dark,
+    );
+    
     return ThemeData(
       useMaterial3: true,
-      colorScheme: ColorScheme.fromSeed(
-        seedColor: Colors.orange,
-        brightness: Brightness.dark,
-      ),
+      colorScheme: colorScheme,
+      scaffoldBackgroundColor: colorScheme.surface,
       appBarTheme: const AppBarTheme(
         centerTitle: true,
         elevation: 0,
