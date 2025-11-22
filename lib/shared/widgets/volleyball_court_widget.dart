@@ -14,6 +14,7 @@ class VolleyballCourtWidget extends ConsumerStatefulWidget {
   final Color? lineColor;
   final Color? playerCircleColor;
   final RotationValidationResult? validationResult; // Resultat de validació
+  final bool showGrid; // Mostrar/amagar la graella
 
   const VolleyballCourtWidget({
     super.key,
@@ -24,6 +25,7 @@ class VolleyballCourtWidget extends ConsumerStatefulWidget {
     this.lineColor,
     this.playerCircleColor,
     this.validationResult,
+    this.showGrid = false,
   });
 
   @override
@@ -370,6 +372,7 @@ class _VolleyballCourtWidgetState extends ConsumerState<VolleyballCourtWidget>
                         customPositions: currentRotationState.customPositions,
                         validationResult: widget.validationResult,
                         drawings: currentRotationState.drawings,
+                        showGrid: currentRotationState.showGrid,
                         courtColor: courtBgColor,
                         lineColor: linesColor,
                         playerColor: playerColor,
@@ -514,6 +517,7 @@ class VolleyballCourtPainter extends CustomPainter {
   final Map<String, PositionCoord>? customPositions; // Override positions for drag & drop
   final RotationValidationResult? validationResult; // Resultat de validació
   final List<List<Offset>> drawings; // Dibuixos sobre el camp
+  final bool showGrid; // Mostrar/amagar la graella
   final Color courtColor;
   final Color lineColor;
   final Color playerColor;
@@ -529,6 +533,7 @@ class VolleyballCourtPainter extends CustomPainter {
     this.customPositions,
     this.validationResult,
     this.drawings = const [],
+    this.showGrid = false,
     required this.courtColor,
     required this.lineColor,
     required this.playerColor,
@@ -555,6 +560,27 @@ class VolleyballCourtPainter extends CustomPainter {
     return playersInViolation;
   }
   
+  // Helper method to draw zone number
+  void _drawZoneNumber(Canvas canvas, String number, Offset center, TextStyle textStyle) {
+    final textSpan = TextSpan(
+      text: number,
+      style: textStyle,
+    );
+    final textPainter = TextPainter(
+      text: textSpan,
+      textAlign: TextAlign.center,
+      textDirection: TextDirection.ltr,
+    );
+    textPainter.layout();
+    textPainter.paint(
+      canvas,
+      Offset(
+        center.dx - textPainter.width / 2,
+        center.dy - textPainter.height / 2,
+      ),
+    );
+  }
+
   // Converteix les claus internes a les noves abreviatures en els missatges d'error
   static String convertErrorToDisplayAbbreviations(String error) {
     const playerRoles = ['Co', 'C1', 'C2', 'R1', 'R2', 'O'];
@@ -638,6 +664,7 @@ class VolleyballCourtPainter extends CustomPainter {
       Offset(attackLineX, size.height),
       linePaint,
     );
+
 
     // Draw player positions on the court
     // Volleyball positions layout (9m x 9m court):
@@ -764,6 +791,72 @@ class VolleyballCourtPainter extends CustomPainter {
           playerCoords[role] = positionCoordinates[i];
         }
       }
+    }
+
+    // Draw grid lines to divide court into 6 zones (3 rows x 2 columns) - only if showGrid is true
+    // Draw grid after players so it's visible on top
+    if (showGrid) {
+      // Grid lines: 1 vertical line (dividing into 2 columns) and 2 horizontal lines (dividing into 3 rows)
+      final gridPaint = Paint()
+        ..style = PaintingStyle.stroke
+        ..color = lineColor.withValues(alpha: 0.5) // More visible color for grid
+        ..strokeWidth = 1.5; // Slightly thicker for visibility
+      
+      // Vertical line: divide court into 2 columns (each 4.5m wide)
+      final verticalLineX = size.width / 2; // Middle
+      canvas.drawLine(
+        Offset(verticalLineX, 0),
+        Offset(verticalLineX, size.height),
+        gridPaint,
+      );
+      
+      // Horizontal lines: divide court into 3 rows (each 3m tall)
+      final horizontalLine1Y = size.height / 3; // First third
+      final horizontalLine2Y = size.height * 2 / 3; // Second third
+      canvas.drawLine(
+        Offset(0, horizontalLine1Y),
+        Offset(size.width, horizontalLine1Y),
+        gridPaint,
+      );
+      canvas.drawLine(
+        Offset(0, horizontalLine2Y),
+        Offset(size.width, horizontalLine2Y),
+        gridPaint,
+      );
+
+      // Draw zone numbers (1-6) in counter-clockwise order starting from bottom-left
+      // Zones layout:
+      // Top:     [5] [4]
+      // Middle:  [6] [3]
+      // Bottom:  [1] [2]
+      final textStyle = TextStyle(
+        color: lineColor.withValues(alpha: 0.7),
+        fontSize: size.height * 0.08,
+        fontWeight: FontWeight.bold,
+      );
+      
+      // Calculate zone dimensions
+      final zoneWidth = size.width / 2;
+      final zoneHeight = size.height / 3;
+      final padding = size.width * 0.08; // More padding from the right edge
+      
+      // Zone 1: Bottom-left - right side, vertically centered
+      _drawZoneNumber(canvas, '1', Offset(zoneWidth - padding, size.height - zoneHeight / 2), textStyle);
+      
+      // Zone 2: Bottom-right - right side, vertically centered
+      _drawZoneNumber(canvas, '2', Offset(size.width - padding, size.height - zoneHeight / 2), textStyle);
+      
+      // Zone 3: Middle-right - right side, vertically centered
+      _drawZoneNumber(canvas, '3', Offset(size.width - padding, size.height / 2), textStyle);
+      
+      // Zone 4: Top-right - right side, vertically centered
+      _drawZoneNumber(canvas, '4', Offset(size.width - padding, zoneHeight / 2), textStyle);
+      
+      // Zone 5: Top-left - right side, vertically centered
+      _drawZoneNumber(canvas, '5', Offset(zoneWidth - padding, zoneHeight / 2), textStyle);
+      
+      // Zone 6: Middle-left - right side, vertically centered
+      _drawZoneNumber(canvas, '6', Offset(zoneWidth - padding, size.height / 2), textStyle);
     }
 
     // Draw drawings first (so they appear behind players)

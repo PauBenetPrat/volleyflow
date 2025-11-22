@@ -279,6 +279,23 @@ class RotationsPage extends ConsumerWidget {
           ],
         ),
         actions: [
+          // Grid toggle
+          IconButton(
+            icon: Icon(
+              rotationState.showGrid
+                  ? Icons.grid_on
+                  : Icons.grid_off,
+            ),
+            tooltip: rotationState.showGrid
+                ? 'Amagar graella'
+                : 'Mostrar graella',
+            onPressed: () {
+              ref.read(rotationProvider.notifier).toggleGrid();
+            },
+            color: rotationState.showGrid
+                ? theme.colorScheme.primary
+                : null,
+          ),
           // Drawing mode toggle
           IconButton(
             icon: Icon(
@@ -356,6 +373,7 @@ class RotationsPage extends ConsumerWidget {
                                   rotation: rotationState.rotation,
                                   phase: rotationState.phase,
                                   validationResult: rotationState.validationResult,
+                                  showGrid: rotationState.showGrid,
                                 ),
                               ),
                             ),

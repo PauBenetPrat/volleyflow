@@ -13,6 +13,7 @@ class RotationState {
   final bool isPhaseLocked; // Si la fase està bloquejada, es manté en rotar
   final bool isDrawingMode; // Mode de dibuix sobre el camp
   final List<List<Offset>> drawings; // Llista de traços (cada traç és una llista de punts)
+  final bool showGrid; // Mostrar/amagar la graella del camp
 
   RotationState({
     required this.rotation,
@@ -24,6 +25,7 @@ class RotationState {
     this.isPhaseLocked = false,
     this.isDrawingMode = false,
     this.drawings = const [],
+    this.showGrid = false,
   });
 
   RotationState copyWith({
@@ -36,6 +38,7 @@ class RotationState {
     bool? isPhaseLocked,
     bool? isDrawingMode,
     List<List<Offset>>? drawings,
+    bool? showGrid,
     bool clearCustomPositions = false,
     bool clearValidation = false,
     bool clearDrawings = false,
@@ -54,6 +57,7 @@ class RotationState {
       isPhaseLocked: isPhaseLocked ?? this.isPhaseLocked,
       isDrawingMode: isDrawingMode ?? this.isDrawingMode,
       drawings: clearDrawings ? [] : (drawings ?? this.drawings),
+      showGrid: showGrid ?? this.showGrid,
     );
   }
 }
@@ -73,6 +77,7 @@ class RotationNotifier extends Notifier<RotationState> {
       isPhaseLocked: false,
       isDrawingMode: false,
       drawings: [],
+      showGrid: false,
     );
   }
 
@@ -211,6 +216,7 @@ class RotationNotifier extends Notifier<RotationState> {
       isPhaseLocked: false,
       isDrawingMode: false,
       drawings: [],
+      showGrid: state.showGrid, // Mantenir l'estat de la graella al reset
     );
   }
 
@@ -352,6 +358,10 @@ class RotationNotifier extends Notifier<RotationState> {
 
   void toggleDrawingMode() {
     state = state.copyWith(isDrawingMode: !state.isDrawingMode);
+  }
+
+  void toggleGrid() {
+    state = state.copyWith(showGrid: !state.showGrid);
   }
 
   void addDrawingPoint(Offset point) {
