@@ -819,45 +819,31 @@ class _RotateButton extends ConsumerWidget {
   }
 
   Widget _buildCircularButton(ThemeData theme) {
-    final size = isSmallScreen ? (isVerySmallScreen ? 56.0 : 64.0) : 72.0;
+    final iconSize = isSmallScreen ? (isVerySmallScreen ? 64.0 : 72.0) : 80.0;
     
     return Consumer(
       builder: (context, ref, child) {
-        return Material(
-          elevation: 4,
-          shape: const CircleBorder(),
-          color: theme.colorScheme.primary,
-          child: InkWell(
-            onTap: () {
-              ref.read(rotationProvider.notifier).rotateClockwise();
-            },
-            customBorder: const CircleBorder(),
-            child: Container(
-              width: size,
-              height: size,
-              decoration: const BoxDecoration(
-                shape: BoxShape.circle,
+        return GestureDetector(
+          onTap: () {
+            ref.read(rotationProvider.notifier).rotateClockwise();
+          },
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              Icon(
+                Icons.rotate_right,
+                size: iconSize,
+                color: theme.colorScheme.primary,
               ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.rotate_right,
-                    color: theme.colorScheme.onPrimary,
-                    size: isSmallScreen ? (isVerySmallScreen ? 24 : 28) : 32,
-                  ),
-                  SizedBox(height: isSmallScreen ? 2 : 4),
-                  Text(
-                    'R$currentRotation',
-                    style: TextStyle(
-                      color: theme.colorScheme.onPrimary,
-                      fontSize: isSmallScreen ? (isVerySmallScreen ? 10 : 12) : 14,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
+              Text(
+                'R$currentRotation',
+                style: TextStyle(
+                  color: theme.colorScheme.primary,
+                  fontSize: isSmallScreen ? (isVerySmallScreen ? 14 : 16) : 18,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
-            ),
+            ],
           ),
         );
       },
@@ -871,16 +857,16 @@ class _RotateButton extends ConsumerWidget {
           onPressed: () {
             ref.read(rotationProvider.notifier).rotateClockwise();
           },
-      icon: Icon(
-        Icons.rotate_right,
-        size: isSmallScreen ? (isVerySmallScreen ? 18 : 20) : 24,
-      ),
-      label: Text(
-        'R$currentRotation',
-        style: TextStyle(
-          fontSize: isSmallScreen ? (isVerySmallScreen ? 12 : 14) : 16,
-        ),
-      ),
+          icon: Icon(
+            Icons.rotate_right,
+            size: isSmallScreen ? (isVerySmallScreen ? 18 : 20) : 24,
+          ),
+          label: Text(
+            'R$currentRotation',
+            style: TextStyle(
+              fontSize: isSmallScreen ? (isVerySmallScreen ? 12 : 14) : 16,
+            ),
+          ),
           style: OutlinedButton.styleFrom(
             minimumSize: Size(
               double.infinity,
