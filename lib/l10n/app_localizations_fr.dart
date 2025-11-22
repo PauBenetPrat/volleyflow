@@ -186,4 +186,39 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get systemDefault => 'Par défaut du système';
+
+  @override
+  String get roleSetterName => 'Passeur';
+
+  @override
+  String get roleSetterDescription =>
+      'Passeur. Effectue la deuxième passe et organise l\'attaque.';
+
+  @override
+  String get roleMiddleBlockerName => 'Central';
+
+  @override
+  String get roleMiddleBlockerDescription =>
+      'Central. Spécialisé dans le contre et les attaques rapides.';
+
+  @override
+  String get roleOppositeName => 'Pointu';
+
+  @override
+  String get roleOppositeDescription =>
+      'Pointu. Attaquant principal, joue en opposition au passeur (position 2 ou 1).';
+
+  @override
+  String get roleOutsideHitterName => 'Réceptionneur-Attaquant';
+
+  @override
+  String get roleOutsideHitterDescription =>
+      'Réceptionneur-Attaquant (aussi appelé \"ailier\" ou \"double\"). Joue aux positions 4 et 6.';
+
+  @override
+  String get roleLiberoName => 'Libéro';
+
+  @override
+  String get roleLiberoDescription =>
+      'Libéro. Joueur défensif spécialisé. Ne peut pas attaquer ni contrer, porte un maillot différent.';
 }

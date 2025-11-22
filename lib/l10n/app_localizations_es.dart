@@ -182,4 +182,39 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get systemDefault => 'Predeterminado del sistema';
+
+  @override
+  String get roleSetterName => 'Colocador';
+
+  @override
+  String get roleSetterDescription =>
+      'Colocador. Hace la segunda pasada y organiza el ataque.';
+
+  @override
+  String get roleMiddleBlockerName => 'Central';
+
+  @override
+  String get roleMiddleBlockerDescription =>
+      'Central. Especializado en bloqueo y ataques rápidos.';
+
+  @override
+  String get roleOppositeName => 'Opuesto';
+
+  @override
+  String get roleOppositeDescription =>
+      'Opuesto. Atacante principal, juega opuesto al colocador (posición 2 o 1).';
+
+  @override
+  String get roleOutsideHitterName => 'Receptor-Atacante';
+
+  @override
+  String get roleOutsideHitterDescription =>
+      'Receptor-Atacante (también llamado \"punta\" o \"doble\"). Juega en posiciones 4 y 6.';
+
+  @override
+  String get roleLiberoName => 'Líbero';
+
+  @override
+  String get roleLiberoDescription =>
+      'Líbero. Jugador defensivo especializado. No puede atacar ni bloquear, lleva camiseta diferente.';
 }

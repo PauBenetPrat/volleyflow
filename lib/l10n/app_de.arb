@@ -53,6 +53,16 @@
   "ok": "OK",
   "settings": "Einstellungen",
   "language": "Sprache",
-  "systemDefault": "Systemstandard"
+  "systemDefault": "Systemstandard",
+  "roleSetterName": "Zuspieler",
+  "roleSetterDescription": "Zuspieler. Macht den zweiten Pass und organisiert den Angriff.",
+  "roleMiddleBlockerName": "Mittelblocker",
+  "roleMiddleBlockerDescription": "Mittelblocker. Spezialisiert auf Blocken und schnelle Angriffe.",
+  "roleOppositeName": "Diagonalspieler",
+  "roleOppositeDescription": "Diagonalspieler. Hauptangreifer, spielt gegenüber dem Zuspieler (Position 2 oder 1).",
+  "roleOutsideHitterName": "Außenangreifer",
+  "roleOutsideHitterDescription": "Außenangreifer (auch \"Flügelspieler\" oder \"Doppel\" genannt). Spielt auf den Positionen 4 und 6.",
+  "roleLiberoName": "Libero",
+  "roleLiberoDescription": "Libero. Defensivspezialist. Kann nicht angreifen oder blocken, trägt ein anderes Trikot."
 }
 

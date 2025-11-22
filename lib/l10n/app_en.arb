@@ -235,6 +235,46 @@
   "systemDefault": "System Default",
   "@systemDefault": {
     "description": "System default language option"
+  },
+  "roleSetterName": "Setter",
+  "@roleSetterName": {
+    "description": "Setter role name"
+  },
+  "roleSetterDescription": "Setter. Makes the second pass and organizes the attack.",
+  "@roleSetterDescription": {
+    "description": "Setter role description"
+  },
+  "roleMiddleBlockerName": "Middle Blocker",
+  "@roleMiddleBlockerName": {
+    "description": "Middle Blocker role name"
+  },
+  "roleMiddleBlockerDescription": "Middle Blocker. Specialized in blocking and quick attacks.",
+  "@roleMiddleBlockerDescription": {
+    "description": "Middle Blocker role description"
+  },
+  "roleOppositeName": "Opposite",
+  "@roleOppositeName": {
+    "description": "Opposite role name"
+  },
+  "roleOppositeDescription": "Opposite. Main attacker, plays opposite to the setter (position 2 or 1).",
+  "@roleOppositeDescription": {
+    "description": "Opposite role description"
+  },
+  "roleOutsideHitterName": "Outside Hitter",
+  "@roleOutsideHitterName": {
+    "description": "Outside Hitter role name"
+  },
+  "roleOutsideHitterDescription": "Outside Hitter (also called \"wing\" or \"double\"). Plays at positions 4 and 6.",
+  "@roleOutsideHitterDescription": {
+    "description": "Outside Hitter role description"
+  },
+  "roleLiberoName": "Libero",
+  "@roleLiberoName": {
+    "description": "Libero role name"
+  },
+  "roleLiberoDescription": "Libero. Defensive specialist player. Cannot attack or block, wears a different jersey.",
+  "@roleLiberoDescription": {
+    "description": "Libero role description"
   }
 }
 

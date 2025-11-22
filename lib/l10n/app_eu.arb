@@ -53,6 +53,16 @@
   "ok": "Ados",
   "settings": "Ezarpenak",
   "language": "Hizkuntza",
-  "systemDefault": "Sistemaren lehenetsia"
+  "systemDefault": "Sistemaren lehenetsia",
+  "roleSetterName": "Eratzailea",
+  "roleSetterDescription": "Eratzailea. Bigarren pasea egiten du eta erasoa antolatzen du.",
+  "roleMiddleBlockerName": "Erdiko Blokeatzailea",
+  "roleMiddleBlockerDescription": "Erdiko Blokeatzailea. Blokeoan eta eraso azkarretan espezializatua.",
+  "roleOppositeName": "Aurkakoa",
+  "roleOppositeDescription": "Aurkakoa. Erasotzaile nagusia, eratzailaren aurkakoan jokatzen du (2 edo 1 posizioa).",
+  "roleOutsideHitterName": "Kanpoko Erasotzailea",
+  "roleOutsideHitterDescription": "Kanpoko Erasotzailea (\"hegal\" edo \"bikoitza\" ere deitua). 4 eta 6 posizioetan jokatzen du.",
+  "roleLiberoName": "Liberoa",
+  "roleLiberoDescription": "Liberoa. Defentsa espezializatuko jokalaria. Ezin du eraso egin ezta blokeatu, kamiseta desberdina darama."
 }
 

@@ -53,6 +53,16 @@
   "ok": "D'acord",
   "settings": "Configuració",
   "language": "Idioma",
-  "systemDefault": "Per defecte del sistema"
+  "systemDefault": "Per defecte del sistema",
+  "roleSetterName": "Col·locador",
+  "roleSetterDescription": "Col·locador. Fa la segona passada i organitza l'atac.",
+  "roleMiddleBlockerName": "Central",
+  "roleMiddleBlockerDescription": "Central. Especialitzat en bloqueig i atacs ràpids.",
+  "roleOppositeName": "Oposat",
+  "roleOppositeDescription": "Oposat. Atacant principal, juga oposat al col·locador (posició 2 o 1).",
+  "roleOutsideHitterName": "Receptor-Atacant",
+  "roleOutsideHitterDescription": "Receptor-Atacant (també anomenat \"punta\" o \"doble\"). Juga a posicions 4 i 6.",
+  "roleLiberoName": "Llibero",
+  "roleLiberoDescription": "Llibero. Jugador defensiu especialitzat. No pot atacar ni bloquejar, porta samarreta diferent."
 }
 

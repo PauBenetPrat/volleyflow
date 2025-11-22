@@ -181,4 +181,39 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get systemDefault => 'System Default';
+
+  @override
+  String get roleSetterName => 'Setter';
+
+  @override
+  String get roleSetterDescription =>
+      'Setter. Makes the second pass and organizes the attack.';
+
+  @override
+  String get roleMiddleBlockerName => 'Middle Blocker';
+
+  @override
+  String get roleMiddleBlockerDescription =>
+      'Middle Blocker. Specialized in blocking and quick attacks.';
+
+  @override
+  String get roleOppositeName => 'Opposite';
+
+  @override
+  String get roleOppositeDescription =>
+      'Opposite. Main attacker, plays opposite to the setter (position 2 or 1).';
+
+  @override
+  String get roleOutsideHitterName => 'Outside Hitter';
+
+  @override
+  String get roleOutsideHitterDescription =>
+      'Outside Hitter (also called \"wing\" or \"double\"). Plays at positions 4 and 6.';
+
+  @override
+  String get roleLiberoName => 'Libero';
+
+  @override
+  String get roleLiberoDescription =>
+      'Libero. Defensive specialist player. Cannot attack or block, wears a different jersey.';
 }

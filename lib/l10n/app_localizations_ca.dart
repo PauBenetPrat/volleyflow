@@ -183,4 +183,39 @@ class AppLocalizationsCa extends AppLocalizations {
 
   @override
   String get systemDefault => 'Per defecte del sistema';
+
+  @override
+  String get roleSetterName => 'Col·locador';
+
+  @override
+  String get roleSetterDescription =>
+      'Col·locador. Fa la segona passada i organitza l\'atac.';
+
+  @override
+  String get roleMiddleBlockerName => 'Central';
+
+  @override
+  String get roleMiddleBlockerDescription =>
+      'Central. Especialitzat en bloqueig i atacs ràpids.';
+
+  @override
+  String get roleOppositeName => 'Oposat';
+
+  @override
+  String get roleOppositeDescription =>
+      'Oposat. Atacant principal, juga oposat al col·locador (posició 2 o 1).';
+
+  @override
+  String get roleOutsideHitterName => 'Receptor-Atacant';
+
+  @override
+  String get roleOutsideHitterDescription =>
+      'Receptor-Atacant (també anomenat \"punta\" o \"doble\"). Juga a posicions 4 i 6.';
+
+  @override
+  String get roleLiberoName => 'Llibero';
+
+  @override
+  String get roleLiberoDescription =>
+      'Llibero. Jugador defensiu especialitzat. No pot atacar ni bloquejar, porta samarreta diferent.';
 }

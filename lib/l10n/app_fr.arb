@@ -53,6 +53,16 @@
   "ok": "OK",
   "settings": "Paramètres",
   "language": "Langue",
-  "systemDefault": "Par défaut du système"
+  "systemDefault": "Par défaut du système",
+  "roleSetterName": "Passeur",
+  "roleSetterDescription": "Passeur. Effectue la deuxième passe et organise l'attaque.",
+  "roleMiddleBlockerName": "Central",
+  "roleMiddleBlockerDescription": "Central. Spécialisé dans le contre et les attaques rapides.",
+  "roleOppositeName": "Pointu",
+  "roleOppositeDescription": "Pointu. Attaquant principal, joue en opposition au passeur (position 2 ou 1).",
+  "roleOutsideHitterName": "Réceptionneur-Attaquant",
+  "roleOutsideHitterDescription": "Réceptionneur-Attaquant (aussi appelé \"ailier\" ou \"double\"). Joue aux positions 4 et 6.",
+  "roleLiberoName": "Libéro",
+  "roleLiberoDescription": "Libéro. Joueur défensif spécialisé. Ne peut pas attaquer ni contrer, porte un maillot différent."
 }
 

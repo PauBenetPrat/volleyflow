@@ -182,4 +182,39 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get systemDefault => 'Systemstandard';
+
+  @override
+  String get roleSetterName => 'Zuspieler';
+
+  @override
+  String get roleSetterDescription =>
+      'Zuspieler. Macht den zweiten Pass und organisiert den Angriff.';
+
+  @override
+  String get roleMiddleBlockerName => 'Mittelblocker';
+
+  @override
+  String get roleMiddleBlockerDescription =>
+      'Mittelblocker. Spezialisiert auf Blocken und schnelle Angriffe.';
+
+  @override
+  String get roleOppositeName => 'Diagonalspieler';
+
+  @override
+  String get roleOppositeDescription =>
+      'Diagonalspieler. Hauptangreifer, spielt gegenüber dem Zuspieler (Position 2 oder 1).';
+
+  @override
+  String get roleOutsideHitterName => 'Außenangreifer';
+
+  @override
+  String get roleOutsideHitterDescription =>
+      'Außenangreifer (auch \"Flügelspieler\" oder \"Doppel\" genannt). Spielt auf den Positionen 4 und 6.';
+
+  @override
+  String get roleLiberoName => 'Libero';
+
+  @override
+  String get roleLiberoDescription =>
+      'Libero. Defensivspezialist. Kann nicht angreifen oder blocken, trägt ein anderes Trikot.';
 }

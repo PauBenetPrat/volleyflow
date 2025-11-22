@@ -183,4 +183,39 @@ class AppLocalizationsEu extends AppLocalizations {
 
   @override
   String get systemDefault => 'Sistemaren lehenetsia';
+
+  @override
+  String get roleSetterName => 'Eratzailea';
+
+  @override
+  String get roleSetterDescription =>
+      'Eratzailea. Bigarren pasea egiten du eta erasoa antolatzen du.';
+
+  @override
+  String get roleMiddleBlockerName => 'Erdiko Blokeatzailea';
+
+  @override
+  String get roleMiddleBlockerDescription =>
+      'Erdiko Blokeatzailea. Blokeoan eta eraso azkarretan espezializatua.';
+
+  @override
+  String get roleOppositeName => 'Aurkakoa';
+
+  @override
+  String get roleOppositeDescription =>
+      'Aurkakoa. Erasotzaile nagusia, eratzailaren aurkakoan jokatzen du (2 edo 1 posizioa).';
+
+  @override
+  String get roleOutsideHitterName => 'Kanpoko Erasotzailea';
+
+  @override
+  String get roleOutsideHitterDescription =>
+      'Kanpoko Erasotzailea (\"hegal\" edo \"bikoitza\" ere deitua). 4 eta 6 posizioetan jokatzen du.';
+
+  @override
+  String get roleLiberoName => 'Liberoa';
+
+  @override
+  String get roleLiberoDescription =>
+      'Liberoa. Defentsa espezializatuko jokalaria. Ezin du eraso egin ezta blokeatu, kamiseta desberdina darama.';
 }

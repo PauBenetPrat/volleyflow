@@ -429,6 +429,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'System Default'**
   String get systemDefault;
+
+  /// Setter role name
+  ///
+  /// In en, this message translates to:
+  /// **'Setter'**
+  String get roleSetterName;
+
+  /// Setter role description
+  ///
+  /// In en, this message translates to:
+  /// **'Setter. Makes the second pass and organizes the attack.'**
+  String get roleSetterDescription;
+
+  /// Middle Blocker role name
+  ///
+  /// In en, this message translates to:
+  /// **'Middle Blocker'**
+  String get roleMiddleBlockerName;
+
+  /// Middle Blocker role description
+  ///
+  /// In en, this message translates to:
+  /// **'Middle Blocker. Specialized in blocking and quick attacks.'**
+  String get roleMiddleBlockerDescription;
+
+  /// Opposite role name
+  ///
+  /// In en, this message translates to:
+  /// **'Opposite'**
+  String get roleOppositeName;
+
+  /// Opposite role description
+  ///
+  /// In en, this message translates to:
+  /// **'Opposite. Main attacker, plays opposite to the setter (position 2 or 1).'**
+  String get roleOppositeDescription;
+
+  /// Outside Hitter role name
+  ///
+  /// In en, this message translates to:
+  /// **'Outside Hitter'**
+  String get roleOutsideHitterName;
+
+  /// Outside Hitter role description
+  ///
+  /// In en, this message translates to:
+  /// **'Outside Hitter (also called \"wing\" or \"double\"). Plays at positions 4 and 6.'**
+  String get roleOutsideHitterDescription;
+
+  /// Libero role name
+  ///
+  /// In en, this message translates to:
+  /// **'Libero'**
+  String get roleLiberoName;
+
+  /// Libero role description
+  ///
+  /// In en, this message translates to:
+  /// **'Libero. Defensive specialist player. Cannot attack or block, wears a different jersey.'**
+  String get roleLiberoDescription;
 }
 
 class _AppLocalizationsDelegate

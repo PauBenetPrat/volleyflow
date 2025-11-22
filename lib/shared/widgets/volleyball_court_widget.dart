@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/constants/rotation_positions.dart';
 import '../../core/constants/rotation_validator.dart';
+import '../../core/constants/player_roles.dart';
 import '../../features/rotations/domain/providers/rotation_provider.dart';
+import '../../l10n/app_localizations.dart';
 
 class VolleyballCourtWidget extends ConsumerStatefulWidget {
   final List<String> playerPositions;
@@ -144,6 +146,66 @@ class _VolleyballCourtWidgetState extends ConsumerState<VolleyballCourtWidget>
     }
   }
 
+  void _showPlayerInfoDialog(BuildContext context, String playerRole) {
+    final l10n = AppLocalizations.of(context)!;
+    final displayAbbr = PlayerRole.getDisplayAbbreviation(playerRole);
+    
+    // Get role name and description
+    String roleName;
+    String roleDescription;
+    
+    switch (playerRole) {
+      case PlayerRole.setter:
+        roleName = l10n.roleSetterName;
+        roleDescription = l10n.roleSetterDescription;
+        break;
+      case PlayerRole.middleBlocker1:
+      case PlayerRole.middleBlocker2:
+        roleName = l10n.roleMiddleBlockerName;
+        roleDescription = l10n.roleMiddleBlockerDescription;
+        break;
+      case PlayerRole.opposite:
+        roleName = l10n.roleOppositeName;
+        roleDescription = l10n.roleOppositeDescription;
+        break;
+      case PlayerRole.outsideHitter1:
+      case PlayerRole.outsideHitter2:
+        roleName = l10n.roleOutsideHitterName;
+        roleDescription = l10n.roleOutsideHitterDescription;
+        break;
+      case PlayerRole.libero:
+        roleName = l10n.roleLiberoName;
+        roleDescription = l10n.roleLiberoDescription;
+        break;
+      default:
+        roleName = playerRole;
+        roleDescription = '';
+    }
+    
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Row(
+          children: [
+            Text(
+              displayAbbr,
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(width: 8),
+            Expanded(child: Text(roleName)),
+          ],
+        ),
+        content: Text(roleDescription),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: Text(l10n.ok),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   void dispose() {
     _animationController.dispose();
@@ -198,6 +260,20 @@ class _VolleyballCourtWidgetState extends ConsumerState<VolleyballCourtWidget>
             height: courtHeight,
             child: GestureDetector(
               behavior: HitTestBehavior.opaque,
+              onDoubleTapDown: (details) {
+                // Mostrar informació del jugador en doble clic
+                if (!rotationState.isDrawingMode) {
+                  final localPosition = details.localPosition;
+                  final player = _getPlayerAtPosition(
+                    localPosition,
+                    Size(courtWidth, courtHeight),
+                    rotationState.customPositions,
+                  );
+                  if (player != null) {
+                    _showPlayerInfoDialog(context, player);
+                  }
+                }
+              },
               onPanStart: (details) {
                 if (rotationState.isDrawingMode) {
                   // Mode dibuix: començar un nou traç
@@ -477,6 +553,18 @@ class VolleyballCourtPainter extends CustomPainter {
       }
     }
     return playersInViolation;
+  }
+  
+  // Converteix les claus internes a les noves abreviatures en els missatges d'error
+  static String convertErrorToDisplayAbbreviations(String error) {
+    const playerRoles = ['Co', 'C1', 'C2', 'R1', 'R2', 'O'];
+    String displayError = error;
+    for (final role in playerRoles) {
+      final displayAbbr = PlayerRole.getDisplayAbbreviation(role);
+      // Reemplaçar les claus internes amb les noves abreviatures
+      displayError = displayError.replaceAll(RegExp('\\b$role\\b'), displayAbbr);
+    }
+    return displayError;
   }
 
   @override
@@ -811,8 +899,10 @@ class VolleyballCourtPainter extends CustomPainter {
       }
       
       // Draw player role with smaller text and contrasting white color
+      // Use new abbreviations (S, OH, OPP, MB) instead of internal keys
+      final displayAbbr = PlayerRole.getDisplayAbbreviation(playerRole);
       final textSpan = TextSpan(
-        text: playerRole,
+        text: displayAbbr,
         style: TextStyle(
           color: Colors.white, // Contrasting white text
           fontSize: playerRadius * 0.9, // Smaller text
@@ -968,7 +1058,7 @@ class BenchPainter extends CustomPainter {
         
         // Draw player role text
         final textSpan = TextSpan(
-          text: role,
+          text: PlayerRole.getDisplayAbbreviation(role),
           style: TextStyle(
             color: Colors.white,
             fontSize: playerRadius * 0.9,

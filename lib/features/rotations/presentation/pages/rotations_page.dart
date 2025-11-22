@@ -6,9 +6,22 @@ import 'package:volleyball_coaching_app/l10n/app_localizations.dart';
 import '../../../../shared/widgets/volleyball_court_widget.dart';
 import '../../domain/providers/rotation_provider.dart';
 import '../../../../core/constants/rotation_positions.dart';
+import '../../../../core/constants/player_roles.dart';
 
 class RotationsPage extends ConsumerWidget {
   const RotationsPage({super.key});
+  
+  // Helper method to convert error messages to use new abbreviations
+  static String _convertErrorToDisplayAbbreviations(String error) {
+    const playerRoles = ['Co', 'C1', 'C2', 'R1', 'R2', 'O'];
+    String displayError = error;
+    for (final role in playerRoles) {
+      final displayAbbr = PlayerRole.getDisplayAbbreviation(role);
+      // Reemplaçar les claus internes amb les noves abreviatures
+      displayError = displayError.replaceAll(RegExp('\\b$role\\b'), displayAbbr);
+    }
+    return displayError;
+  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -579,16 +592,20 @@ class RotationsPage extends ConsumerWidget {
                                 ],
                               ),
                               SizedBox(height: 8),
-                              ...rotationState.validationResult!.errors.map((error) => Padding(
-                                padding: EdgeInsets.only(bottom: 4),
-                                child: Text(
-                                  '• $error',
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: isSmallScreen ? 11 : 12,
+                              ...rotationState.validationResult!.errors.map((error) {
+                                // Convertir les claus internes a les noves abreviatures
+                                final displayError = _convertErrorToDisplayAbbreviations(error);
+                                return Padding(
+                                  padding: const EdgeInsets.only(bottom: 4),
+                                  child: Text(
+                                    '• $displayError',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: isSmallScreen ? 11 : 12,
+                                    ),
                                   ),
-                                ),
-                              )),
+                                );
+                              }),
                             ],
                           ),
                         ),
