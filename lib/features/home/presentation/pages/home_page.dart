@@ -66,17 +66,6 @@ class HomePage extends StatelessWidget {
               ),
               const SizedBox(height: 16),
               _MenuButton(
-                icon: Icons.location_on,
-                label: 'Positions',
-                onPressed: () {
-                  // TODO: Navigate to positions page when implemented
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Positions feature coming soon!')),
-                  );
-                },
-              ),
-              const SizedBox(height: 16),
-              _MenuButton(
                 icon: Icons.info_outline,
                 label: 'About',
                 onPressed: () => context.push('/about'),
