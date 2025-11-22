@@ -1,6 +1,10 @@
-# Volleyball Coaching App
+# VolleyFlow
 
 A Flutter application for visualizing and managing volleyball team rotations and positions.
+
+**Live Demo**: [volleyflow.net](https://volleyflow.net)
+
+**Developer**: [Pau Benet Prat](https://www.linkedin.com/in/pau-benet-prat-9a747692/)
 
 ## Features
 
@@ -52,7 +56,17 @@ flutter run
 ## Deployment
 
 - **Web**: Automatically deployed to GitHub Pages using GitHub Actions (100% free, no credit limits). See [DEPLOYMENT.md](DEPLOYMENT.md) for setup instructions.
-- **iOS**: See [IOS_DEPLOYMENT.md](IOS_DEPLOYMENT.md) for instructions on building and distributing the iOS app.
+
+## Contributing
+
+Contributions are welcome! 🎉 
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines on how to contribute.
+
+**Quick start:**
+- 🐛 **Found a bug?** Open an [issue](https://github.com/PauBenetPrat/volleyflow/issues) using the bug report template
+- 💡 **Have an idea?** Open an [issue](https://github.com/PauBenetPrat/volleyflow/issues) using the feature request template
+- 🔧 **Want to code?** Fork the repo, make your changes, and submit a pull request
 
 ## Future Enhancements
 
@@ -61,4 +75,14 @@ flutter run
 - Position-specific strategies
 - Team management
 - Game statistics
+
+## Links
+
+- **Website**: [volleyflow.net](https://volleyflow.net)
+- **GitHub Repository**: [github.com/PauBenetPrat/volleyflow](https://github.com/PauBenetPrat/volleyflow)
+- **Developer LinkedIn**: [Pau Benet Prat](https://www.linkedin.com/in/pau-benet-prat-9a747692/)
+
+## License
+
+This project is open source and available for educational purposes.
 
