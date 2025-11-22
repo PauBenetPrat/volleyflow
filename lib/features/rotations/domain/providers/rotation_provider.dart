@@ -14,6 +14,7 @@ class RotationState {
   final bool isDrawingMode; // Mode de dibuix sobre el camp
   final List<List<Offset>> drawings; // Llista de traços (cada traç és una llista de punts)
   final bool showGrid; // Mostrar/amagar la graella del camp
+  final String? rotationSystem; // Sistema de rotació seleccionat: '4-2', '4-2-no-libero', '5-1', 'Players'
 
   RotationState({
     required this.rotation,
@@ -26,6 +27,7 @@ class RotationState {
     this.isDrawingMode = false,
     this.drawings = const [],
     this.showGrid = false,
+    this.rotationSystem,
   });
 
   RotationState copyWith({
@@ -39,6 +41,7 @@ class RotationState {
     bool? isDrawingMode,
     List<List<Offset>>? drawings,
     bool? showGrid,
+    String? rotationSystem,
     bool clearCustomPositions = false,
     bool clearValidation = false,
     bool clearDrawings = false,
@@ -58,6 +61,7 @@ class RotationState {
       isDrawingMode: isDrawingMode ?? this.isDrawingMode,
       drawings: clearDrawings ? [] : (drawings ?? this.drawings),
       showGrid: showGrid ?? this.showGrid,
+      rotationSystem: rotationSystem ?? this.rotationSystem,
     );
   }
 }
@@ -362,6 +366,10 @@ class RotationNotifier extends Notifier<RotationState> {
 
   void toggleGrid() {
     state = state.copyWith(showGrid: !state.showGrid);
+  }
+
+  void setRotationSystem(String system) {
+    state = state.copyWith(rotationSystem: system);
   }
 
   void addDrawingPoint(Offset point) {

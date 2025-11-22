@@ -56,6 +56,7 @@ flutter run
 ## Deployment
 
 - **Web**: Automatically deployed to GitHub Pages using GitHub Actions (100% free, no credit limits). See [DEPLOYMENT.md](DEPLOYMENT.md) for setup instructions.
+- **Android**: See [ANDROID_DEPLOYMENT.md](ANDROID_DEPLOYMENT.md) for instructions on building and distributing the Android app.
 
 ## Contributing
 
