@@ -218,4 +218,133 @@ class AppLocalizationsEu extends AppLocalizations {
   @override
   String get roleLiberoDescription =>
       'Liberoa. Defentsa espezializatuko jokalaria. Ezin du eraso egin ezta blokeatu, kamiseta desberdina darama.';
+
+  @override
+  String get teams => 'Taldeak';
+
+  @override
+  String get home => 'Hasiera';
+
+  @override
+  String get teamDetails => 'Taldearen Xehetasunak';
+
+  @override
+  String get teamName => 'Taldearen Izena';
+
+  @override
+  String get teamNameRequired => 'Taldearen izena beharrezkoa da';
+
+  @override
+  String get coaches => 'Entrenatzaileak';
+
+  @override
+  String get players => 'Jokalariak';
+
+  @override
+  String get noTeamsYet => 'Oraindik ez dago talderik';
+
+  @override
+  String get createYourFirstTeam => 'Sortu zure lehen taldea hasteko';
+
+  @override
+  String get createTeam => 'Taldea Sortu';
+
+  @override
+  String get newTeam => 'Talde Berria';
+
+  @override
+  String teamInfo(int playerCount, int coachCount) {
+    return '$playerCount jokalari, $coachCount entrenatzaile';
+  }
+
+  @override
+  String get noCoachesYet => 'Oraindik ez dago entrenatzailerik';
+
+  @override
+  String get noPlayersYet => 'Oraindik ez dago jokalaririk';
+
+  @override
+  String get addPlayer => 'Jokalaria Gehitu';
+
+  @override
+  String get editPlayer => 'Jokalaria Editatu';
+
+  @override
+  String get playerName => 'Jokalariaren Izena';
+
+  @override
+  String get playerNameRequired => 'Jokalariaren izena beharrezkoa da';
+
+  @override
+  String get alias => 'Ezizena';
+
+  @override
+  String get number => 'Zenbakia';
+
+  @override
+  String get age => 'Adina';
+
+  @override
+  String get height => 'Altuera';
+
+  @override
+  String get mainPosition => 'Posizio Nagusia';
+
+  @override
+  String get position => 'Posizioa';
+
+  @override
+  String get captain => 'Kapitaina';
+
+  @override
+  String get addCoach => 'Entrenatzailea Gehitu';
+
+  @override
+  String get editCoach => 'Entrenatzailea Editatu';
+
+  @override
+  String get coachName => 'Entrenatzailearen Izena';
+
+  @override
+  String get coachNameRequired => 'Entrenatzailearen izena beharrezkoa da';
+
+  @override
+  String get primary => 'Nagusia';
+
+  @override
+  String get primaryCoach => 'Entrenatzaile Nagusia';
+
+  @override
+  String get secondaryCoach => 'Bigarren Entrenatzailea';
+
+  @override
+  String get save => 'Gorde';
+
+  @override
+  String get cancel => 'Utzi';
+
+  @override
+  String get teamSaved => 'Taldea gordeta';
+
+  @override
+  String get premiumFeature => 'Premium Funtzionalitatea';
+
+  @override
+  String get premiumFeatureMessage =>
+      'Talde anitz sortzea premium funtzionalitatea da. Funtzionalitate hau desblokeatzeko, mesedez jarri gurekin harremanetan.';
+
+  @override
+  String get premiumFeatureRequest => 'Premium Funtzionalitate Eskaera';
+
+  @override
+  String get contactUs => 'Jarri Gurekin Harremanetan';
+
+  @override
+  String get gender => 'Generoa';
+
+  @override
+  String get male => 'Gizonezkoa';
+
+  @override
+  String get female => 'Emakumezkoa';
 }

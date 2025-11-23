@@ -216,4 +216,133 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get roleLiberoDescription =>
       'Libero. Defensive specialist player. Cannot attack or block, wears a different jersey.';
+
+  @override
+  String get teams => 'Teams';
+
+  @override
+  String get home => 'Home';
+
+  @override
+  String get teamDetails => 'Team Details';
+
+  @override
+  String get teamName => 'Team Name';
+
+  @override
+  String get teamNameRequired => 'Team name is required';
+
+  @override
+  String get coaches => 'Coaches';
+
+  @override
+  String get players => 'Players';
+
+  @override
+  String get noTeamsYet => 'No teams yet';
+
+  @override
+  String get createYourFirstTeam => 'Create your first team to get started';
+
+  @override
+  String get createTeam => 'Create Team';
+
+  @override
+  String get newTeam => 'New Team';
+
+  @override
+  String teamInfo(int playerCount, int coachCount) {
+    return '$playerCount players, $coachCount coaches';
+  }
+
+  @override
+  String get noCoachesYet => 'No coaches yet';
+
+  @override
+  String get noPlayersYet => 'No players yet';
+
+  @override
+  String get addPlayer => 'Add Player';
+
+  @override
+  String get editPlayer => 'Edit Player';
+
+  @override
+  String get playerName => 'Player Name';
+
+  @override
+  String get playerNameRequired => 'Player name is required';
+
+  @override
+  String get alias => 'Alias';
+
+  @override
+  String get number => 'Number';
+
+  @override
+  String get age => 'Age';
+
+  @override
+  String get height => 'Height';
+
+  @override
+  String get mainPosition => 'Main Position';
+
+  @override
+  String get position => 'Position';
+
+  @override
+  String get captain => 'Captain';
+
+  @override
+  String get addCoach => 'Add Coach';
+
+  @override
+  String get editCoach => 'Edit Coach';
+
+  @override
+  String get coachName => 'Coach Name';
+
+  @override
+  String get coachNameRequired => 'Coach name is required';
+
+  @override
+  String get primary => 'Primary';
+
+  @override
+  String get primaryCoach => 'Primary Coach';
+
+  @override
+  String get secondaryCoach => 'Secondary Coach';
+
+  @override
+  String get save => 'Save';
+
+  @override
+  String get cancel => 'Cancel';
+
+  @override
+  String get teamSaved => 'Team saved';
+
+  @override
+  String get premiumFeature => 'Premium Feature';
+
+  @override
+  String get premiumFeatureMessage =>
+      'Creating multiple teams is a premium feature. To unlock this feature, please contact us.';
+
+  @override
+  String get premiumFeatureRequest => 'Premium Feature Request';
+
+  @override
+  String get contactUs => 'Contact Us';
+
+  @override
+  String get gender => 'Gender';
+
+  @override
+  String get male => 'Male';
+
+  @override
+  String get female => 'Female';
 }

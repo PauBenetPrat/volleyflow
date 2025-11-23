@@ -56,6 +56,12 @@ class HomePage extends StatelessWidget {
               
               // Menu Buttons
               _MenuButton(
+                icon: Icons.group,
+                label: l10n.teams,
+                onPressed: () => context.push('/teams'),
+              ),
+              const SizedBox(height: 16),
+              _MenuButton(
                 icon: Icons.rotate_right,
                 label: l10n.rotations,
                 onPressed: () => context.push('/rotations'),

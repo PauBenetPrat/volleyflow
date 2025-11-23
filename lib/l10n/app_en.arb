@@ -275,6 +275,182 @@
   "roleLiberoDescription": "Libero. Defensive specialist player. Cannot attack or block, wears a different jersey.",
   "@roleLiberoDescription": {
     "description": "Libero role description"
+  },
+  "teams": "Teams",
+  "@teams": {
+    "description": "Teams menu item"
+  },
+  "home": "Home",
+  "@home": {
+    "description": "Home menu item"
+  },
+  "teamDetails": "Team Details",
+  "@teamDetails": {
+    "description": "Team details page title"
+  },
+  "teamName": "Team Name",
+  "@teamName": {
+    "description": "Team name field label"
+  },
+  "teamNameRequired": "Team name is required",
+  "@teamNameRequired": {
+    "description": "Team name validation error"
+  },
+  "coaches": "Coaches",
+  "@coaches": {
+    "description": "Coaches section title"
+  },
+  "players": "Players",
+  "@players": {
+    "description": "Players section title"
+  },
+  "noTeamsYet": "No teams yet",
+  "@noTeamsYet": {
+    "description": "Empty teams list message"
+  },
+  "createYourFirstTeam": "Create your first team to get started",
+  "@createYourFirstTeam": {
+    "description": "Empty teams list subtitle"
+  },
+  "createTeam": "Create Team",
+  "@createTeam": {
+    "description": "Create team button"
+  },
+  "newTeam": "New Team",
+  "@newTeam": {
+    "description": "Default team name"
+  },
+  "teamInfo": "{playerCount} players, {coachCount} coaches",
+  "@teamInfo": {
+    "description": "Team info subtitle",
+    "placeholders": {
+      "playerCount": {
+        "type": "int"
+      },
+      "coachCount": {
+        "type": "int"
+      }
+    }
+  },
+  "noCoachesYet": "No coaches yet",
+  "@noCoachesYet": {
+    "description": "Empty coaches list message"
+  },
+  "noPlayersYet": "No players yet",
+  "@noPlayersYet": {
+    "description": "Empty players list message"
+  },
+  "addPlayer": "Add Player",
+  "@addPlayer": {
+    "description": "Add player dialog title"
+  },
+  "editPlayer": "Edit Player",
+  "@editPlayer": {
+    "description": "Edit player dialog title"
+  },
+  "playerName": "Player Name",
+  "@playerName": {
+    "description": "Player name field label"
+  },
+  "playerNameRequired": "Player name is required",
+  "@playerNameRequired": {
+    "description": "Player name validation error"
+  },
+  "alias": "Alias",
+  "@alias": {
+    "description": "Player alias field label"
+  },
+  "number": "Number",
+  "@number": {
+    "description": "Player number field label"
+  },
+  "age": "Age",
+  "@age": {
+    "description": "Player age field label"
+  },
+  "height": "Height",
+  "@height": {
+    "description": "Player height field label"
+  },
+  "mainPosition": "Main Position",
+  "@mainPosition": {
+    "description": "Player main position field label"
+  },
+  "position": "Position",
+  "@position": {
+    "description": "Position label"
+  },
+  "captain": "Captain",
+  "@captain": {
+    "description": "Captain checkbox label"
+  },
+  "addCoach": "Add Coach",
+  "@addCoach": {
+    "description": "Add coach dialog title"
+  },
+  "editCoach": "Edit Coach",
+  "@editCoach": {
+    "description": "Edit coach dialog title"
+  },
+  "coachName": "Coach Name",
+  "@coachName": {
+    "description": "Coach name field label"
+  },
+  "coachNameRequired": "Coach name is required",
+  "@coachNameRequired": {
+    "description": "Coach name validation error"
+  },
+  "primary": "Primary",
+  "@primary": {
+    "description": "Primary coach label"
+  },
+  "primaryCoach": "Primary Coach",
+  "@primaryCoach": {
+    "description": "Primary coach label"
+  },
+  "secondaryCoach": "Secondary Coach",
+  "@secondaryCoach": {
+    "description": "Secondary coach label"
+  },
+  "save": "Save",
+  "@save": {
+    "description": "Save button"
+  },
+  "cancel": "Cancel",
+  "@cancel": {
+    "description": "Cancel button"
+  },
+  "teamSaved": "Team saved",
+  "@teamSaved": {
+    "description": "Team saved success message"
+  },
+  "premiumFeature": "Premium Feature",
+  "@premiumFeature": {
+    "description": "Premium feature dialog title"
+  },
+  "premiumFeatureMessage": "Creating multiple teams is a premium feature. To unlock this feature, please contact us.",
+  "@premiumFeatureMessage": {
+    "description": "Premium feature dialog message"
+  },
+  "premiumFeatureRequest": "Premium Feature Request",
+  "@premiumFeatureRequest": {
+    "description": "Email subject for premium feature request"
+  },
+  "contactUs": "Contact Us",
+  "@contactUs": {
+    "description": "Contact us button"
+  },
+  "gender": "Gender",
+  "@gender": {
+    "description": "Gender field label"
+  },
+  "male": "Male",
+  "@male": {
+    "description": "Male gender option"
+  },
+  "female": "Female",
+  "@female": {
+    "description": "Female gender option"
   }
 }
 

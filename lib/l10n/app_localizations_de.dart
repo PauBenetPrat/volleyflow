@@ -217,4 +217,134 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get roleLiberoDescription =>
       'Libero. Defensivspezialist. Kann nicht angreifen oder blocken, trägt ein anderes Trikot.';
+
+  @override
+  String get teams => 'Teams';
+
+  @override
+  String get home => 'Startseite';
+
+  @override
+  String get teamDetails => 'Team-Details';
+
+  @override
+  String get teamName => 'Teamname';
+
+  @override
+  String get teamNameRequired => 'Der Teamname ist erforderlich';
+
+  @override
+  String get coaches => 'Trainer';
+
+  @override
+  String get players => 'Spieler';
+
+  @override
+  String get noTeamsYet => 'Noch keine Teams';
+
+  @override
+  String get createYourFirstTeam =>
+      'Erstellen Sie Ihr erstes Team, um zu beginnen';
+
+  @override
+  String get createTeam => 'Team erstellen';
+
+  @override
+  String get newTeam => 'Neues Team';
+
+  @override
+  String teamInfo(int playerCount, int coachCount) {
+    return '$playerCount Spieler, $coachCount Trainer';
+  }
+
+  @override
+  String get noCoachesYet => 'Noch keine Trainer';
+
+  @override
+  String get noPlayersYet => 'Noch keine Spieler';
+
+  @override
+  String get addPlayer => 'Spieler hinzufügen';
+
+  @override
+  String get editPlayer => 'Spieler bearbeiten';
+
+  @override
+  String get playerName => 'Spielername';
+
+  @override
+  String get playerNameRequired => 'Der Spielername ist erforderlich';
+
+  @override
+  String get alias => 'Spitzname';
+
+  @override
+  String get number => 'Nummer';
+
+  @override
+  String get age => 'Alter';
+
+  @override
+  String get height => 'Größe';
+
+  @override
+  String get mainPosition => 'Hauptposition';
+
+  @override
+  String get position => 'Position';
+
+  @override
+  String get captain => 'Kapitän';
+
+  @override
+  String get addCoach => 'Trainer hinzufügen';
+
+  @override
+  String get editCoach => 'Trainer bearbeiten';
+
+  @override
+  String get coachName => 'Trainername';
+
+  @override
+  String get coachNameRequired => 'Der Trainername ist erforderlich';
+
+  @override
+  String get primary => 'Haupttrainer';
+
+  @override
+  String get primaryCoach => 'Haupttrainer';
+
+  @override
+  String get secondaryCoach => 'Zweitrainer';
+
+  @override
+  String get save => 'Speichern';
+
+  @override
+  String get cancel => 'Abbrechen';
+
+  @override
+  String get teamSaved => 'Team gespeichert';
+
+  @override
+  String get premiumFeature => 'Premium-Funktion';
+
+  @override
+  String get premiumFeatureMessage =>
+      'Das Erstellen mehrerer Teams ist eine Premium-Funktion. Um diese Funktion freizuschalten, kontaktieren Sie uns bitte.';
+
+  @override
+  String get premiumFeatureRequest => 'Premium-Funktion anfordern';
+
+  @override
+  String get contactUs => 'Kontaktieren Sie uns';
+
+  @override
+  String get gender => 'Geschlecht';
+
+  @override
+  String get male => 'Männlich';
+
+  @override
+  String get female => 'Weiblich';
 }
