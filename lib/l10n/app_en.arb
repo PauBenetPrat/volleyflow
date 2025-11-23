@@ -451,6 +451,61 @@
   "female": "Female",
   "@female": {
     "description": "Female gender option"
+  },
+  "delete": "Delete",
+  "@delete": {
+    "description": "Delete button"
+  },
+  "deleteTeam": "Delete Team",
+  "@deleteTeam": {
+    "description": "Delete team button/title"
+  },
+  "deleteTeamConfirmation": "Are you sure you want to delete the team \"{name}\"? This action cannot be undone.",
+  "@deleteTeamConfirmation": {
+    "description": "Delete team confirmation message",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "teamDeleted": "Team deleted",
+  "@teamDeleted": {
+    "description": "Team deleted success message"
+  },
+  "deletePlayer": "Delete Player",
+  "@deletePlayer": {
+    "description": "Delete player button/title"
+  },
+  "deletePlayerConfirmation": "Are you sure you want to delete {name}?",
+  "@deletePlayerConfirmation": {
+    "description": "Delete player confirmation message",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "playerDeleted": "Player deleted",
+  "@playerDeleted": {
+    "description": "Player deleted success message"
+  },
+  "deleteCoach": "Delete Coach",
+  "@deleteCoach": {
+    "description": "Delete coach button/title"
+  },
+  "deleteCoachConfirmation": "Are you sure you want to delete {name}?",
+  "@deleteCoachConfirmation": {
+    "description": "Delete coach confirmation message",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "coachDeleted": "Coach deleted",
+  "@coachDeleted": {
+    "description": "Coach deleted success message"
   }
 }
 

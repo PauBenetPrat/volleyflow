@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:uuid/uuid.dart';
 import 'package:volleyball_coaching_app/l10n/app_localizations.dart';
 import '../../domain/providers/teams_provider.dart';
 import '../../domain/models/team.dart';
@@ -34,6 +35,43 @@ class TeamsListPage extends ConsumerWidget {
                 }
               },
               child: Text(l10n.contactUs),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _showDeleteTeamConfirmation(BuildContext context, WidgetRef ref, Team team, AppLocalizations l10n) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(l10n.deleteTeam),
+          content: Text(
+            l10n.deleteTeamConfirmation(team.name),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: Text(l10n.cancel),
+            ),
+            TextButton(
+              onPressed: () {
+                ref.read(teamsProvider.notifier).deleteTeam(team.id);
+                Navigator.of(context).pop();
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(l10n.teamDeleted),
+                    ),
+                  );
+                }
+              },
+              style: TextButton.styleFrom(
+                foregroundColor: Theme.of(context).colorScheme.error,
+              ),
+              child: Text(l10n.delete),
             ),
           ],
         );
@@ -102,7 +140,17 @@ class TeamsListPage extends ConsumerWidget {
                         team.coaches.length,
                       ),
                     ),
-                    trailing: const Icon(Icons.chevron_right),
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          icon: const Icon(Icons.delete),
+                          color: theme.colorScheme.error,
+                          onPressed: () => _showDeleteTeamConfirmation(context, ref, team, l10n),
+                        ),
+                        const Icon(Icons.chevron_right),
+                      ],
+                    ),
                     onTap: () {
                       context.push('/teams/${team.id}');
                     },
@@ -114,7 +162,7 @@ class TeamsListPage extends ConsumerWidget {
         onPressed: () {
           if (teamsState.canCreateTeam()) {
             final newTeam = Team(
-              id: DateTime.now().millisecondsSinceEpoch.toString(),
+              id: const Uuid().v4(),
               name: l10n.newTeam,
             );
             ref.read(teamsProvider.notifier).addTeam(newTeam);

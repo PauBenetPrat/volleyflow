@@ -89,6 +89,12 @@ class _TeamDetailPageState extends ConsumerState<TeamDetailPage> {
             onPressed: _saveTeam,
             tooltip: l10n.save,
           ),
+          IconButton(
+            icon: const Icon(Icons.delete),
+            color: theme.colorScheme.error,
+            onPressed: () => _showDeleteTeamConfirmation(context, ref, team, l10n),
+            tooltip: l10n.deleteTeam,
+          ),
         ],
       ),
       body: Form(
@@ -176,6 +182,44 @@ class _TeamDetailPageState extends ConsumerState<TeamDetailPage> {
         team: team,
         coach: null,
       ),
+    );
+  }
+
+  void _showDeleteTeamConfirmation(BuildContext context, WidgetRef ref, Team team, AppLocalizations l10n) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(l10n.deleteTeam),
+          content: Text(
+            l10n.deleteTeamConfirmation(team.name),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: Text(l10n.cancel),
+            ),
+            TextButton(
+              onPressed: () {
+                ref.read(teamsProvider.notifier).deleteTeam(team.id);
+                Navigator.of(context).pop();
+                if (context.mounted) {
+                  context.pop(); // Tornar a la llista d'equips
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(l10n.teamDeleted),
+                    ),
+                  );
+                }
+              },
+              style: TextButton.styleFrom(
+                foregroundColor: Theme.of(context).colorScheme.error,
+              ),
+              child: Text(l10n.delete),
+            ),
+          ],
+        );
+      },
     );
   }
 }
@@ -331,17 +375,60 @@ class _PlayerCard extends ConsumerWidget {
               ),
           ],
         ),
-        trailing: IconButton(
-          icon: const Icon(Icons.edit),
-          onPressed: () {
-            showDialog(
-              context: context,
-              builder: (context) => _PlayerEditDialog(
-                team: team,
-                player: player,
-              ),
-            );
-          },
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            IconButton(
+              icon: const Icon(Icons.edit),
+              onPressed: () {
+                showDialog(
+                  context: context,
+                  builder: (context) => _PlayerEditDialog(
+                    team: team,
+                    player: player,
+                  ),
+                );
+              },
+            ),
+            IconButton(
+              icon: const Icon(Icons.delete),
+              color: theme.colorScheme.error,
+              onPressed: () {
+                showDialog(
+                  context: context,
+                  builder: (BuildContext dialogContext) {
+                    return AlertDialog(
+                      title: Text(l10n.deletePlayer),
+                      content: Text(
+                        l10n.deletePlayerConfirmation(player.alias ?? player.name),
+                      ),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.of(dialogContext).pop(),
+                          child: Text(l10n.cancel),
+                        ),
+                        TextButton(
+                          onPressed: () {
+                            ref.read(teamsProvider.notifier).deletePlayerFromTeam(team.id, player.id);
+                            Navigator.of(dialogContext).pop();
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(l10n.playerDeleted),
+                              ),
+                            );
+                          },
+                          style: TextButton.styleFrom(
+                            foregroundColor: theme.colorScheme.error,
+                          ),
+                          child: Text(l10n.delete),
+                        ),
+                      ],
+                    );
+                  },
+                );
+              },
+            ),
+          ],
         ),
       ),
     );
@@ -399,17 +486,60 @@ class _CoachCard extends ConsumerWidget {
         subtitle: Text(
           coach.isPrimary ? l10n.primaryCoach : l10n.secondaryCoach,
         ),
-        trailing: IconButton(
-          icon: const Icon(Icons.edit),
-          onPressed: () {
-            showDialog(
-              context: context,
-              builder: (context) => _CoachEditDialog(
-                team: team,
-                coach: coach,
-              ),
-            );
-          },
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            IconButton(
+              icon: const Icon(Icons.edit),
+              onPressed: () {
+                showDialog(
+                  context: context,
+                  builder: (context) => _CoachEditDialog(
+                    team: team,
+                    coach: coach,
+                  ),
+                );
+              },
+            ),
+            IconButton(
+              icon: const Icon(Icons.delete),
+              color: theme.colorScheme.error,
+              onPressed: () {
+                showDialog(
+                  context: context,
+                  builder: (BuildContext dialogContext) {
+                    return AlertDialog(
+                      title: Text(l10n.deleteCoach),
+                      content: Text(
+                        l10n.deleteCoachConfirmation(coach.name),
+                      ),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.of(dialogContext).pop(),
+                          child: Text(l10n.cancel),
+                        ),
+                        TextButton(
+                          onPressed: () {
+                            ref.read(teamsProvider.notifier).deleteCoachFromTeam(team.id, coach.id);
+                            Navigator.of(dialogContext).pop();
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(l10n.coachDeleted),
+                              ),
+                            );
+                          },
+                          style: TextButton.styleFrom(
+                            foregroundColor: theme.colorScheme.error,
+                          ),
+                          child: Text(l10n.delete),
+                        ),
+                      ],
+                    );
+                  },
+                );
+              },
+            ),
+          ],
         ),
       ),
     );

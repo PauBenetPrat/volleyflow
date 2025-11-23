@@ -1,4 +1,6 @@
+import 'dart:convert';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../models/team.dart';
 import '../models/player.dart';
 import '../models/coach.dart';
@@ -29,16 +31,62 @@ class TeamsState {
 }
 
 class TeamsNotifier extends Notifier<TeamsState> {
+  static const String _storageKey = 'teams_storage';
+
   @override
   TeamsState build() {
-    return TeamsState(teams: []);
+    // Carregar equips des de local storage al inicialitzar
+    _loadFromLocal();
+    return TeamsState(teams: [], isLoading: true);
+  }
+
+  /// Carrega els equips des de local storage
+  Future<void> _loadFromLocal() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final teamsJson = prefs.getString(_storageKey);
+      
+      if (teamsJson != null) {
+        final List<dynamic> teamsList = json.decode(teamsJson);
+        final teams = teamsList
+            .map((json) => Team.fromJson(json as Map<String, dynamic>))
+            .toList();
+        
+        state = state.copyWith(teams: teams, isLoading: false);
+      } else {
+        state = state.copyWith(isLoading: false);
+      }
+    } catch (e) {
+      // Si hi ha error en carregar, continuar amb llista buida
+      print('Error loading teams from local storage: $e');
+      state = state.copyWith(isLoading: false);
+    }
+  }
+
+  /// Guarda els equips a local storage
+  Future<void> _saveToLocal() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final teamsJson = json.encode(
+        state.teams.map((team) => team.toJson()).toList(),
+      );
+      await prefs.setString(_storageKey, teamsJson);
+    } catch (e) {
+      print('Error saving teams to local storage: $e');
+    }
   }
 
   void addTeam(Team team) {
     if (state.canCreateTeam()) {
-      state = state.copyWith(
-        teams: [...state.teams, team],
+      final now = DateTime.now();
+      final teamWithTimestamps = team.copyWith(
+        createdAt: team.createdAt ?? now,
+        updatedAt: now,
       );
+      state = state.copyWith(
+        teams: [...state.teams, teamWithTimestamps],
+      );
+      _saveToLocal();
     }
   }
 
@@ -46,8 +94,12 @@ class TeamsNotifier extends Notifier<TeamsState> {
     final index = state.teams.indexWhere((t) => t.id == team.id);
     if (index != -1) {
       final updatedTeams = List<Team>.from(state.teams);
-      updatedTeams[index] = team;
+      final teamWithTimestamp = team.copyWith(
+        updatedAt: DateTime.now(),
+      );
+      updatedTeams[index] = teamWithTimestamp;
       state = state.copyWith(teams: updatedTeams);
+      _saveToLocal();
     }
   }
 
@@ -55,6 +107,7 @@ class TeamsNotifier extends Notifier<TeamsState> {
     state = state.copyWith(
       teams: state.teams.where((t) => t.id != teamId).toList(),
     );
+    _saveToLocal();
   }
 
   void addPlayerToTeam(String teamId, Player player) {

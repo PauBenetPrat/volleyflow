@@ -345,4 +345,40 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get female => 'Female';
+
+  @override
+  String get delete => 'Delete';
+
+  @override
+  String get deleteTeam => 'Delete Team';
+
+  @override
+  String deleteTeamConfirmation(String name) {
+    return 'Are you sure you want to delete the team \"$name\"? This action cannot be undone.';
+  }
+
+  @override
+  String get teamDeleted => 'Team deleted';
+
+  @override
+  String get deletePlayer => 'Delete Player';
+
+  @override
+  String deletePlayerConfirmation(String name) {
+    return 'Are you sure you want to delete $name?';
+  }
+
+  @override
+  String get playerDeleted => 'Player deleted';
+
+  @override
+  String get deleteCoach => 'Delete Coach';
+
+  @override
+  String deleteCoachConfirmation(String name) {
+    return 'Are you sure you want to delete $name?';
+  }
+
+  @override
+  String get coachDeleted => 'Coach deleted';
 }

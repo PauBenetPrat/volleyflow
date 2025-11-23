@@ -105,6 +105,16 @@
   "contactUs": "Jarri Gurekin Harremanetan",
   "gender": "Generoa",
   "male": "Gizonezkoa",
-  "female": "Emakumezkoa"
+  "female": "Emakumezkoa",
+  "delete": "Ezabatu",
+  "deleteTeam": "Taldea Ezabatu",
+  "deleteTeamConfirmation": "Ziur zaude \"{name}\" taldea ezabatu nahi duzula? Ekintza hau ezin da desegin.",
+  "teamDeleted": "Taldea ezabatuta",
+  "deletePlayer": "Jokalaria Ezabatu",
+  "deletePlayerConfirmation": "Ziur zaude {name} ezabatu nahi duzula?",
+  "playerDeleted": "Jokalaria ezabatuta",
+  "deleteCoach": "Entrenatzailea Ezabatu",
+  "deleteCoachConfirmation": "Ziur zaude {name} ezabatu nahi duzula?",
+  "coachDeleted": "Entrenatzailea ezabatuta"
 }
 

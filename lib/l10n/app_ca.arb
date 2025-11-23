@@ -105,6 +105,16 @@
   "contactUs": "Contacta amb Nosaltres",
   "gender": "Sexe",
   "male": "Home",
-  "female": "Dona"
+  "female": "Dona",
+  "delete": "Eliminar",
+  "deleteTeam": "Eliminar Equip",
+  "deleteTeamConfirmation": "Estàs segur que vols eliminar l'equip \"{name}\"? Aquesta acció no es pot desfer.",
+  "teamDeleted": "Equip eliminat",
+  "deletePlayer": "Eliminar Jugador",
+  "deletePlayerConfirmation": "Estàs segur que vols eliminar {name}?",
+  "playerDeleted": "Jugador eliminat",
+  "deleteCoach": "Eliminar Entrenador",
+  "deleteCoachConfirmation": "Estàs segur que vols eliminar {name}?",
+  "coachDeleted": "Entrenador eliminat"
 }
 

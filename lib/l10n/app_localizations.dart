@@ -741,6 +741,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Female'**
   String get female;
+
+  /// Delete button
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get delete;
+
+  /// Delete team button/title
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Team'**
+  String get deleteTeam;
+
+  /// Delete team confirmation message
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to delete the team \"{name}\"? This action cannot be undone.'**
+  String deleteTeamConfirmation(String name);
+
+  /// Team deleted success message
+  ///
+  /// In en, this message translates to:
+  /// **'Team deleted'**
+  String get teamDeleted;
+
+  /// Delete player button/title
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Player'**
+  String get deletePlayer;
+
+  /// Delete player confirmation message
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to delete {name}?'**
+  String deletePlayerConfirmation(String name);
+
+  /// Player deleted success message
+  ///
+  /// In en, this message translates to:
+  /// **'Player deleted'**
+  String get playerDeleted;
+
+  /// Delete coach button/title
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Coach'**
+  String get deleteCoach;
+
+  /// Delete coach confirmation message
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to delete {name}?'**
+  String deleteCoachConfirmation(String name);
+
+  /// Coach deleted success message
+  ///
+  /// In en, this message translates to:
+  /// **'Coach deleted'**
+  String get coachDeleted;
 }
 
 class _AppLocalizationsDelegate

@@ -105,6 +105,16 @@
   "contactUs": "Contactez-nous",
   "gender": "Sexe",
   "male": "Homme",
-  "female": "Femme"
+  "female": "Femme",
+  "delete": "Supprimer",
+  "deleteTeam": "Supprimer l'Équipe",
+  "deleteTeamConfirmation": "Êtes-vous sûr de vouloir supprimer l'équipe \"{name}\"? Cette action ne peut pas être annulée.",
+  "teamDeleted": "Équipe supprimée",
+  "deletePlayer": "Supprimer le Joueur",
+  "deletePlayerConfirmation": "Êtes-vous sûr de vouloir supprimer {name}?",
+  "playerDeleted": "Joueur supprimé",
+  "deleteCoach": "Supprimer l'Entraîneur",
+  "deleteCoachConfirmation": "Êtes-vous sûr de vouloir supprimer {name}?",
+  "coachDeleted": "Entraîneur supprimé"
 }
 

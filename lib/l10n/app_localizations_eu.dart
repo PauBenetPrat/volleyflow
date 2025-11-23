@@ -347,4 +347,40 @@ class AppLocalizationsEu extends AppLocalizations {
 
   @override
   String get female => 'Emakumezkoa';
+
+  @override
+  String get delete => 'Ezabatu';
+
+  @override
+  String get deleteTeam => 'Taldea Ezabatu';
+
+  @override
+  String deleteTeamConfirmation(String name) {
+    return 'Ziur zaude \"$name\" taldea ezabatu nahi duzula? Ekintza hau ezin da desegin.';
+  }
+
+  @override
+  String get teamDeleted => 'Taldea ezabatuta';
+
+  @override
+  String get deletePlayer => 'Jokalaria Ezabatu';
+
+  @override
+  String deletePlayerConfirmation(String name) {
+    return 'Ziur zaude $name ezabatu nahi duzula?';
+  }
+
+  @override
+  String get playerDeleted => 'Jokalaria ezabatuta';
+
+  @override
+  String get deleteCoach => 'Entrenatzailea Ezabatu';
+
+  @override
+  String deleteCoachConfirmation(String name) {
+    return 'Ziur zaude $name ezabatu nahi duzula?';
+  }
+
+  @override
+  String get coachDeleted => 'Entrenatzailea ezabatuta';
 }

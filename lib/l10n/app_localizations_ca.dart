@@ -347,4 +347,40 @@ class AppLocalizationsCa extends AppLocalizations {
 
   @override
   String get female => 'Dona';
+
+  @override
+  String get delete => 'Eliminar';
+
+  @override
+  String get deleteTeam => 'Eliminar Equip';
+
+  @override
+  String deleteTeamConfirmation(String name) {
+    return 'Estàs segur que vols eliminar l\'equip \"$name\"? Aquesta acció no es pot desfer.';
+  }
+
+  @override
+  String get teamDeleted => 'Equip eliminat';
+
+  @override
+  String get deletePlayer => 'Eliminar Jugador';
+
+  @override
+  String deletePlayerConfirmation(String name) {
+    return 'Estàs segur que vols eliminar $name?';
+  }
+
+  @override
+  String get playerDeleted => 'Jugador eliminat';
+
+  @override
+  String get deleteCoach => 'Eliminar Entrenador';
+
+  @override
+  String deleteCoachConfirmation(String name) {
+    return 'Estàs segur que vols eliminar $name?';
+  }
+
+  @override
+  String get coachDeleted => 'Entrenador eliminat';
 }

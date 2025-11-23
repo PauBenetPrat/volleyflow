@@ -105,6 +105,16 @@
   "contactUs": "Kontaktieren Sie uns",
   "gender": "Geschlecht",
   "male": "Männlich",
-  "female": "Weiblich"
+  "female": "Weiblich",
+  "delete": "Löschen",
+  "deleteTeam": "Team löschen",
+  "deleteTeamConfirmation": "Sind Sie sicher, dass Sie das Team \"{name}\" löschen möchten? Diese Aktion kann nicht rückgängig gemacht werden.",
+  "teamDeleted": "Team gelöscht",
+  "deletePlayer": "Spieler löschen",
+  "deletePlayerConfirmation": "Sind Sie sicher, dass Sie {name} löschen möchten?",
+  "playerDeleted": "Spieler gelöscht",
+  "deleteCoach": "Trainer löschen",
+  "deleteCoachConfirmation": "Sind Sie sicher, dass Sie {name} löschen möchten?",
+  "coachDeleted": "Trainer gelöscht"
 }
 
