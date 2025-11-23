@@ -489,6 +489,318 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Libero. Defensive specialist player. Cannot attack or block, wears a different jersey.'**
   String get roleLiberoDescription;
+
+  /// Teams menu item
+  ///
+  /// In en, this message translates to:
+  /// **'Teams'**
+  String get teams;
+
+  /// Home menu item
+  ///
+  /// In en, this message translates to:
+  /// **'Home'**
+  String get home;
+
+  /// Team details page title
+  ///
+  /// In en, this message translates to:
+  /// **'Team Details'**
+  String get teamDetails;
+
+  /// Team name field label
+  ///
+  /// In en, this message translates to:
+  /// **'Team Name'**
+  String get teamName;
+
+  /// Team name validation error
+  ///
+  /// In en, this message translates to:
+  /// **'Team name is required'**
+  String get teamNameRequired;
+
+  /// Coaches section title
+  ///
+  /// In en, this message translates to:
+  /// **'Coaches'**
+  String get coaches;
+
+  /// Players section title
+  ///
+  /// In en, this message translates to:
+  /// **'Players'**
+  String get players;
+
+  /// Empty teams list message
+  ///
+  /// In en, this message translates to:
+  /// **'No teams yet'**
+  String get noTeamsYet;
+
+  /// Empty teams list subtitle
+  ///
+  /// In en, this message translates to:
+  /// **'Create your first team to get started'**
+  String get createYourFirstTeam;
+
+  /// Create team button
+  ///
+  /// In en, this message translates to:
+  /// **'Create Team'**
+  String get createTeam;
+
+  /// Default team name
+  ///
+  /// In en, this message translates to:
+  /// **'New Team'**
+  String get newTeam;
+
+  /// Team info subtitle
+  ///
+  /// In en, this message translates to:
+  /// **'{playerCount} players, {coachCount} coaches'**
+  String teamInfo(int playerCount, int coachCount);
+
+  /// Empty coaches list message
+  ///
+  /// In en, this message translates to:
+  /// **'No coaches yet'**
+  String get noCoachesYet;
+
+  /// Empty players list message
+  ///
+  /// In en, this message translates to:
+  /// **'No players yet'**
+  String get noPlayersYet;
+
+  /// Add player dialog title
+  ///
+  /// In en, this message translates to:
+  /// **'Add Player'**
+  String get addPlayer;
+
+  /// Edit player dialog title
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Player'**
+  String get editPlayer;
+
+  /// Player name field label
+  ///
+  /// In en, this message translates to:
+  /// **'Player Name'**
+  String get playerName;
+
+  /// Player name validation error
+  ///
+  /// In en, this message translates to:
+  /// **'Player name is required'**
+  String get playerNameRequired;
+
+  /// Player alias field label
+  ///
+  /// In en, this message translates to:
+  /// **'Alias'**
+  String get alias;
+
+  /// Player number field label
+  ///
+  /// In en, this message translates to:
+  /// **'Number'**
+  String get number;
+
+  /// Player age field label
+  ///
+  /// In en, this message translates to:
+  /// **'Age'**
+  String get age;
+
+  /// Player height field label
+  ///
+  /// In en, this message translates to:
+  /// **'Height'**
+  String get height;
+
+  /// Player main position field label
+  ///
+  /// In en, this message translates to:
+  /// **'Main Position'**
+  String get mainPosition;
+
+  /// Position label
+  ///
+  /// In en, this message translates to:
+  /// **'Position'**
+  String get position;
+
+  /// Captain checkbox label
+  ///
+  /// In en, this message translates to:
+  /// **'Captain'**
+  String get captain;
+
+  /// Add coach dialog title
+  ///
+  /// In en, this message translates to:
+  /// **'Add Coach'**
+  String get addCoach;
+
+  /// Edit coach dialog title
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Coach'**
+  String get editCoach;
+
+  /// Coach name field label
+  ///
+  /// In en, this message translates to:
+  /// **'Coach Name'**
+  String get coachName;
+
+  /// Coach name validation error
+  ///
+  /// In en, this message translates to:
+  /// **'Coach name is required'**
+  String get coachNameRequired;
+
+  /// Primary coach label
+  ///
+  /// In en, this message translates to:
+  /// **'Primary'**
+  String get primary;
+
+  /// Primary coach label
+  ///
+  /// In en, this message translates to:
+  /// **'Primary Coach'**
+  String get primaryCoach;
+
+  /// Secondary coach label
+  ///
+  /// In en, this message translates to:
+  /// **'Secondary Coach'**
+  String get secondaryCoach;
+
+  /// Save button
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get save;
+
+  /// Cancel button
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get cancel;
+
+  /// Team saved success message
+  ///
+  /// In en, this message translates to:
+  /// **'Team saved'**
+  String get teamSaved;
+
+  /// Premium feature dialog title
+  ///
+  /// In en, this message translates to:
+  /// **'Premium Feature'**
+  String get premiumFeature;
+
+  /// Premium feature dialog message
+  ///
+  /// In en, this message translates to:
+  /// **'Creating multiple teams is a premium feature. To unlock this feature, please contact us.'**
+  String get premiumFeatureMessage;
+
+  /// Email subject for premium feature request
+  ///
+  /// In en, this message translates to:
+  /// **'Premium Feature Request'**
+  String get premiumFeatureRequest;
+
+  /// Contact us button
+  ///
+  /// In en, this message translates to:
+  /// **'Contact Us'**
+  String get contactUs;
+
+  /// Gender field label
+  ///
+  /// In en, this message translates to:
+  /// **'Gender'**
+  String get gender;
+
+  /// Male gender option
+  ///
+  /// In en, this message translates to:
+  /// **'Male'**
+  String get male;
+
+  /// Female gender option
+  ///
+  /// In en, this message translates to:
+  /// **'Female'**
+  String get female;
+
+  /// Delete button
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get delete;
+
+  /// Delete team button/title
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Team'**
+  String get deleteTeam;
+
+  /// Delete team confirmation message
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to delete the team \"{name}\"? This action cannot be undone.'**
+  String deleteTeamConfirmation(String name);
+
+  /// Team deleted success message
+  ///
+  /// In en, this message translates to:
+  /// **'Team deleted'**
+  String get teamDeleted;
+
+  /// Delete player button/title
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Player'**
+  String get deletePlayer;
+
+  /// Delete player confirmation message
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to delete {name}?'**
+  String deletePlayerConfirmation(String name);
+
+  /// Player deleted success message
+  ///
+  /// In en, this message translates to:
+  /// **'Player deleted'**
+  String get playerDeleted;
+
+  /// Delete coach button/title
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Coach'**
+  String get deleteCoach;
+
+  /// Delete coach confirmation message
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to delete {name}?'**
+  String deleteCoachConfirmation(String name);
+
+  /// Coach deleted success message
+  ///
+  /// In en, this message translates to:
+  /// **'Coach deleted'**
+  String get coachDeleted;
 }
 
 class _AppLocalizationsDelegate

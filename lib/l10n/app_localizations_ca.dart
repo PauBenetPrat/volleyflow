@@ -218,4 +218,169 @@ class AppLocalizationsCa extends AppLocalizations {
   @override
   String get roleLiberoDescription =>
       'Llibero. Jugador defensiu especialitzat. No pot atacar ni bloquejar, porta samarreta diferent.';
+
+  @override
+  String get teams => 'Equips';
+
+  @override
+  String get home => 'Inici';
+
+  @override
+  String get teamDetails => 'Detalls de l\'Equip';
+
+  @override
+  String get teamName => 'Nom de l\'Equip';
+
+  @override
+  String get teamNameRequired => 'El nom de l\'equip és obligatori';
+
+  @override
+  String get coaches => 'Entrenadors';
+
+  @override
+  String get players => 'Jugadors';
+
+  @override
+  String get noTeamsYet => 'Encara no hi ha equips';
+
+  @override
+  String get createYourFirstTeam => 'Crea el teu primer equip per començar';
+
+  @override
+  String get createTeam => 'Crear Equip';
+
+  @override
+  String get newTeam => 'Nou Equip';
+
+  @override
+  String teamInfo(int playerCount, int coachCount) {
+    return '$playerCount jugadors, $coachCount entrenadors';
+  }
+
+  @override
+  String get noCoachesYet => 'Encara no hi ha entrenadors';
+
+  @override
+  String get noPlayersYet => 'Encara no hi ha jugadors';
+
+  @override
+  String get addPlayer => 'Afegir Jugador';
+
+  @override
+  String get editPlayer => 'Editar Jugador';
+
+  @override
+  String get playerName => 'Nom del Jugador';
+
+  @override
+  String get playerNameRequired => 'El nom del jugador és obligatori';
+
+  @override
+  String get alias => 'Àlies';
+
+  @override
+  String get number => 'Número';
+
+  @override
+  String get age => 'Edat';
+
+  @override
+  String get height => 'Alçada';
+
+  @override
+  String get mainPosition => 'Posició Principal';
+
+  @override
+  String get position => 'Posició';
+
+  @override
+  String get captain => 'Capità';
+
+  @override
+  String get addCoach => 'Afegir Entrenador';
+
+  @override
+  String get editCoach => 'Editar Entrenador';
+
+  @override
+  String get coachName => 'Nom de l\'Entrenador';
+
+  @override
+  String get coachNameRequired => 'El nom de l\'entrenador és obligatori';
+
+  @override
+  String get primary => 'Principal';
+
+  @override
+  String get primaryCoach => 'Entrenador Principal';
+
+  @override
+  String get secondaryCoach => 'Entrenador Secundari';
+
+  @override
+  String get save => 'Desar';
+
+  @override
+  String get cancel => 'Cancel·lar';
+
+  @override
+  String get teamSaved => 'Equip desat';
+
+  @override
+  String get premiumFeature => 'Funcionalitat Premium';
+
+  @override
+  String get premiumFeatureMessage =>
+      'Crear múltiples equips és una funcionalitat premium. Per desbloquejar aquesta funcionalitat, si us plau, contacta amb nosaltres.';
+
+  @override
+  String get premiumFeatureRequest => 'Sol·licitud de Funcionalitat Premium';
+
+  @override
+  String get contactUs => 'Contacta amb Nosaltres';
+
+  @override
+  String get gender => 'Sexe';
+
+  @override
+  String get male => 'Home';
+
+  @override
+  String get female => 'Dona';
+
+  @override
+  String get delete => 'Eliminar';
+
+  @override
+  String get deleteTeam => 'Eliminar Equip';
+
+  @override
+  String deleteTeamConfirmation(String name) {
+    return 'Estàs segur que vols eliminar l\'equip \"$name\"? Aquesta acció no es pot desfer.';
+  }
+
+  @override
+  String get teamDeleted => 'Equip eliminat';
+
+  @override
+  String get deletePlayer => 'Eliminar Jugador';
+
+  @override
+  String deletePlayerConfirmation(String name) {
+    return 'Estàs segur que vols eliminar $name?';
+  }
+
+  @override
+  String get playerDeleted => 'Jugador eliminat';
+
+  @override
+  String get deleteCoach => 'Eliminar Entrenador';
+
+  @override
+  String deleteCoachConfirmation(String name) {
+    return 'Estàs segur que vols eliminar $name?';
+  }
+
+  @override
+  String get coachDeleted => 'Entrenador eliminat';
 }

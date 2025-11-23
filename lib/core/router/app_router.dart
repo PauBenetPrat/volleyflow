@@ -5,6 +5,8 @@ import '../../features/rotations/presentation/pages/rotations_page.dart';
 import '../../features/about/presentation/pages/about_page.dart';
 import '../../features/match/presentation/pages/match_page.dart';
 import '../../features/settings/presentation/pages/settings_page.dart';
+import '../../features/teams/presentation/pages/teams_list_page.dart';
+import '../../features/teams/presentation/pages/team_detail_page.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
   return GoRouter(
@@ -34,6 +36,19 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/about',
         name: 'about',
         builder: (context, state) => const AboutPage(),
+      ),
+      GoRoute(
+        path: '/teams',
+        name: 'teams',
+        builder: (context, state) => const TeamsListPage(),
+      ),
+      GoRoute(
+        path: '/teams/:teamId',
+        name: 'team-detail',
+        builder: (context, state) {
+          final teamId = state.pathParameters['teamId']!;
+          return TeamDetailPage(teamId: teamId);
+        },
       ),
     ],
   );
