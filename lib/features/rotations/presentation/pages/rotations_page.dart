@@ -250,7 +250,25 @@ class RotationsPage extends ConsumerWidget {
       ),
     );
 
-    // Right side panel (phases and rotation button aligned vertically)
+    // Left side panel (phases buttons for landscape mode)
+    Widget leftPanel = Container(
+      width: isSmallScreen ? (isVerySmallScreen ? 80 : 100) : 120,
+      padding: EdgeInsets.symmetric(
+        vertical: isSmallScreen ? 12.0 : 16.0,
+        horizontal: isSmallScreen ? 4.0 : 8.0,
+      ),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surface,
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          phaseButtons,
+        ],
+      ),
+    );
+
+    // Right side panel (phases and rotation button aligned vertically) - for portrait mode
     Widget rightPanel = Container(
       width: isSmallScreen ? (isVerySmallScreen ? 80 : 100) : 120,
       padding: EdgeInsets.symmetric(
@@ -259,13 +277,6 @@ class RotationsPage extends ConsumerWidget {
       ),
       decoration: BoxDecoration(
         color: theme.colorScheme.surface,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.1),
-            blurRadius: 4,
-            offset: const Offset(-2, 0),
-          ),
-        ],
       ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -287,13 +298,6 @@ class RotationsPage extends ConsumerWidget {
       padding: EdgeInsets.all(isSmallScreen ? 12.0 : 16.0),
       decoration: BoxDecoration(
         color: theme.colorScheme.surface,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.1),
-            blurRadius: 4,
-            offset: const Offset(0, -2),
-          ),
-        ],
       ),
       child: SafeArea(
         child: _RotateButton(
@@ -378,13 +382,6 @@ class RotationsPage extends ConsumerWidget {
                               ),
                               decoration: BoxDecoration(
                                 color: theme.colorScheme.surface,
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black.withValues(alpha: 0.1),
-                                    blurRadius: 4,
-                                    offset: const Offset(0, -2),
-                                  ),
-                                ],
                               ),
                               child: SafeArea(
                                 child: Column(
@@ -503,7 +500,9 @@ class RotationsPage extends ConsumerWidget {
                         )
                       : Row(
                           children: [
-                            // Left side - Court and controls
+                            // Left side - Phase buttons
+                            leftPanel,
+                            // Center - Court
                             Expanded(
                               child: Column(
                                 children: [
@@ -522,8 +521,6 @@ class RotationsPage extends ConsumerWidget {
                                 ],
                               ),
                             ),
-                            // Right side - Phase buttons and rotation button
-                            rightPanel,
                           ],
                         ),
                   // Validation errors overlay (no afecta les dimensions)
@@ -626,7 +623,9 @@ class RotationsPage extends ConsumerWidget {
                         )
                       : Row(
                           children: [
-                            // Left side - Court
+                            // Left side - Phase buttons
+                            leftPanel,
+                            // Center - Court
                             Expanded(
                               child: Column(
                                 children: [
@@ -645,16 +644,28 @@ class RotationsPage extends ConsumerWidget {
                                 ],
                               ),
                             ),
-                            // Right side - Phase buttons and rotation button
-                            rightPanel,
                           ],
                         ),
+                  // Rotation button at bottom right (landscape mode only)
+                  if (!isPortrait)
+                    Positioned(
+                      bottom: MediaQuery.of(context).padding.bottom + 16,
+                      right: 16,
+                      child: _RotateButton(
+                        currentRotation: currentRotation,
+                        isSmallScreen: isSmallScreen,
+                        isVerySmallScreen: isVerySmallScreen,
+                        isCircular: true,
+                      ),
+                    ),
                   // Validation errors overlay (no afecta les dimensions)
                   if (rotationState.validationResult != null && 
                       !rotationState.validationResult!.isValid)
                     Positioned(
                       bottom: 100,
-                      left: (isSmallScreen ? (isVerySmallScreen ? 80 : 100) : 120) + 16,
+                      left: isPortrait 
+                          ? (isSmallScreen ? (isVerySmallScreen ? 80 : 100) : 120) + 16
+                          : (isSmallScreen ? (isVerySmallScreen ? 80 : 100) : 120) + 16,
                       right: 16,
                       child: Material(
                         elevation: 8,
@@ -714,258 +725,289 @@ class RotationsPage extends ConsumerWidget {
                 ],
               ),
             ),
-          // Close button (X) in top right corner - placed last so it's on top
+          // Close button and action buttons grouped together
           Positioned(
             top: MediaQuery.of(context).padding.top + 8,
             right: 8,
-            child: Material(
-              elevation: 4,
-              color: Colors.transparent,
-              child: InkWell(
-                onTap: _showExitConfirmation,
-                borderRadius: BorderRadius.circular(20),
-                child: Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: theme.colorScheme.surface,
-                    shape: BoxShape.circle,
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.2),
-                        blurRadius: 4,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
-                  ),
-                  child: Icon(
-                    Icons.close,
-                    color: theme.colorScheme.onSurface,
-                    size: 24,
-                  ),
-                ),
-              ),
-            ),
-          ),
-          // Floating action buttons for AppBar actions
-          Positioned(
-            top: 8,
-            left: 8,
             child: isPortrait
                 ? Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                  // Grid toggle
-                  FloatingActionButton.small(
-                    heroTag: 'grid',
-                    onPressed: () {
-                      ref.read(rotationProvider.notifier).toggleGrid();
-                    },
-                    backgroundColor: rotationState.showGrid
-                        ? theme.colorScheme.primary
-                        : theme.colorScheme.surface,
-                    child: Icon(
-                      rotationState.showGrid
-                          ? Icons.grid_on
-                          : Icons.grid_off,
-                      color: rotationState.showGrid
-                          ? theme.colorScheme.onPrimary
-                          : theme.colorScheme.onSurface,
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  // Drawing mode toggle
-                  FloatingActionButton.small(
-                    heroTag: 'drawing',
-                    onPressed: () {
-                      ref.read(rotationProvider.notifier).toggleDrawingMode();
-                    },
-                    backgroundColor: rotationState.isDrawingMode
-                        ? theme.colorScheme.primary
-                        : theme.colorScheme.surface,
-                    child: Icon(
-                      rotationState.isDrawingMode
-                          ? Icons.edit
-                          : Icons.edit_outlined,
-                      color: rotationState.isDrawingMode
-                          ? theme.colorScheme.onPrimary
-                          : theme.colorScheme.onSurface,
-                    ),
-                  ),
-                  // Undo last drawing button (only visible when there are drawings)
-                  if (rotationState.drawings.isNotEmpty) ...[
-                    const SizedBox(width: 8),
-                    FloatingActionButton.small(
-                      heroTag: 'undo',
-                      onPressed: () {
-                        ref.read(rotationProvider.notifier).undoLastDrawing();
-                      },
-                      backgroundColor: theme.colorScheme.surface,
-                      child: Icon(
-                        Icons.undo,
-                        color: theme.colorScheme.onSurface,
-                      ),
-                    ),
-                  ],
-                  // Clear all drawings button (only visible when there are drawings)
-                  if (rotationState.drawings.isNotEmpty) ...[
-                    const SizedBox(width: 8),
-                    FloatingActionButton.small(
-                      heroTag: 'clear',
-                      onPressed: () {
-                        ref.read(rotationProvider.notifier).clearDrawings();
-                      },
-                      backgroundColor: theme.colorScheme.surface,
-                      child: Icon(
-                        Icons.delete_outline,
-                        color: theme.colorScheme.onSurface,
-                      ),
-                    ),
-                  ],
-                  // Copy coordinates button (only in debug mode)
-                  if (kDebugMode) ...[
-                    const SizedBox(width: 8),
-                    FloatingActionButton.small(
-                      heroTag: 'copy',
-                      onPressed: () {
-                        final json = ref.read(rotationProvider.notifier).getAllCoordinatesJson();
-                        Clipboard.setData(ClipboardData(text: json));
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(l10n.coordinatesCopied),
-                            duration: const Duration(seconds: 2),
+                      // Action buttons in a row
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          // Grid toggle
+                          FloatingActionButton.small(
+                            heroTag: 'grid',
+                            elevation: 0,
+                            onPressed: () {
+                              ref.read(rotationProvider.notifier).toggleGrid();
+                            },
+                            backgroundColor: rotationState.showGrid
+                                ? theme.colorScheme.primary
+                                : theme.colorScheme.surface,
+                            child: Icon(
+                              rotationState.showGrid
+                                  ? Icons.grid_on
+                                  : Icons.grid_off,
+                              color: rotationState.showGrid
+                                  ? theme.colorScheme.onPrimary
+                                  : theme.colorScheme.onSurface,
+                            ),
                           ),
-                        );
-                      },
-                      backgroundColor: theme.colorScheme.surface,
-                      child: Icon(
-                        Icons.copy,
-                        color: theme.colorScheme.onSurface,
+                          const SizedBox(width: 8),
+                          // Drawing mode toggle
+                          FloatingActionButton.small(
+                            heroTag: 'drawing',
+                            elevation: 0,
+                            onPressed: () {
+                              ref.read(rotationProvider.notifier).toggleDrawingMode();
+                            },
+                            backgroundColor: rotationState.isDrawingMode
+                                ? theme.colorScheme.primary
+                                : theme.colorScheme.surface,
+                            child: Icon(
+                              rotationState.isDrawingMode
+                                  ? Icons.edit
+                                  : Icons.edit_outlined,
+                              color: rotationState.isDrawingMode
+                                  ? theme.colorScheme.onPrimary
+                                  : theme.colorScheme.onSurface,
+                            ),
+                          ),
+                          // Undo last drawing button (only visible when there are drawings)
+                          if (rotationState.drawings.isNotEmpty) ...[
+                            const SizedBox(width: 8),
+                            FloatingActionButton.small(
+                              heroTag: 'undo',
+                              elevation: 0,
+                              onPressed: () {
+                                ref.read(rotationProvider.notifier).undoLastDrawing();
+                              },
+                              backgroundColor: theme.colorScheme.surface,
+                              child: Icon(
+                                Icons.undo,
+                                color: theme.colorScheme.onSurface,
+                              ),
+                            ),
+                          ],
+                          // Clear all drawings button (only visible when there are drawings)
+                          if (rotationState.drawings.isNotEmpty) ...[
+                            const SizedBox(width: 8),
+                            FloatingActionButton.small(
+                              heroTag: 'clear',
+                              elevation: 0,
+                              onPressed: () {
+                                ref.read(rotationProvider.notifier).clearDrawings();
+                              },
+                              backgroundColor: theme.colorScheme.surface,
+                              child: Icon(
+                                Icons.delete_outline,
+                                color: theme.colorScheme.onSurface,
+                              ),
+                            ),
+                          ],
+                          // Copy coordinates button (only in debug mode)
+                          if (kDebugMode) ...[
+                            const SizedBox(width: 8),
+                            FloatingActionButton.small(
+                              heroTag: 'copy',
+                              elevation: 0,
+                              onPressed: () {
+                                final json = ref.read(rotationProvider.notifier).getAllCoordinatesJson();
+                                Clipboard.setData(ClipboardData(text: json));
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(l10n.coordinatesCopied),
+                                    duration: const Duration(seconds: 2),
+                                  ),
+                                );
+                              },
+                              backgroundColor: theme.colorScheme.surface,
+                              child: Icon(
+                                Icons.copy,
+                                color: theme.colorScheme.onSurface,
+                              ),
+                            ),
+                          ],
+                          // Reset button
+                          const SizedBox(width: 8),
+                          FloatingActionButton.small(
+                            heroTag: 'reset',
+                            elevation: 0,
+                            onPressed: () {
+                              ref.read(rotationProvider.notifier).reset();
+                            },
+                            backgroundColor: theme.colorScheme.surface,
+                            child: Icon(
+                              Icons.refresh,
+                              color: theme.colorScheme.onSurface,
+                            ),
+                          ),
+                        ],
                       ),
-                    ),
-                  ],
-                  // Reset button
-                  const SizedBox(width: 8),
-                  FloatingActionButton.small(
-                    heroTag: 'reset',
-                    onPressed: () {
-                      ref.read(rotationProvider.notifier).reset();
-                    },
-                    backgroundColor: theme.colorScheme.surface,
-                    child: Icon(
-                      Icons.refresh,
-                      color: theme.colorScheme.onSurface,
-                    ),
-                  ),
-                ],
+                      const SizedBox(width: 8),
+                      // Close button (X)
+                      Material(
+                        elevation: 0,
+                        color: Colors.transparent,
+                        child: InkWell(
+                          onTap: _showExitConfirmation,
+                          borderRadius: BorderRadius.circular(20),
+                          child: Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: theme.colorScheme.surface,
+                              shape: BoxShape.circle,
+                            ),
+                            child: Icon(
+                              Icons.close,
+                              color: theme.colorScheme.onSurface,
+                              size: 24,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
                   )
                 : Column(
                     mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
-                  // Grid toggle
-                  FloatingActionButton.small(
-                    heroTag: 'grid',
-                    onPressed: () {
-                      ref.read(rotationProvider.notifier).toggleGrid();
-                    },
-                    backgroundColor: rotationState.showGrid
-                        ? theme.colorScheme.primary
-                        : theme.colorScheme.surface,
-                    child: Icon(
-                      rotationState.showGrid
-                          ? Icons.grid_on
-                          : Icons.grid_off,
-                      color: rotationState.showGrid
-                          ? theme.colorScheme.onPrimary
-                          : theme.colorScheme.onSurface,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  // Drawing mode toggle
-                  FloatingActionButton.small(
-                    heroTag: 'drawing',
-                    onPressed: () {
-                      ref.read(rotationProvider.notifier).toggleDrawingMode();
-                    },
-                    backgroundColor: rotationState.isDrawingMode
-                        ? theme.colorScheme.primary
-                        : theme.colorScheme.surface,
-                    child: Icon(
-                      rotationState.isDrawingMode
-                          ? Icons.edit
-                          : Icons.edit_outlined,
-                      color: rotationState.isDrawingMode
-                          ? theme.colorScheme.onPrimary
-                          : theme.colorScheme.onSurface,
-                    ),
-                  ),
-                  // Undo last drawing button (only visible when there are drawings)
-                  if (rotationState.drawings.isNotEmpty) ...[
-                    const SizedBox(height: 8),
-                    FloatingActionButton.small(
-                      heroTag: 'undo',
-                      onPressed: () {
-                        ref.read(rotationProvider.notifier).undoLastDrawing();
-                      },
-                      backgroundColor: theme.colorScheme.surface,
-                      child: Icon(
-                        Icons.undo,
-                        color: theme.colorScheme.onSurface,
-                      ),
-                    ),
-                  ],
-                  // Clear all drawings button (only visible when there are drawings)
-                  if (rotationState.drawings.isNotEmpty) ...[
-                    const SizedBox(height: 8),
-                    FloatingActionButton.small(
-                      heroTag: 'clear',
-                      onPressed: () {
-                        ref.read(rotationProvider.notifier).clearDrawings();
-                      },
-                      backgroundColor: theme.colorScheme.surface,
-                      child: Icon(
-                        Icons.delete_outline,
-                        color: theme.colorScheme.onSurface,
-                      ),
-                    ),
-                  ],
-                  // Copy coordinates button (only in debug mode)
-                  if (kDebugMode) ...[
-                    const SizedBox(height: 8),
-                    FloatingActionButton.small(
-                      heroTag: 'copy',
-                      onPressed: () {
-                        final json = ref.read(rotationProvider.notifier).getAllCoordinatesJson();
-                        Clipboard.setData(ClipboardData(text: json));
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(l10n.coordinatesCopied),
-                            duration: const Duration(seconds: 2),
+                      // Close button (X)
+                      Material(
+                        elevation: 0,
+                        color: Colors.transparent,
+                        child: InkWell(
+                          onTap: _showExitConfirmation,
+                          borderRadius: BorderRadius.circular(20),
+                          child: Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: theme.colorScheme.surface,
+                              shape: BoxShape.circle,
+                            ),
+                            child: Icon(
+                              Icons.close,
+                              color: theme.colorScheme.onSurface,
+                              size: 24,
+                            ),
                           ),
-                        );
-                      },
-                      backgroundColor: theme.colorScheme.surface,
-                      child: Icon(
-                        Icons.copy,
-                        color: theme.colorScheme.onSurface,
+                        ),
                       ),
-                    ),
-                  ],
-                  // Reset button
-                  const SizedBox(height: 8),
-                  FloatingActionButton.small(
-                    heroTag: 'reset',
-                    onPressed: () {
-                      ref.read(rotationProvider.notifier).reset();
-                    },
-                    backgroundColor: theme.colorScheme.surface,
-                    child: Icon(
-                      Icons.refresh,
-                      color: theme.colorScheme.onSurface,
-                    ),
+                      const SizedBox(height: 8),
+                      // Grid toggle
+                      FloatingActionButton.small(
+                        heroTag: 'grid',
+                        elevation: 0,
+                        onPressed: () {
+                          ref.read(rotationProvider.notifier).toggleGrid();
+                        },
+                        backgroundColor: rotationState.showGrid
+                            ? theme.colorScheme.primary
+                            : theme.colorScheme.surface,
+                        child: Icon(
+                          rotationState.showGrid
+                              ? Icons.grid_on
+                              : Icons.grid_off,
+                          color: rotationState.showGrid
+                              ? theme.colorScheme.onPrimary
+                              : theme.colorScheme.onSurface,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      // Drawing mode toggle
+                      FloatingActionButton.small(
+                        heroTag: 'drawing',
+                        elevation: 0,
+                        onPressed: () {
+                          ref.read(rotationProvider.notifier).toggleDrawingMode();
+                        },
+                        backgroundColor: rotationState.isDrawingMode
+                            ? theme.colorScheme.primary
+                            : theme.colorScheme.surface,
+                        child: Icon(
+                          rotationState.isDrawingMode
+                              ? Icons.edit
+                              : Icons.edit_outlined,
+                          color: rotationState.isDrawingMode
+                              ? theme.colorScheme.onPrimary
+                              : theme.colorScheme.onSurface,
+                        ),
+                      ),
+                      // Undo last drawing button (only visible when there are drawings)
+                      if (rotationState.drawings.isNotEmpty) ...[
+                        const SizedBox(height: 8),
+                        FloatingActionButton.small(
+                          heroTag: 'undo',
+                          elevation: 0,
+                          onPressed: () {
+                            ref.read(rotationProvider.notifier).undoLastDrawing();
+                          },
+                          backgroundColor: theme.colorScheme.surface,
+                          child: Icon(
+                            Icons.undo,
+                            color: theme.colorScheme.onSurface,
+                          ),
+                        ),
+                      ],
+                      // Clear all drawings button (only visible when there are drawings)
+                      if (rotationState.drawings.isNotEmpty) ...[
+                        const SizedBox(height: 8),
+                        FloatingActionButton.small(
+                          heroTag: 'clear',
+                          elevation: 0,
+                          onPressed: () {
+                            ref.read(rotationProvider.notifier).clearDrawings();
+                          },
+                          backgroundColor: theme.colorScheme.surface,
+                          child: Icon(
+                            Icons.delete_outline,
+                            color: theme.colorScheme.onSurface,
+                          ),
+                        ),
+                      ],
+                      // Copy coordinates button (only in debug mode)
+                      if (kDebugMode) ...[
+                        const SizedBox(height: 8),
+                        FloatingActionButton.small(
+                          heroTag: 'copy',
+                          elevation: 0,
+                          onPressed: () {
+                            final json = ref.read(rotationProvider.notifier).getAllCoordinatesJson();
+                            Clipboard.setData(ClipboardData(text: json));
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(l10n.coordinatesCopied),
+                                duration: const Duration(seconds: 2),
+                              ),
+                            );
+                          },
+                          backgroundColor: theme.colorScheme.surface,
+                          child: Icon(
+                            Icons.copy,
+                            color: theme.colorScheme.onSurface,
+                          ),
+                        ),
+                      ],
+                      // Reset button
+                      const SizedBox(height: 8),
+                      FloatingActionButton.small(
+                        heroTag: 'reset',
+                        elevation: 0,
+                        onPressed: () {
+                          ref.read(rotationProvider.notifier).reset();
+                        },
+                        backgroundColor: theme.colorScheme.surface,
+                        child: Icon(
+                          Icons.refresh,
+                          color: theme.colorScheme.onSurface,
+                        ),
+                      ),
+                    ],
                   ),
-                ],
-                  ),
-            ),
+          ),
           ],
         ),
     );
