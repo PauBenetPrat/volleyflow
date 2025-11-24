@@ -102,6 +102,8 @@ class RotationsPage extends ConsumerWidget {
     final isVerySmallScreen = mediaQuery.size.width < 400;
     // Use orientation for more reliable detection, especially for square screens
     final isPortrait = mediaQuery.orientation == Orientation.portrait;
+    // For iPad mini and similar tablets in portrait, treat as small screen for layout
+    final isTabletPortrait = isPortrait && mediaQuery.size.width >= 600 && mediaQuery.size.width < 900;
 
     final currentRotation = rotationState.rotation;
     final currentPhase = rotationState.phase;
@@ -379,7 +381,7 @@ class RotationsPage extends ConsumerWidget {
         children: [
           // Main content with SafeArea
           SafeArea(
-            child: isSmallScreen
+            child: (isSmallScreen || isTabletPortrait)
                 ? Stack(
                     children: [
                       isPortrait
@@ -619,31 +621,131 @@ class RotationsPage extends ConsumerWidget {
             : Stack(
                 children: [
                   isPortrait
-                      ? Row(
+                      ? Column(
                           children: [
-                            // Left side - Court and controls
+                            // Court Display
                             Expanded(
-                              child: Column(
-                                children: [
-                                  // Court Display
-                                  Expanded(
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(16.0),
-                                      child: VolleyballCourtWidget(
-                                        playerPositions: rotationState.positions,
-                                        rotation: rotationState.rotation,
-                                        phase: rotationState.phase,
-                                        validationResult: rotationState.validationResult,
-                                      ),
-                                    ),
-                                  ),
-                                  // Control Buttons
-                                  controlButtons,
-                                ],
+                              child: Padding(
+                                padding: const EdgeInsets.all(16.0),
+                                child: VolleyballCourtWidget(
+                                  playerPositions: rotationState.positions,
+                                  rotation: rotationState.rotation,
+                                  phase: rotationState.phase,
+                                  rotationSystem: rotationState.rotationSystem,
+                                  validationResult: rotationState.validationResult,
+                                  showGrid: rotationState.showGrid,
+                                ),
                               ),
                             ),
-                            // Right side buttons
-                            rightPanel,
+                            // Phase buttons between court and control buttons (portrait)
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                vertical: 12.0,
+                                horizontal: 16.0,
+                              ),
+                              decoration: BoxDecoration(
+                                color: theme.colorScheme.surface,
+                              ),
+                              child: SafeArea(
+                                child: Row(
+                                  children: [
+                                    Expanded(
+                                      child: ElevatedButton(
+                                        onPressed: () {
+                                          ref.read(rotationProvider.notifier).setPhase(Phase.base);
+                                        },
+                                        style: ElevatedButton.styleFrom(
+                                          padding: const EdgeInsets.symmetric(vertical: 12.0),
+                                          backgroundColor: currentPhase == Phase.base
+                                              ? theme.colorScheme.primary
+                                              : null,
+                                        ),
+                                        child: Text(
+                                          l10n.base,
+                                          style: TextStyle(
+                                            color: currentPhase == Phase.base
+                                                ? Colors.white
+                                                : null,
+                                            fontSize: 14,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Expanded(
+                                      child: ElevatedButton(
+                                        onPressed: () {
+                                          ref.read(rotationProvider.notifier).setPhase(Phase.sac);
+                                        },
+                                        style: ElevatedButton.styleFrom(
+                                          padding: const EdgeInsets.symmetric(vertical: 12.0),
+                                          backgroundColor: currentPhase == Phase.sac
+                                              ? theme.colorScheme.primary
+                                              : null,
+                                        ),
+                                        child: Text(
+                                          l10n.sac,
+                                          style: TextStyle(
+                                            color: currentPhase == Phase.sac
+                                                ? Colors.white
+                                                : null,
+                                            fontSize: 14,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Expanded(
+                                      child: ElevatedButton(
+                                        onPressed: () {
+                                          ref.read(rotationProvider.notifier).setPhase(Phase.recepcio);
+                                        },
+                                        style: ElevatedButton.styleFrom(
+                                          padding: const EdgeInsets.symmetric(vertical: 12.0),
+                                          backgroundColor: currentPhase == Phase.recepcio
+                                              ? theme.colorScheme.primary
+                                              : null,
+                                        ),
+                                        child: Text(
+                                          l10n.recepcio,
+                                          style: TextStyle(
+                                            color: currentPhase == Phase.recepcio
+                                                ? Colors.white
+                                                : null,
+                                            fontSize: 14,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Expanded(
+                                      child: ElevatedButton(
+                                        onPressed: () {
+                                          ref.read(rotationProvider.notifier).setPhase(Phase.defensa);
+                                        },
+                                        style: ElevatedButton.styleFrom(
+                                          padding: const EdgeInsets.symmetric(vertical: 12.0),
+                                          backgroundColor: currentPhase == Phase.defensa
+                                              ? theme.colorScheme.primary
+                                              : null,
+                                        ),
+                                        child: Text(
+                                          l10n.defensa,
+                                          style: TextStyle(
+                                            color: currentPhase == Phase.defensa
+                                                ? Colors.white
+                                                : null,
+                                            fontSize: 14,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            // Control Buttons
+                            controlButtons,
                           ],
                         )
                       : Row(
@@ -662,7 +764,9 @@ class RotationsPage extends ConsumerWidget {
                                         playerPositions: rotationState.positions,
                                         rotation: rotationState.rotation,
                                         phase: rotationState.phase,
+                                        rotationSystem: rotationState.rotationSystem,
                                         validationResult: rotationState.validationResult,
+                                        showGrid: rotationState.showGrid,
                                       ),
                                     ),
                                   ),

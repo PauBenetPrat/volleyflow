@@ -978,11 +978,28 @@ class VolleyballCourtPainter extends CustomPainter {
             ? roleColor.withValues(alpha: 0.7) // Lighter/dimmer for secondary
                 : roleColor);
       
+      // Shadow offset for depth effect
+      const shadowOffset = Offset(3.5, 3.5);
+      // Create shadow paint - use reduced opacity for secondary players to avoid light edges
+      final shadowPaint = Paint()
+        ..style = PaintingStyle.fill
+        ..color = Colors.black.withValues(alpha: isSecondary ? 0.2 : 0.5);
+      
       // Draw triangle for front row players, circle for back row players
       if (isFrontRow) {
         // Draw triangle pointing right (towards net) - rotated 90 degrees clockwise
-        final trianglePath = Path();
         final triangleSize = playerRadius * 1.2;
+        
+        // Draw shadow first
+        final shadowTrianglePath = Path();
+        shadowTrianglePath.moveTo(currentPosition.dx + triangleSize + shadowOffset.dx, currentPosition.dy + shadowOffset.dy);
+        shadowTrianglePath.lineTo(currentPosition.dx - triangleSize * 0.5 + shadowOffset.dx, currentPosition.dy - triangleSize + shadowOffset.dy);
+        shadowTrianglePath.lineTo(currentPosition.dx - triangleSize * 0.5 + shadowOffset.dx, currentPosition.dy + triangleSize + shadowOffset.dy);
+        shadowTrianglePath.close();
+        canvas.drawPath(shadowTrianglePath, shadowPaint);
+        
+        // Draw main triangle
+        final trianglePath = Path();
         trianglePath.moveTo(currentPosition.dx + triangleSize, currentPosition.dy); // Right point (towards net)
         trianglePath.lineTo(currentPosition.dx - triangleSize * 0.5, currentPosition.dy - triangleSize); // Top left
         trianglePath.lineTo(currentPosition.dx - triangleSize * 0.5, currentPosition.dy + triangleSize); // Bottom left
@@ -999,6 +1016,13 @@ class VolleyballCourtPainter extends CustomPainter {
           canvas.drawPath(trianglePath, borderPaint);
         }
       } else {
+        // Draw shadow circle first
+        canvas.drawCircle(
+          Offset(currentPosition.dx + shadowOffset.dx, currentPosition.dy + shadowOffset.dy),
+          playerRadius,
+          shadowPaint,
+        );
+        
         // Draw circle for back row players
         canvas.drawCircle(currentPosition, playerRadius, shapePaint);
       

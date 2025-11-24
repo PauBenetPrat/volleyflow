@@ -177,13 +177,28 @@ class RotationNotifier extends Notifier<RotationState> {
     // Carregar modificacions guardades per la nova rotació/fase
     final savedMods = _loadModifications(newRotation, newPhase);
     
+    // Validar si la nova fase és base o recepció
+    RotationValidationResult? validationResult;
+    if (newPhase == Phase.base || newPhase == Phase.recepcio) {
+      final basePositions = _getPositionCoords(newRotation, newPhase, state.rotationSystem ?? '4-2-no-libero');
+      final allPositions = Map<String, PositionCoord>.from(basePositions);
+      if (savedMods != null) {
+        allPositions.addAll(savedMods);
+      }
+      validationResult = RotationValidator.validateReceptionPositions(
+        newRotation,
+        allPositions,
+        rotationSystem: state.rotationSystem,
+      );
+    }
+    
     state = state.copyWith(
       rotation: newRotation,
       phase: newPhase,
       positions: newPositions,
       customPositions: savedMods, // Pot ser null si no hi ha modificacions
       clearCustomPositions: savedMods == null, // Netejar si no hi ha modificacions
-      clearValidation: true, // Clear validation when rotating
+      validationResult: validationResult,
     );
   }
 
@@ -203,13 +218,28 @@ class RotationNotifier extends Notifier<RotationState> {
     // Carregar modificacions guardades per la nova rotació/fase
     final savedMods = _loadModifications(newRotation, newPhase);
     
+    // Validar si la nova fase és base o recepció
+    RotationValidationResult? validationResult;
+    if (newPhase == Phase.base || newPhase == Phase.recepcio) {
+      final basePositions = _getPositionCoords(newRotation, newPhase, state.rotationSystem ?? '4-2-no-libero');
+      final allPositions = Map<String, PositionCoord>.from(basePositions);
+      if (savedMods != null) {
+        allPositions.addAll(savedMods);
+      }
+      validationResult = RotationValidator.validateReceptionPositions(
+        newRotation,
+        allPositions,
+        rotationSystem: state.rotationSystem,
+      );
+    }
+    
     state = state.copyWith(
       rotation: newRotation,
       phase: newPhase,
       positions: newPositions,
       customPositions: savedMods, // Pot ser null si no hi ha modificacions
       clearCustomPositions: savedMods == null, // Netejar si no hi ha modificacions
-      clearValidation: true, // Clear validation when rotating
+      validationResult: validationResult,
     );
   }
 
@@ -222,12 +252,27 @@ class RotationNotifier extends Notifier<RotationState> {
     // Carregar modificacions guardades per la nova fase
     final savedMods = _loadModifications(state.rotation, phase);
     
+    // Validar si la nova fase és base o recepció
+    RotationValidationResult? validationResult;
+    if (phase == Phase.base || phase == Phase.recepcio) {
+      final basePositions = _getPositionCoords(state.rotation, phase, state.rotationSystem ?? '4-2-no-libero');
+      final allPositions = Map<String, PositionCoord>.from(basePositions);
+      if (savedMods != null) {
+        allPositions.addAll(savedMods);
+      }
+      validationResult = RotationValidator.validateReceptionPositions(
+        state.rotation,
+        allPositions,
+        rotationSystem: state.rotationSystem,
+      );
+    }
+    
     state = state.copyWith(
       phase: phase,
       positions: newPositions,
       customPositions: savedMods, // Pot ser null si no hi ha modificacions
       clearCustomPositions: savedMods == null, // Netejar si no hi ha modificacions
-      clearValidation: true, // Clear validation when changing phase
+      validationResult: validationResult,
     );
   }
 
@@ -300,12 +345,13 @@ class RotationNotifier extends Notifier<RotationState> {
     final allPositions = Map<String, PositionCoord>.from(basePositions);
     allPositions.addAll(updatedCustomPositions);
     
-    // Validar només si estem en fase de recepció
+    // Validar si estem en fase base o recepció
     RotationValidationResult? validationResult;
-    if (state.phase == Phase.recepcio) {
+    if (state.phase == Phase.base || state.phase == Phase.recepcio) {
       validationResult = RotationValidator.validateReceptionPositions(
         state.rotation,
         allPositions,
+        rotationSystem: state.rotationSystem,
       );
     }
     
@@ -401,11 +447,27 @@ class RotationNotifier extends Notifier<RotationState> {
     // Load saved modifications for current rotation/phase
     final savedMods = _loadModifications(state.rotation, state.phase);
     
+    // Validar si la fase actual és base o recepció
+    RotationValidationResult? validationResult;
+    if (state.phase == Phase.base || state.phase == Phase.recepcio) {
+      final basePositions = _getPositionCoords(state.rotation, state.phase, system);
+      final allPositions = Map<String, PositionCoord>.from(basePositions);
+      if (savedMods != null) {
+        allPositions.addAll(savedMods);
+      }
+      validationResult = RotationValidator.validateReceptionPositions(
+        state.rotation,
+        allPositions,
+        rotationSystem: system,
+      );
+    }
+    
     state = state.copyWith(
       rotationSystem: system,
       positions: newPositions,
       customPositions: savedMods,
       clearCustomPositions: savedMods == null,
+      validationResult: validationResult,
     );
   }
 
