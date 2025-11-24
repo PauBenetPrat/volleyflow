@@ -58,6 +58,22 @@ class AppLocalizationsCa extends AppLocalizations {
   String get rotationSystemPlayers => 'Jugadors';
 
   @override
+  String get selectRotationSystem => 'Selecciona un sistema de rotació';
+
+  @override
+  String get rotationSystem42NoLiberoDescription => 'Sistema 4-2 sense libero';
+
+  @override
+  String get rotationSystem42Description => 'Sistema 4-2 amb libero';
+
+  @override
+  String get rotationSystem51Description => 'Sistema 5-1 amb un col·locador';
+
+  @override
+  String get rotationSystemPlayersDescription =>
+      'Rotació personalitzada amb jugadors específics';
+
+  @override
   String featureComingSoon(String displayName) {
     return 'La funcionalitat $displayName arribarà aviat!';
   }

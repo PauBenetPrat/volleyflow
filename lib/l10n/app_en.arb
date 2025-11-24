@@ -64,6 +64,26 @@
   "@rotationSystemPlayers": {
     "description": "Players rotation system"
   },
+  "selectRotationSystem": "Select a rotation system",
+  "@selectRotationSystem": {
+    "description": "Prompt to select a rotation system"
+  },
+  "rotationSystem42NoLiberoDescription": "4-2 system without libero",
+  "@rotationSystem42NoLiberoDescription": {
+    "description": "Description for 4-2 no libero system"
+  },
+  "rotationSystem42Description": "4-2 system with libero",
+  "@rotationSystem42Description": {
+    "description": "Description for 4-2 system"
+  },
+  "rotationSystem51Description": "5-1 system with one setter",
+  "@rotationSystem51Description": {
+    "description": "Description for 5-1 system"
+  },
+  "rotationSystemPlayersDescription": "Custom rotation with specific players",
+  "@rotationSystemPlayersDescription": {
+    "description": "Description for Players system"
+  },
   "featureComingSoon": "{displayName} feature coming soon!",
   "@featureComingSoon": {
     "description": "Feature coming soon message",

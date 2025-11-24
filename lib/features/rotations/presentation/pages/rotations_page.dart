@@ -6,11 +6,13 @@ import 'package:go_router/go_router.dart';
 import 'package:volleyball_coaching_app/l10n/app_localizations.dart';
 import '../../../../shared/widgets/volleyball_court_widget.dart';
 import '../../domain/providers/rotation_provider.dart';
-import '../../../../core/constants/rotation_positions.dart';
+import '../../../../core/constants/rotation_positions_4_2_no_libero.dart';
 import '../../../../core/constants/player_roles.dart';
 
 class RotationsPage extends ConsumerWidget {
-  const RotationsPage({super.key});
+  final String? rotationSystem;
+  
+  const RotationsPage({super.key, this.rotationSystem});
   
   // Helper method to convert error messages to use new abbreviations
   static String _convertErrorToDisplayAbbreviations(String error) {
@@ -104,11 +106,33 @@ class RotationsPage extends ConsumerWidget {
     final currentRotation = rotationState.rotation;
     final currentPhase = rotationState.phase;
 
-    // Set default rotation system if not selected (don't show dialog)
-    if (rotationState.rotationSystem == null) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        ref.read(rotationProvider.notifier).setRotationSystem('4-2-no-libero');
+    // Set rotation system from parameter or state (using Future to avoid modifying during build)
+    final systemToUse = rotationSystem ?? rotationState.rotationSystem;
+    if (systemToUse != null && rotationState.rotationSystem != systemToUse) {
+      Future.microtask(() {
+        if (context.mounted) {
+          ref.read(rotationProvider.notifier).setRotationSystem(systemToUse);
+        }
       });
+    }
+    
+    // Ensure rotation system is selected (should be set from selection page or parameter)
+    if (rotationState.rotationSystem == null && systemToUse == null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        // If somehow we got here without a system, go back to selection
+        if (context.mounted) {
+          context.go('/rotations');
+        }
+      });
+      // Return empty container while redirecting
+      return const Scaffold(body: SizedBox.shrink());
+    }
+    
+    // If system is being set, show loading or wait for it
+    if (systemToUse != null && rotationState.rotationSystem != systemToUse) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
     }
 
 
@@ -369,6 +393,7 @@ class RotationsPage extends ConsumerWidget {
                                   playerPositions: rotationState.positions,
                                   rotation: rotationState.rotation,
                                   phase: rotationState.phase,
+                                  rotationSystem: rotationState.rotationSystem,
                                   validationResult: rotationState.validationResult,
                                   showGrid: rotationState.showGrid,
                                 ),

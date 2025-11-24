@@ -202,6 +202,36 @@ abstract class AppLocalizations {
   /// **'Players'**
   String get rotationSystemPlayers;
 
+  /// Prompt to select a rotation system
+  ///
+  /// In en, this message translates to:
+  /// **'Select a rotation system'**
+  String get selectRotationSystem;
+
+  /// Description for 4-2 no libero system
+  ///
+  /// In en, this message translates to:
+  /// **'4-2 system without libero'**
+  String get rotationSystem42NoLiberoDescription;
+
+  /// Description for 4-2 system
+  ///
+  /// In en, this message translates to:
+  /// **'4-2 system with libero'**
+  String get rotationSystem42Description;
+
+  /// Description for 5-1 system
+  ///
+  /// In en, this message translates to:
+  /// **'5-1 system with one setter'**
+  String get rotationSystem51Description;
+
+  /// Description for Players system
+  ///
+  /// In en, this message translates to:
+  /// **'Custom rotation with specific players'**
+  String get rotationSystemPlayersDescription;
+
   /// Feature coming soon message
   ///
   /// In en, this message translates to:

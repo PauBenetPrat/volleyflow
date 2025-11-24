@@ -58,6 +58,22 @@ class AppLocalizationsDe extends AppLocalizations {
   String get rotationSystemPlayers => 'Spieler';
 
   @override
+  String get selectRotationSystem => 'Wählen Sie ein Rotationssystem';
+
+  @override
+  String get rotationSystem42NoLiberoDescription => '4-2-System ohne Libero';
+
+  @override
+  String get rotationSystem42Description => '4-2-System mit Libero';
+
+  @override
+  String get rotationSystem51Description => '5-1-System mit einem Zuspieler';
+
+  @override
+  String get rotationSystemPlayersDescription =>
+      'Benutzerdefinierte Rotation mit spezifischen Spielern';
+
+  @override
   String featureComingSoon(String displayName) {
     return 'Die Funktion $displayName kommt bald!';
   }

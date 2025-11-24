@@ -19,7 +19,9 @@ class VolleyballCoachingApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final router = ref.watch(routerProvider);
+    // Use read instead of watch for router to prevent unnecessary rebuilds
+    // The router instance is stable and doesn't need to trigger rebuilds
+    final router = ref.read(routerProvider);
     final locale = ref.watch(localeProvider);
     
     return MaterialApp.router(

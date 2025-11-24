@@ -58,6 +58,23 @@ class AppLocalizationsEu extends AppLocalizations {
   String get rotationSystemPlayers => 'Jokalariak';
 
   @override
+  String get selectRotationSystem => 'Hautatu errotazio sistema bat';
+
+  @override
+  String get rotationSystem42NoLiberoDescription =>
+      '4-2 sistema liberorik gabe';
+
+  @override
+  String get rotationSystem42Description => '4-2 sistema liberoarekin';
+
+  @override
+  String get rotationSystem51Description => '5-1 sistema antolatzaile batekin';
+
+  @override
+  String get rotationSystemPlayersDescription =>
+      'Jokalari espezifikoekin errotazio pertsonalizatua';
+
+  @override
   String featureComingSoon(String displayName) {
     return '$displayName funtzionalitatea laster etorriko da!';
   }
