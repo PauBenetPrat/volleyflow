@@ -178,6 +178,7 @@ class RotationNotifier extends Notifier<RotationState> {
     final savedMods = _loadModifications(newRotation, newPhase);
     
     // Validar si la nova fase és base o recepció
+    // Si no és base ni recepció, netejar els errors de validació
     RotationValidationResult? validationResult;
     if (newPhase == Phase.base || newPhase == Phase.recepcio) {
       final basePositions = _getPositionCoords(newRotation, newPhase, state.rotationSystem ?? '4-2-no-libero');
@@ -190,6 +191,9 @@ class RotationNotifier extends Notifier<RotationState> {
         allPositions,
         rotationSystem: state.rotationSystem,
       );
+    } else {
+      // Netejar errors de validació quan es canvia a sac o defensa
+      validationResult = null;
     }
     
     state = state.copyWith(
@@ -199,6 +203,7 @@ class RotationNotifier extends Notifier<RotationState> {
       customPositions: savedMods, // Pot ser null si no hi ha modificacions
       clearCustomPositions: savedMods == null, // Netejar si no hi ha modificacions
       validationResult: validationResult,
+      clearValidation: validationResult == null, // Netejar explícitament si no hi ha validació
     );
   }
 
@@ -219,6 +224,7 @@ class RotationNotifier extends Notifier<RotationState> {
     final savedMods = _loadModifications(newRotation, newPhase);
     
     // Validar si la nova fase és base o recepció
+    // Si no és base ni recepció, netejar els errors de validació
     RotationValidationResult? validationResult;
     if (newPhase == Phase.base || newPhase == Phase.recepcio) {
       final basePositions = _getPositionCoords(newRotation, newPhase, state.rotationSystem ?? '4-2-no-libero');
@@ -231,6 +237,9 @@ class RotationNotifier extends Notifier<RotationState> {
         allPositions,
         rotationSystem: state.rotationSystem,
       );
+    } else {
+      // Netejar errors de validació quan es canvia a sac o defensa
+      validationResult = null;
     }
     
     state = state.copyWith(
@@ -240,6 +249,7 @@ class RotationNotifier extends Notifier<RotationState> {
       customPositions: savedMods, // Pot ser null si no hi ha modificacions
       clearCustomPositions: savedMods == null, // Netejar si no hi ha modificacions
       validationResult: validationResult,
+      clearValidation: validationResult == null, // Netejar explícitament si no hi ha validació
     );
   }
 
@@ -247,15 +257,19 @@ class RotationNotifier extends Notifier<RotationState> {
     // Guardar modificacions actuals abans de canviar
     _saveCurrentModifications();
     
-    final newPositions = _getPositions(state.rotation, phase, state.rotationSystem ?? '4-2-no-libero');
+    // Toggle: si cliques la mateixa fase, torna a base
+    final newPhase = (state.phase == phase) ? Phase.base : phase;
+    
+    final newPositions = _getPositions(state.rotation, newPhase, state.rotationSystem ?? '4-2-no-libero');
     
     // Carregar modificacions guardades per la nova fase
-    final savedMods = _loadModifications(state.rotation, phase);
+    final savedMods = _loadModifications(state.rotation, newPhase);
     
     // Validar si la nova fase és base o recepció
+    // Si no és base ni recepció, netejar els errors de validació
     RotationValidationResult? validationResult;
-    if (phase == Phase.base || phase == Phase.recepcio) {
-      final basePositions = _getPositionCoords(state.rotation, phase, state.rotationSystem ?? '4-2-no-libero');
+    if (newPhase == Phase.base || newPhase == Phase.recepcio) {
+      final basePositions = _getPositionCoords(state.rotation, newPhase, state.rotationSystem ?? '4-2-no-libero');
       final allPositions = Map<String, PositionCoord>.from(basePositions);
       if (savedMods != null) {
         allPositions.addAll(savedMods);
@@ -265,14 +279,18 @@ class RotationNotifier extends Notifier<RotationState> {
         allPositions,
         rotationSystem: state.rotationSystem,
       );
+    } else {
+      // Netejar errors de validació quan es canvia a sac o defensa
+      validationResult = null;
     }
     
     state = state.copyWith(
-      phase: phase,
+      phase: newPhase,
       positions: newPositions,
       customPositions: savedMods, // Pot ser null si no hi ha modificacions
       clearCustomPositions: savedMods == null, // Netejar si no hi ha modificacions
       validationResult: validationResult,
+      clearValidation: validationResult == null, // Netejar explícitament si no hi ha validació
     );
   }
 

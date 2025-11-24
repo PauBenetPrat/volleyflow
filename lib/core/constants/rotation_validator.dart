@@ -293,6 +293,24 @@ class RotationValidator {
       }
     }
     
+    // Validació específica: Posició 3 (front center) vs Posició 6 (back center)
+    // El jugador a la posició 6 (posterior, centre) no pot estar per davant del jugador a la posició 3 (davanter, centre)
+    // i viceversa
+    final playerAt3 = positionToPlayer[CourtPosition.position3];
+    final playerAt6 = positionToPlayer[CourtPosition.position6];
+    
+    if (playerAt3 != null && playerAt6 != null) {
+      final x3 = playerPositions[playerAt3]?.x ?? 0.0;
+      final x6 = playerPositions[playerAt6]?.x ?? 0.0;
+      
+      // El jugador a la posició 6 (posterior) no pot estar per davant del jugador a la posició 3 (davanter)
+      if (x6 > x3) {
+        errors.add(
+          'Regla 3: $playerAt6 (posterior, pos 6) està per davant de $playerAt3 (davanter, pos 3)',
+        );
+      }
+    }
+    
     return RotationValidationResult(
       isValid: errors.isEmpty,
       errors: errors,
