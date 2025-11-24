@@ -403,4 +403,16 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get coachDeleted => 'Entraîneur supprimé';
+
+  @override
+  String get enterPin => 'Entrez le code PIN';
+
+  @override
+  String get pin => 'Code PIN';
+
+  @override
+  String get pinRequired => 'Le code PIN est requis';
+
+  @override
+  String get incorrectPin => 'Code PIN incorrect';
 }

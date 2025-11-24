@@ -120,6 +120,10 @@
   "playerDeleted": "Joueur supprimé",
   "deleteCoach": "Supprimer l'Entraîneur",
   "deleteCoachConfirmation": "Êtes-vous sûr de vouloir supprimer {name}?",
-  "coachDeleted": "Entraîneur supprimé"
+  "coachDeleted": "Entraîneur supprimé",
+  "enterPin": "Entrez le code PIN",
+  "pin": "Code PIN",
+  "pinRequired": "Le code PIN est requis",
+  "incorrectPin": "Code PIN incorrect"
 }
 

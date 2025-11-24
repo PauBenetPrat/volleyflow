@@ -526,6 +526,10 @@
   "coachDeleted": "Coach deleted",
   "@coachDeleted": {
     "description": "Coach deleted success message"
-  }
+  },
+  "enterPin": "Enter PIN",
+  "pin": "PIN",
+  "pinRequired": "PIN is required",
+  "incorrectPin": "Incorrect PIN"
 }
 

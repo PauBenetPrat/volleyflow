@@ -399,4 +399,16 @@ class AppLocalizationsCa extends AppLocalizations {
 
   @override
   String get coachDeleted => 'Entrenador eliminat';
+
+  @override
+  String get enterPin => 'Introdueix el PIN';
+
+  @override
+  String get pin => 'PIN';
+
+  @override
+  String get pinRequired => 'El PIN és obligatori';
+
+  @override
+  String get incorrectPin => 'PIN incorrecte';
 }

@@ -268,6 +268,79 @@ class RotationsPage extends ConsumerWidget {
       ),
     );
 
+    // Show PIN dialog for copying coordinates
+    void _showPinDialog(BuildContext context, WidgetRef ref, AppLocalizations l10n, ThemeData theme) {
+      final pinController = TextEditingController();
+      final formKey = GlobalKey<FormState>();
+      const correctPin = '7536'; // PIN per copiar les coordenades
+      
+      showDialog(
+        context: context,
+        builder: (BuildContext dialogContext) {
+          return AlertDialog(
+            title: Text(l10n.enterPin),
+            content: Form(
+              key: formKey,
+              child: TextFormField(
+                controller: pinController,
+                obscureText: true,
+                keyboardType: TextInputType.number,
+                decoration: InputDecoration(
+                  labelText: l10n.pin,
+                  border: const OutlineInputBorder(),
+                ),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return l10n.pinRequired;
+                  }
+                  if (value != correctPin) {
+                    return l10n.incorrectPin;
+                  }
+                  return null;
+                },
+                autofocus: true,
+                onFieldSubmitted: (value) {
+                  if (formKey.currentState!.validate()) {
+                    final json = ref.read(rotationProvider.notifier).getAllCoordinatesJson();
+                    Clipboard.setData(ClipboardData(text: json));
+                    Navigator.of(dialogContext).pop();
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(l10n.coordinatesCopied),
+                        duration: const Duration(seconds: 2),
+                      ),
+                    );
+                  }
+                },
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(dialogContext).pop(),
+                child: Text(l10n.cancel),
+              ),
+              TextButton(
+                onPressed: () {
+                  if (formKey.currentState!.validate()) {
+                    final json = ref.read(rotationProvider.notifier).getAllCoordinatesJson();
+                    Clipboard.setData(ClipboardData(text: json));
+                    Navigator.of(dialogContext).pop();
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(l10n.coordinatesCopied),
+                        duration: const Duration(seconds: 2),
+                      ),
+                    );
+                  }
+                },
+                child: Text(l10n.ok),
+              ),
+            ],
+          );
+        },
+      );
+    }
+
     // Show exit confirmation dialog
     void _showExitConfirmation() {
       showDialog(
@@ -425,28 +498,19 @@ class RotationsPage extends ConsumerWidget {
                   ),
                 ),
               ],
-              if (kDebugMode) ...[
-                const SizedBox(height: 8),
-                FloatingActionButton.small(
-                  heroTag: 'copy-landscape',
-                  elevation: 0,
-                  onPressed: () {
-                    final json = ref.read(rotationProvider.notifier).getAllCoordinatesJson();
-                    Clipboard.setData(ClipboardData(text: json));
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(l10n.coordinatesCopied),
-                        duration: const Duration(seconds: 2),
-                      ),
-                    );
-                  },
-                  backgroundColor: theme.colorScheme.surface,
-                  child: Icon(
-                    Icons.copy,
-                    color: theme.colorScheme.onSurface,
-                  ),
+              const SizedBox(height: 8),
+              FloatingActionButton.small(
+                heroTag: 'copy-landscape',
+                elevation: 0,
+                onPressed: () {
+                  _showPinDialog(context, ref, l10n, theme);
+                },
+                backgroundColor: theme.colorScheme.surface,
+                child: Icon(
+                  Icons.copy,
+                  color: theme.colorScheme.onSurface,
                 ),
-              ],
+              ),
               const SizedBox(height: 8),
               FloatingActionButton.small(
                 heroTag: 'reset-landscape',
@@ -1007,29 +1071,20 @@ class RotationsPage extends ConsumerWidget {
                               ),
                             ),
                           ],
-                          // Copy coordinates button (only in debug mode)
-                          if (kDebugMode) ...[
-                            const SizedBox(width: 8),
-                            FloatingActionButton.small(
-                              heroTag: 'copy',
-                              elevation: 0,
-                              onPressed: () {
-                                final json = ref.read(rotationProvider.notifier).getAllCoordinatesJson();
-                                Clipboard.setData(ClipboardData(text: json));
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text(l10n.coordinatesCopied),
-                                    duration: const Duration(seconds: 2),
-                                  ),
-                                );
-                              },
-                              backgroundColor: theme.colorScheme.surface,
-                              child: Icon(
-                                Icons.copy,
-                                color: theme.colorScheme.onSurface,
-                              ),
+                          // Copy coordinates button
+                          const SizedBox(width: 8),
+                          FloatingActionButton.small(
+                            heroTag: 'copy',
+                            elevation: 0,
+                            onPressed: () {
+                              _showPinDialog(context, ref, l10n, theme);
+                            },
+                            backgroundColor: theme.colorScheme.surface,
+                            child: Icon(
+                              Icons.copy,
+                              color: theme.colorScheme.onSurface,
                             ),
-                          ],
+                          ),
                           // Reset button
                           const SizedBox(width: 8),
                           FloatingActionButton.small(
@@ -1104,69 +1159,61 @@ class _RotateButton extends ConsumerWidget {
       child: Tooltip(
         message: l10n.rotateTooltip,
         child: isCircular
-            ? _buildCircularButton(theme)
-            : _buildRectangularButton(theme),
+            ? _buildCircularButton(theme, ref)
+            : _buildRectangularButton(theme, ref),
       ),
     );
   }
 
-  Widget _buildCircularButton(ThemeData theme) {
+  Widget _buildCircularButton(ThemeData theme, WidgetRef ref) {
     final iconSize = isSmallScreen ? (isVerySmallScreen ? 64.0 : 72.0) : 80.0;
     
-    return Consumer(
-      builder: (context, ref, child) {
-        return GestureDetector(
-          onTap: () {
-            ref.read(rotationProvider.notifier).rotateClockwise();
-          },
-          child: Stack(
-            alignment: Alignment.center,
-            children: [
-              Icon(
-                Icons.rotate_right,
-                size: iconSize,
-                color: theme.colorScheme.primary,
-              ),
-              Text(
-                'R$currentRotation',
-                style: TextStyle(
-                  color: theme.colorScheme.primary,
-                  fontSize: isSmallScreen ? (isVerySmallScreen ? 14 : 16) : 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
-          ),
-        );
+    return GestureDetector(
+      onTap: () {
+        ref.read(rotationProvider.notifier).rotateClockwise();
       },
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          Icon(
+            Icons.rotate_right,
+            size: iconSize,
+            color: theme.colorScheme.primary,
+          ),
+          Text(
+            'R$currentRotation',
+            style: TextStyle(
+              color: theme.colorScheme.primary,
+              fontSize: isSmallScreen ? (isVerySmallScreen ? 14 : 16) : 18,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ],
+      ),
     );
   }
 
-  Widget _buildRectangularButton(ThemeData theme) {
-    return Consumer(
-      builder: (context, ref, child) {
-        return OutlinedButton.icon(
-          onPressed: () {
-            ref.read(rotationProvider.notifier).rotateClockwise();
-          },
-          icon: Icon(
-            Icons.rotate_right,
-            size: isSmallScreen ? (isVerySmallScreen ? 18 : 20) : 24,
-          ),
-          label: Text(
-            'R$currentRotation',
-            style: TextStyle(
-              fontSize: isSmallScreen ? (isVerySmallScreen ? 12 : 14) : 16,
-            ),
-          ),
-          style: OutlinedButton.styleFrom(
-            minimumSize: Size(
-              double.infinity,
-              isSmallScreen ? (isVerySmallScreen ? 40 : 50) : 50,
-            ),
-          ),
-        );
+  Widget _buildRectangularButton(ThemeData theme, WidgetRef ref) {
+    return OutlinedButton.icon(
+      onPressed: () {
+        ref.read(rotationProvider.notifier).rotateClockwise();
       },
+      icon: Icon(
+        Icons.rotate_right,
+        size: isSmallScreen ? (isVerySmallScreen ? 18 : 20) : 24,
+      ),
+      label: Text(
+        'R$currentRotation',
+        style: TextStyle(
+          fontSize: isSmallScreen ? (isVerySmallScreen ? 12 : 14) : 16,
+        ),
+      ),
+      style: OutlinedButton.styleFrom(
+        minimumSize: Size(
+          double.infinity,
+          isSmallScreen ? (isVerySmallScreen ? 40 : 50) : 50,
+        ),
+      ),
     );
   }
 }

@@ -120,6 +120,10 @@
   "playerDeleted": "Jokalaria ezabatuta",
   "deleteCoach": "Entrenatzailea Ezabatu",
   "deleteCoachConfirmation": "Ziur zaude {name} ezabatu nahi duzula?",
-  "coachDeleted": "Entrenatzailea ezabatuta"
+  "coachDeleted": "Entrenatzailea ezabatuta",
+  "enterPin": "Sartu PIN-a",
+  "pin": "PIN",
+  "pinRequired": "PIN-a beharrezkoa da",
+  "incorrectPin": "PIN okerra"
 }
 

@@ -400,4 +400,16 @@ class AppLocalizationsEu extends AppLocalizations {
 
   @override
   String get coachDeleted => 'Entrenatzailea ezabatuta';
+
+  @override
+  String get enterPin => 'Sartu PIN-a';
+
+  @override
+  String get pin => 'PIN';
+
+  @override
+  String get pinRequired => 'PIN-a beharrezkoa da';
+
+  @override
+  String get incorrectPin => 'PIN okerra';
 }
