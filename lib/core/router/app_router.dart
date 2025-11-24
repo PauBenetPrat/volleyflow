@@ -2,6 +2,7 @@ import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../features/home/presentation/pages/home_page.dart';
 import '../../features/rotations/presentation/pages/rotations_page.dart';
+import '../../features/rotations/presentation/pages/rotation_system_selection_page.dart';
 import '../../features/about/presentation/pages/about_page.dart';
 import '../../features/match/presentation/pages/match_page.dart';
 import '../../features/settings/presentation/pages/settings_page.dart';
@@ -9,6 +10,9 @@ import '../../features/teams/presentation/pages/teams_list_page.dart';
 import '../../features/teams/presentation/pages/team_detail_page.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
+  // Keep the router alive to prevent recreation on rebuilds
+  ref.keepAlive();
+  
   return GoRouter(
     initialLocation: '/',
     routes: [
@@ -20,7 +24,17 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/rotations',
         name: 'rotations',
-        builder: (context, state) => const RotationsPage(),
+        builder: (context, state) => const RotationSystemSelectionPage(),
+        routes: [
+          GoRoute(
+            path: 'court/:system',
+            name: 'rotations-court',
+            builder: (context, state) {
+              final system = state.pathParameters['system'] ?? '4-2-no-libero';
+              return RotationsPage(rotationSystem: system);
+            },
+          ),
+        ],
       ),
       GoRoute(
         path: '/match',

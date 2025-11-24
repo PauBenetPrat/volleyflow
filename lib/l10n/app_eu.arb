@@ -16,6 +16,11 @@
   "rotationSystem42NoLibero": "4-2 (no libero)",
   "rotationSystem51": "5-1",
   "rotationSystemPlayers": "Jokalariak",
+  "selectRotationSystem": "Hautatu errotazio sistema bat",
+  "rotationSystem42NoLiberoDescription": "4-2 sistema liberorik gabe",
+  "rotationSystem42Description": "4-2 sistema liberoarekin",
+  "rotationSystem51Description": "5-1 sistema antolatzaile batekin",
+  "rotationSystemPlayersDescription": "Jokalari espezifikoekin errotazio pertsonalizatua",
   "featureComingSoon": "{displayName} funtzionalitatea laster etorriko da!",
   "activateDrawingMode": "Marrazketako modua aktibatu",
   "deactivateDrawingMode": "Marrazketako modua desaktibatu",
@@ -115,6 +120,10 @@
   "playerDeleted": "Jokalaria ezabatuta",
   "deleteCoach": "Entrenatzailea Ezabatu",
   "deleteCoachConfirmation": "Ziur zaude {name} ezabatu nahi duzula?",
-  "coachDeleted": "Entrenatzailea ezabatuta"
+  "coachDeleted": "Entrenatzailea ezabatuta",
+  "enterPin": "Sartu PIN-a",
+  "pin": "PIN",
+  "pinRequired": "PIN-a beharrezkoa da",
+  "incorrectPin": "PIN okerra"
 }
 

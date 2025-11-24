@@ -58,6 +58,22 @@ class AppLocalizationsEs extends AppLocalizations {
   String get rotationSystemPlayers => 'Jugadores';
 
   @override
+  String get selectRotationSystem => 'Selecciona un sistema de rotación';
+
+  @override
+  String get rotationSystem42NoLiberoDescription => 'Sistema 4-2 sin libero';
+
+  @override
+  String get rotationSystem42Description => 'Sistema 4-2 con libero';
+
+  @override
+  String get rotationSystem51Description => 'Sistema 5-1 con un colocador';
+
+  @override
+  String get rotationSystemPlayersDescription =>
+      'Rotación personalizada con jugadores específicos';
+
+  @override
   String featureComingSoon(String displayName) {
     return '¡La funcionalidad $displayName llegará pronto!';
   }
@@ -382,4 +398,16 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get coachDeleted => 'Entrenador eliminado';
+
+  @override
+  String get enterPin => 'Introduce el PIN';
+
+  @override
+  String get pin => 'PIN';
+
+  @override
+  String get pinRequired => 'El PIN es obligatorio';
+
+  @override
+  String get incorrectPin => 'PIN incorrecto';
 }

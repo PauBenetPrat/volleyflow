@@ -202,6 +202,36 @@ abstract class AppLocalizations {
   /// **'Players'**
   String get rotationSystemPlayers;
 
+  /// Prompt to select a rotation system
+  ///
+  /// In en, this message translates to:
+  /// **'Select a rotation system'**
+  String get selectRotationSystem;
+
+  /// Description for 4-2 no libero system
+  ///
+  /// In en, this message translates to:
+  /// **'4-2 system without libero'**
+  String get rotationSystem42NoLiberoDescription;
+
+  /// Description for 4-2 system
+  ///
+  /// In en, this message translates to:
+  /// **'4-2 system with libero'**
+  String get rotationSystem42Description;
+
+  /// Description for 5-1 system
+  ///
+  /// In en, this message translates to:
+  /// **'5-1 system with one setter'**
+  String get rotationSystem51Description;
+
+  /// Description for Players system
+  ///
+  /// In en, this message translates to:
+  /// **'Custom rotation with specific players'**
+  String get rotationSystemPlayersDescription;
+
   /// Feature coming soon message
   ///
   /// In en, this message translates to:
@@ -801,6 +831,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Coach deleted'**
   String get coachDeleted;
+
+  /// No description provided for @enterPin.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter PIN'**
+  String get enterPin;
+
+  /// No description provided for @pin.
+  ///
+  /// In en, this message translates to:
+  /// **'PIN'**
+  String get pin;
+
+  /// No description provided for @pinRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'PIN is required'**
+  String get pinRequired;
+
+  /// No description provided for @incorrectPin.
+  ///
+  /// In en, this message translates to:
+  /// **'Incorrect PIN'**
+  String get incorrectPin;
 }
 
 class _AppLocalizationsDelegate

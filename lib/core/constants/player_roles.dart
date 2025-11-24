@@ -12,7 +12,7 @@ class PlayerRole {
   // Display abbreviations
   static const String setterAbbr = 'S';
   static const String middleBlockerAbbr = 'MB';
-  static const String oppositeAbbr = 'OPP';
+  static const String oppositeAbbr = 'OP';
   static const String outsideHitterAbbr = 'OH';
   static const String liberoAbbr = 'L';
   

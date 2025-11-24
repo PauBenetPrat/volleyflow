@@ -16,6 +16,11 @@
   "rotationSystem42NoLibero": "4-2 (no libero)",
   "rotationSystem51": "5-1",
   "rotationSystemPlayers": "Spieler",
+  "selectRotationSystem": "Wählen Sie ein Rotationssystem",
+  "rotationSystem42NoLiberoDescription": "4-2-System ohne Libero",
+  "rotationSystem42Description": "4-2-System mit Libero",
+  "rotationSystem51Description": "5-1-System mit einem Zuspieler",
+  "rotationSystemPlayersDescription": "Benutzerdefinierte Rotation mit spezifischen Spielern",
   "featureComingSoon": "Die Funktion {displayName} kommt bald!",
   "activateDrawingMode": "Zeichenmodus aktivieren",
   "deactivateDrawingMode": "Zeichenmodus deaktivieren",
@@ -115,6 +120,10 @@
   "playerDeleted": "Spieler gelöscht",
   "deleteCoach": "Trainer löschen",
   "deleteCoachConfirmation": "Sind Sie sicher, dass Sie {name} löschen möchten?",
-  "coachDeleted": "Trainer gelöscht"
+  "coachDeleted": "Trainer gelöscht",
+  "enterPin": "PIN eingeben",
+  "pin": "PIN",
+  "pinRequired": "PIN ist erforderlich",
+  "incorrectPin": "Falscher PIN"
 }
 

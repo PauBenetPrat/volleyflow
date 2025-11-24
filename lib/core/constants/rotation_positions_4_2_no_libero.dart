@@ -1,4 +1,4 @@
-// Rotation positions data structure
+// Rotation positions data structure for 4-2 system (no libero)
 // Each rotation (R1-R6) has 4 phases: BASE, SAC, RECEPCIÓ, DEFENSA
 // Each phase defines where each player role (Co, C1, C2, R1, R2, O) is positioned
 // Positions can be either:
@@ -70,7 +70,7 @@ class PositionCoord {
   }
 }
 
-class RotationPositions {
+class RotationPositions42NoLibero {
   // Map: Rotation (1-6) -> Phase -> Player Role -> Position (int 1-6 or Map with x,y)
   // Format: [Rotation][Phase][PlayerRole] = Position (int or Map with 'x' and 'y' keys)
   static final Map<int, Map<Phase, Map<String, dynamic>>> positions = {

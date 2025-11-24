@@ -1,4 +1,5 @@
-import 'rotation_positions.dart';
+import 'rotation_positions_4_2_no_libero.dart';
+import 'rotation_positions_4_2.dart' as rotation_42;
 
 /// Resultat de la validació de les regles de rotació
 class RotationValidationResult {
@@ -33,18 +34,66 @@ class RotationValidator {
   /// 
   /// Regla 1: Jugadors davanters davant dels posteriors
   /// Regla 2: Jugadors dreta/centre/esquerra correctes
+  /// 
+  /// Nota: El libero (L) no està subjecte a les regles de rotació i s'ignora en la validació
   static RotationValidationResult validateReceptionPositions(
     int rotation,
-    Map<String, PositionCoord> playerPositions,
-  ) {
+    Map<String, PositionCoord> playerPositions, {
+    String? rotationSystem,
+  }) {
     final errors = <String>[];
     
     // IMPORTANT: Utilitzar les posicions BASE (no recepció) per determinar 
     // quins jugadors són davanters/posteriors segons la rotació real
-    final basePhasePositions = RotationPositions.getPositionCoords(
-      rotation,
-      Phase.base,
-    );
+    // Utilitzar el sistema de rotació correcte
+    final basePhasePositions = (rotationSystem == '4-2')
+        ? rotation_42.RotationPositions42.getPositionCoords(rotation, Phase.base)
+        : RotationPositions42NoLibero.getPositionCoords(rotation, Phase.base);
+    
+    // Obtenir les posicions base del sistema sense libero per determinar quin central ha estat substituït
+    final basePhasePositionsNoLibero = RotationPositions42NoLibero.getPositionCoords(rotation, Phase.base);
+    
+    // Determinar quin central (C1 o C2) ha estat substituït pel libero
+    // El libero substitueix un central quan aquest està a les posicions 5 o 6 (fila posterior)
+    String? substitutedMB;
+    if (rotationSystem == '4-2' && basePhasePositions.containsKey('L')) {
+      // Trobar la posició base del libero al sistema amb libero
+      final liberoCoord = basePhasePositions['L']!;
+      int liberoClosestPos = CourtPosition.position1;
+      double liberoMinDist = double.infinity;
+      for (final pos in CourtPosition.allPositions) {
+        final stdCoord = PositionCoord.fromStandardPosition(pos);
+        final dist = (liberoCoord.x - stdCoord.x).abs() + (liberoCoord.y - stdCoord.y).abs();
+        if (dist < liberoMinDist) {
+          liberoMinDist = dist;
+          liberoClosestPos = pos;
+        }
+      }
+      
+      // Si el libero està a la posició 5 o 6, determinar quin central hauria d'estar allà
+      if (liberoClosestPos == CourtPosition.position5 || liberoClosestPos == CourtPosition.position6) {
+        // Trobar quin central està a aquesta posició al sistema sense libero
+        for (final entry in basePhasePositionsNoLibero.entries) {
+          if (entry.key == 'C1' || entry.key == 'C2') {
+            final mbCoord = entry.value;
+            int mbClosestPos = CourtPosition.position1;
+            double mbMinDist = double.infinity;
+            for (final pos in CourtPosition.allPositions) {
+              final stdCoord = PositionCoord.fromStandardPosition(pos);
+              final dist = (mbCoord.x - stdCoord.x).abs() + (mbCoord.y - stdCoord.y).abs();
+              if (dist < mbMinDist) {
+                mbMinDist = dist;
+                mbClosestPos = pos;
+              }
+            }
+            if (mbClosestPos == liberoClosestPos) {
+              substitutedMB = entry.key;
+              break;
+            }
+          }
+        }
+      }
+    }
     
     // Determinar quins jugadors són davanters i quins són posteriors
     // segons la seva posició BASE a la rotació
@@ -55,6 +104,35 @@ class RotationValidator {
     // Trobar la posició base més propera per a cada jugador
     for (final entry in basePhasePositions.entries) {
       final playerRole = entry.key;
+      
+      // Si és el libero i sabem quin central ha substituït, tractar-lo com aquest central
+      if (playerRole == 'L' && substitutedMB != null) {
+        // Utilitzar la posició base del central substituït per al libero
+        final mbCoord = basePhasePositionsNoLibero[substitutedMB]!;
+        int closestPos = CourtPosition.position1;
+        double minDist = double.infinity;
+        for (final pos in CourtPosition.allPositions) {
+          final stdCoord = PositionCoord.fromStandardPosition(pos);
+          final dist = (mbCoord.x - stdCoord.x).abs() + (mbCoord.y - stdCoord.y).abs();
+          if (dist < minDist) {
+            minDist = dist;
+            closestPos = pos;
+          }
+        }
+        playerBasePositions['L'] = closestPos;
+        if (CourtPosition.isFrontRow(closestPos)) {
+          frontRowPlayers.add('L');
+        } else {
+          backRowPlayers.add('L');
+        }
+        continue;
+      }
+      
+      // Ignorar el libero si no ha substituït cap central
+      if (playerRole == 'L') {
+        continue;
+      }
+      
       final baseCoord = entry.value;
       
       // Trobar la posició estàndard més propera
@@ -87,6 +165,7 @@ class RotationValidator {
     
     // Ordre circular de les posicions (1-2-3-4-5-6)
     // Cada jugador només pot estar en falta amb el jugador abans i després
+    // El libero (L) ha de seguir les mateixes regles que el central que ha substituït
     for (int pos = 1; pos <= 6; pos++) {
       final currentPlayer = positionToPlayer[pos];
       if (currentPlayer == null) continue;
@@ -211,6 +290,24 @@ class RotationValidator {
             'Regla 2: $currentPlayer (centre, pos $pos) està a l\'esquerra de $nextPlayer (esquerra, pos $nextPos)',
           );
         }
+      }
+    }
+    
+    // Validació específica: Posició 3 (front center) vs Posició 6 (back center)
+    // El jugador a la posició 6 (posterior, centre) no pot estar per davant del jugador a la posició 3 (davanter, centre)
+    // i viceversa
+    final playerAt3 = positionToPlayer[CourtPosition.position3];
+    final playerAt6 = positionToPlayer[CourtPosition.position6];
+    
+    if (playerAt3 != null && playerAt6 != null) {
+      final x3 = playerPositions[playerAt3]?.x ?? 0.0;
+      final x6 = playerPositions[playerAt6]?.x ?? 0.0;
+      
+      // El jugador a la posició 6 (posterior) no pot estar per davant del jugador a la posició 3 (davanter)
+      if (x6 > x3) {
+        errors.add(
+          'Regla 3: $playerAt6 (posterior, pos 6) està per davant de $playerAt3 (davanter, pos 3)',
+        );
       }
     }
     

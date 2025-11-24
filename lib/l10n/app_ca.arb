@@ -16,6 +16,11 @@
   "rotationSystem42NoLibero": "4-2 (no libero)",
   "rotationSystem51": "5-1",
   "rotationSystemPlayers": "Jugadors",
+  "selectRotationSystem": "Selecciona un sistema de rotació",
+  "rotationSystem42NoLiberoDescription": "Sistema 4-2 sense libero",
+  "rotationSystem42Description": "Sistema 4-2 amb libero",
+  "rotationSystem51Description": "Sistema 5-1 amb un col·locador",
+  "rotationSystemPlayersDescription": "Rotació personalitzada amb jugadors específics",
   "featureComingSoon": "La funcionalitat {displayName} arribarà aviat!",
   "activateDrawingMode": "Activar mode dibuix",
   "deactivateDrawingMode": "Desactivar mode dibuix",
@@ -115,6 +120,10 @@
   "playerDeleted": "Jugador eliminat",
   "deleteCoach": "Eliminar Entrenador",
   "deleteCoachConfirmation": "Estàs segur que vols eliminar {name}?",
-  "coachDeleted": "Entrenador eliminat"
+  "coachDeleted": "Entrenador eliminat",
+  "enterPin": "Introdueix el PIN",
+  "pin": "PIN",
+  "pinRequired": "El PIN és obligatori",
+  "incorrectPin": "PIN incorrecte"
 }
 

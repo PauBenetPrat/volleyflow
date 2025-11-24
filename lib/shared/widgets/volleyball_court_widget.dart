@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../core/constants/rotation_positions.dart';
+import '../../core/constants/rotation_positions_4_2_no_libero.dart';
+import '../../core/constants/rotation_positions_4_2.dart' as rotation_42;
 import '../../core/constants/rotation_validator.dart';
 import '../../core/constants/player_roles.dart';
 import '../../features/rotations/domain/providers/rotation_provider.dart';
@@ -10,6 +11,7 @@ class VolleyballCourtWidget extends ConsumerStatefulWidget {
   final List<String> playerPositions;
   final int? rotation; // If provided, use specific coordinates
   final Phase? phase; // If provided, use specific coordinates
+  final String? rotationSystem; // Rotation system: '4-2', '4-2-no-libero', etc.
   final Color? courtColor;
   final Color? lineColor;
   final Color? playerCircleColor;
@@ -21,6 +23,7 @@ class VolleyballCourtWidget extends ConsumerStatefulWidget {
     required this.playerPositions,
     this.rotation,
     this.phase,
+    this.rotationSystem,
     this.courtColor,
     this.lineColor,
     this.playerCircleColor,
@@ -65,10 +68,14 @@ class _VolleyballCourtWidgetState extends ConsumerState<VolleyballCourtWidget>
   String? _getPlayerAtPosition(Offset position, Size size, Map<String, PositionCoord>? customPositions) {
     if (widget.rotation == null || widget.phase == null) return null;
     
-    final baseCoords = RotationPositions.getPositionCoords(
-      widget.rotation!,
-      widget.phase!,
-    );
+    // Get rotation system from provider or widget parameter
+    final rotationSystem = widget.rotationSystem ?? 
+        (ref.read(rotationProvider).rotationSystem);
+    
+    // Get base coordinates based on rotation system
+    final baseCoords = rotationSystem == '4-2'
+        ? rotation_42.RotationPositions42.getPositionCoords(widget.rotation!, widget.phase!)
+        : RotationPositions42NoLibero.getPositionCoords(widget.rotation!, widget.phase!);
     
     // Merge custom positions with base positions
     final coords = Map<String, PositionCoord>.from(baseCoords);
@@ -367,6 +374,7 @@ class _VolleyballCourtWidgetState extends ConsumerState<VolleyballCourtWidget>
                         animationValue: _animation.value,
                         rotation: widget.rotation,
                         phase: widget.phase,
+                        rotationSystem: widget.rotationSystem ?? currentRotationState.rotationSystem,
                         previousRotation: _previousRotation,
                         previousPhase: _previousPhase,
                         customPositions: currentRotationState.customPositions,
@@ -512,6 +520,7 @@ class VolleyballCourtPainter extends CustomPainter {
   final double animationValue;
   final int? rotation; // If provided, use specific coordinates
   final Phase? phase; // If provided, use specific coordinates
+  final String? rotationSystem; // Rotation system: '4-2', '4-2-no-libero', etc.
   final int? previousRotation; // Previous rotation for animation
   final Phase? previousPhase; // Previous phase for animation
   final Map<String, PositionCoord>? customPositions; // Override positions for drag & drop
@@ -528,6 +537,7 @@ class VolleyballCourtPainter extends CustomPainter {
     this.animationValue = 1.0,
     this.rotation,
     this.phase,
+    this.rotationSystem,
     this.previousRotation,
     this.previousPhase,
     this.customPositions,
@@ -538,6 +548,15 @@ class VolleyballCourtPainter extends CustomPainter {
     required this.lineColor,
     required this.playerColor,
   });
+
+  // Helper function to get position coordinates based on rotation system
+  Map<String, PositionCoord> _getPositionCoords(int rotation, Phase phase) {
+    if (rotationSystem == '4-2') {
+      return rotation_42.RotationPositions42.getPositionCoords(rotation, phase);
+    }
+    // Default to RotationPositions42NoLibero (4-2-no-libero)
+    return RotationPositions42NoLibero.getPositionCoords(rotation, phase);
+  }
   
   // Extreu els noms dels jugadors que estan en falta dels errors
   Set<String> _getPlayersInViolation() {
@@ -687,6 +706,8 @@ class VolleyballCourtPainter extends CustomPainter {
         case 'R1':
         case 'R2':
           return Colors.orange; // Outside Hitter (Receptor) - Orange
+        case 'L':
+          return Colors.red; // Libero - Red
         default:
           return Colors.white;
       }
@@ -714,8 +735,8 @@ class VolleyballCourtPainter extends CustomPainter {
     Map<String, Offset>? previousPlayerCoords;
     
     if (rotation != null && phase != null) {
-      // Use specific coordinates from RotationPositions
-      final baseCoords = RotationPositions.getPositionCoords(rotation!, phase!);
+      // Use specific coordinates based on rotation system
+      final baseCoords = _getPositionCoords(rotation!, phase!);
       
       // Merge custom positions with base positions
       // If a player has a custom position, use it; otherwise use base position
@@ -748,7 +769,7 @@ class VolleyballCourtPainter extends CustomPainter {
         // Use previous rotation and phase if available
         if (previousRotation != null && previousPhase != null) {
           // Get actual coordinates from previous phase
-          final previousCoords = RotationPositions.getPositionCoords(
+          final previousCoords = _getPositionCoords(
             previousRotation!,
             previousPhase!,
           );
@@ -893,7 +914,7 @@ class VolleyballCourtPainter extends CustomPainter {
     // Determinar quins jugadors són davanters segons la posició BASE
     final frontRowPlayers = <String>{};
     if (rotation != null) {
-      final basePositions = RotationPositions.getPositionCoords(rotation!, Phase.base);
+      final basePositions = _getPositionCoords(rotation!, Phase.base);
       for (final entry in basePositions.entries) {
         final playerRole = entry.key;
         final baseCoord = entry.value;
@@ -957,11 +978,28 @@ class VolleyballCourtPainter extends CustomPainter {
             ? roleColor.withValues(alpha: 0.7) // Lighter/dimmer for secondary
                 : roleColor);
       
+      // Shadow offset for depth effect
+      const shadowOffset = Offset(3.5, 3.5);
+      // Create shadow paint - use reduced opacity for secondary players to avoid light edges
+      final shadowPaint = Paint()
+        ..style = PaintingStyle.fill
+        ..color = Colors.black.withValues(alpha: isSecondary ? 0.2 : 0.5);
+      
       // Draw triangle for front row players, circle for back row players
       if (isFrontRow) {
         // Draw triangle pointing right (towards net) - rotated 90 degrees clockwise
-        final trianglePath = Path();
         final triangleSize = playerRadius * 1.2;
+        
+        // Draw shadow first
+        final shadowTrianglePath = Path();
+        shadowTrianglePath.moveTo(currentPosition.dx + triangleSize + shadowOffset.dx, currentPosition.dy + shadowOffset.dy);
+        shadowTrianglePath.lineTo(currentPosition.dx - triangleSize * 0.5 + shadowOffset.dx, currentPosition.dy - triangleSize + shadowOffset.dy);
+        shadowTrianglePath.lineTo(currentPosition.dx - triangleSize * 0.5 + shadowOffset.dx, currentPosition.dy + triangleSize + shadowOffset.dy);
+        shadowTrianglePath.close();
+        canvas.drawPath(shadowTrianglePath, shadowPaint);
+        
+        // Draw main triangle
+        final trianglePath = Path();
         trianglePath.moveTo(currentPosition.dx + triangleSize, currentPosition.dy); // Right point (towards net)
         trianglePath.lineTo(currentPosition.dx - triangleSize * 0.5, currentPosition.dy - triangleSize); // Top left
         trianglePath.lineTo(currentPosition.dx - triangleSize * 0.5, currentPosition.dy + triangleSize); // Bottom left
@@ -978,6 +1016,13 @@ class VolleyballCourtPainter extends CustomPainter {
           canvas.drawPath(trianglePath, borderPaint);
         }
       } else {
+        // Draw shadow circle first
+        canvas.drawCircle(
+          Offset(currentPosition.dx + shadowOffset.dx, currentPosition.dy + shadowOffset.dy),
+          playerRadius,
+          shadowPaint,
+        );
+        
         // Draw circle for back row players
         canvas.drawCircle(currentPosition, playerRadius, shapePaint);
       
@@ -1065,6 +1110,8 @@ class BenchPainter extends CustomPainter {
       case 'R1':
       case 'R2':
         return Colors.orange; // Outside Hitter (Receptor) - Orange
+      case 'L':
+        return Colors.red; // Libero - Red
       default:
         return Colors.white;
     }

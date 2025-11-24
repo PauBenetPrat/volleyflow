@@ -57,6 +57,22 @@ class AppLocalizationsEn extends AppLocalizations {
   String get rotationSystemPlayers => 'Players';
 
   @override
+  String get selectRotationSystem => 'Select a rotation system';
+
+  @override
+  String get rotationSystem42NoLiberoDescription => '4-2 system without libero';
+
+  @override
+  String get rotationSystem42Description => '4-2 system with libero';
+
+  @override
+  String get rotationSystem51Description => '5-1 system with one setter';
+
+  @override
+  String get rotationSystemPlayersDescription =>
+      'Custom rotation with specific players';
+
+  @override
   String featureComingSoon(String displayName) {
     return '$displayName feature coming soon!';
   }
@@ -381,4 +397,16 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get coachDeleted => 'Coach deleted';
+
+  @override
+  String get enterPin => 'Enter PIN';
+
+  @override
+  String get pin => 'PIN';
+
+  @override
+  String get pinRequired => 'PIN is required';
+
+  @override
+  String get incorrectPin => 'Incorrect PIN';
 }
