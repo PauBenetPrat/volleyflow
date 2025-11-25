@@ -236,6 +236,21 @@ class AppLocalizationsCa extends AppLocalizations {
       'Llibero. Jugador defensiu especialitzat. No pot atacar ni bloquejar, porta samarreta diferent.';
 
   @override
+  String get roleSetterAbbr => 'Co';
+
+  @override
+  String get roleMiddleBlockerAbbr => 'C';
+
+  @override
+  String get roleOppositeAbbr => 'O';
+
+  @override
+  String get roleOutsideHitterAbbr => 'R';
+
+  @override
+  String get roleLiberoAbbr => 'L';
+
+  @override
   String get teams => 'Equips';
 
   @override
@@ -343,17 +358,17 @@ class AppLocalizationsCa extends AppLocalizations {
   String get teamSaved => 'Equip desat';
 
   @override
-  String get premiumFeature => 'Funcionalitat Premium';
+  String get premiumFeature => 'Funció Premium';
 
   @override
   String get premiumFeatureMessage =>
-      'Crear múltiples equips és una funcionalitat premium. Per desbloquejar aquesta funcionalitat, si us plau, contacta amb nosaltres.';
+      'Crear múltiples equips és una funció premium. Per desbloquejar aquesta funció, contacta amb nosaltres.';
 
   @override
-  String get premiumFeatureRequest => 'Sol·licitud de Funcionalitat Premium';
+  String get premiumFeatureRequest => 'Sol·licitud de Funció Premium';
 
   @override
-  String get contactUs => 'Contacta amb Nosaltres';
+  String get contactUs => 'Contacta\'ns';
 
   @override
   String get gender => 'Sexe';
@@ -411,4 +426,33 @@ class AppLocalizationsCa extends AppLocalizations {
 
   @override
   String get incorrectPin => 'PIN incorrecte';
+
+  @override
+  String get help => 'Ajuda';
+
+  @override
+  String get helpTitle => 'Com funciona';
+
+  @override
+  String get helpMovePlayers => '• Arrossega els jugadors per moure\'ls.';
+
+  @override
+  String get helpPlayerInfo =>
+      '• Fes doble toc sobre un jugador per veure la seva informació.';
+
+  @override
+  String get helpRotate => '• Clica el botó de rotació per rotar endavant.';
+
+  @override
+  String get dontShowAgain => 'No tornar a mostrar';
+
+  @override
+  String get doubleTapDiscoveryTitle => 'Ho sabies?';
+
+  @override
+  String get doubleTapDiscoveryMessage =>
+      'Acabes de descobrir una funció oculta! El doble toc rota endarrere.';
+
+  @override
+  String get gotIt => 'Entesos!';
 }

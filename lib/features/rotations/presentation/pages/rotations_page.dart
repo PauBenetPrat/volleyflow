@@ -3,23 +3,104 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:volleyball_coaching_app/l10n/app_localizations.dart';
 import '../../../../shared/widgets/volleyball_court_widget.dart';
 import '../../domain/providers/rotation_provider.dart';
 import '../../../../core/constants/rotation_positions_4_2_no_libero.dart';
 import '../../../../core/constants/player_roles.dart';
 
-class RotationsPage extends ConsumerWidget {
+class RotationsPage extends ConsumerStatefulWidget {
   final String? rotationSystem;
   
   const RotationsPage({super.key, this.rotationSystem});
+
+  @override
+  ConsumerState<RotationsPage> createState() => _RotationsPageState();
+}
+
+class _RotationsPageState extends ConsumerState<RotationsPage> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _checkFirstTime();
+    });
+  }
+
+  Future<void> _checkFirstTime() async {
+    final prefs = await SharedPreferences.getInstance();
+    final hasShownHelp = prefs.getBool('has_shown_rotations_help') ?? false;
+    
+    if (!hasShownHelp && mounted) {
+      _showHelpDialog(context, AppLocalizations.of(context)!);
+    }
+  }
+
+  void _showHelpDialog(BuildContext context, AppLocalizations l10n) {
+    bool dontShowAgain = false;
+    
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              title: Text(l10n.helpTitle),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(l10n.helpMovePlayers),
+                  const SizedBox(height: 8),
+                  Text(l10n.helpPlayerInfo),
+                  const SizedBox(height: 8),
+                  Text(l10n.helpRotate),
+                  const SizedBox(height: 16),
+                  Row(
+                    children: [
+                      Checkbox(
+                        value: dontShowAgain,
+                        onChanged: (value) {
+                          setState(() {
+                            dontShowAgain = value ?? false;
+                          });
+                        },
+                      ),
+                      Expanded(
+                        child: Text(l10n.dontShowAgain),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () async {
+                    if (dontShowAgain) {
+                      final prefs = await SharedPreferences.getInstance();
+                      await prefs.setBool('has_shown_rotations_help', true);
+                    }
+                    if (context.mounted) {
+                      Navigator.of(context).pop();
+                    }
+                  },
+                  child: Text(l10n.ok),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
   
   // Helper method to convert error messages to use new abbreviations
-  static String _convertErrorToDisplayAbbreviations(String error) {
+  static String _convertErrorToDisplayAbbreviations(String error, AppLocalizations l10n) {
     const playerRoles = ['Co', 'C1', 'C2', 'R1', 'R2', 'O'];
     String displayError = error;
     for (final role in playerRoles) {
-      final displayAbbr = PlayerRole.getDisplayAbbreviation(role);
+      final displayAbbr = PlayerRole.getDisplayAbbreviation(role, l10n);
       // Reemplaçar les claus internes amb les noves abreviatures
       displayError = displayError.replaceAll(RegExp('\\b$role\\b'), displayAbbr);
     }
@@ -93,7 +174,7 @@ class RotationsPage extends ConsumerWidget {
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final rotationState = ref.watch(rotationProvider);
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context)!;
@@ -109,7 +190,7 @@ class RotationsPage extends ConsumerWidget {
     final currentPhase = rotationState.phase;
 
     // Set rotation system from parameter or state (using Future to avoid modifying during build)
-    final systemToUse = rotationSystem ?? rotationState.rotationSystem;
+    final systemToUse = widget.rotationSystem ?? rotationState.rotationSystem;
     if (systemToUse != null && rotationState.rotationSystem != systemToUse) {
       Future.microtask(() {
         if (context.mounted) {
@@ -357,9 +438,35 @@ class RotationsPage extends ConsumerWidget {
               TextButton(
                 onPressed: () {
                   Navigator.of(context).pop();
-                  context.go('/');
+                  context.go('/rotations');
                 },
                 child: const Text('Sortir'),
+              ),
+            ],
+          );
+        },
+      );
+    }
+
+    // Show reset confirmation dialog
+    void _showResetConfirmation() {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text(l10n.reset),
+            content: const Text('Estàs segur que vols reiniciar totes les modificacions?'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: Text(l10n.cancel),
+              ),
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  ref.read(rotationProvider.notifier).reset();
+                },
+                child: Text(l10n.reset),
               ),
             ],
           );
@@ -430,7 +537,33 @@ class RotationsPage extends ConsumerWidget {
                   ),
                 ),
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 4),
+              // Reset button (with confirmation)
+              FloatingActionButton.small(
+                heroTag: 'reset-landscape',
+                elevation: 0,
+                onPressed: _showResetConfirmation,
+                backgroundColor: theme.colorScheme.surface,
+                child: Icon(
+                  Icons.refresh,
+                  color: theme.colorScheme.onSurface,
+                ),
+              ),
+              const SizedBox(height: 4),
+              // Help button
+              FloatingActionButton.small(
+                heroTag: 'help-landscape',
+                elevation: 0,
+                onPressed: () {
+                  _showHelpDialog(context, l10n);
+                },
+                backgroundColor: theme.colorScheme.surface,
+                child: Icon(
+                  Icons.help_outline,
+                  color: theme.colorScheme.onSurface,
+                ),
+              ),
+              const SizedBox(height: 4),
               // Grid toggle
               FloatingActionButton.small(
                 heroTag: 'grid-landscape',
@@ -450,7 +583,7 @@ class RotationsPage extends ConsumerWidget {
                       : theme.colorScheme.onSurface,
                 ),
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 4),
               // Drawing mode toggle
               FloatingActionButton.small(
                 heroTag: 'drawing-landscape',
@@ -471,7 +604,7 @@ class RotationsPage extends ConsumerWidget {
                 ),
               ),
               if (rotationState.drawings.isNotEmpty) ...[
-                const SizedBox(height: 8),
+                const SizedBox(height: 4),
                 FloatingActionButton.small(
                   heroTag: 'undo-landscape',
                   elevation: 0,
@@ -484,7 +617,7 @@ class RotationsPage extends ConsumerWidget {
                     color: theme.colorScheme.onSurface,
                   ),
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: 4),
                 FloatingActionButton.small(
                   heroTag: 'clear-landscape',
                   elevation: 0,
@@ -498,7 +631,7 @@ class RotationsPage extends ConsumerWidget {
                   ),
                 ),
               ],
-              const SizedBox(height: 8),
+              const SizedBox(height: 4),
               FloatingActionButton.small(
                 heroTag: 'copy-landscape',
                 elevation: 0,
@@ -508,19 +641,6 @@ class RotationsPage extends ConsumerWidget {
                 backgroundColor: theme.colorScheme.surface,
                 child: Icon(
                   Icons.copy,
-                  color: theme.colorScheme.onSurface,
-                ),
-              ),
-              const SizedBox(height: 8),
-              FloatingActionButton.small(
-                heroTag: 'reset-landscape',
-                elevation: 0,
-                onPressed: () {
-                  ref.read(rotationProvider.notifier).reset();
-                },
-                backgroundColor: theme.colorScheme.surface,
-                child: Icon(
-                  Icons.refresh,
                   color: theme.colorScheme.onSurface,
                 ),
               ),
@@ -766,7 +886,7 @@ class RotationsPage extends ConsumerWidget {
                               SizedBox(height: 8),
                               ...rotationState.validationResult!.errors.map((error) {
                                 // Convertir les claus internes a les noves abreviatures
-                                final displayError = _convertErrorToDisplayAbbreviations(error);
+                                final displayError = _convertErrorToDisplayAbbreviations(error, l10n);
                                 return Padding(
                                   padding: const EdgeInsets.only(bottom: 4),
                                   child: Text(
@@ -1000,108 +1120,118 @@ class RotationsPage extends ConsumerWidget {
                   Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                          // Grid toggle
-                          FloatingActionButton.small(
-                            heroTag: 'grid',
-                            elevation: 0,
-                            onPressed: () {
-                              ref.read(rotationProvider.notifier).toggleGrid();
-                            },
-                            backgroundColor: rotationState.showGrid
-                                ? theme.colorScheme.primary
-                                : theme.colorScheme.surface,
-                            child: Icon(
-                              rotationState.showGrid
-                                  ? Icons.grid_on
-                                  : Icons.grid_off,
-                              color: rotationState.showGrid
-                                  ? theme.colorScheme.onPrimary
-                                  : theme.colorScheme.onSurface,
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          // Drawing mode toggle
-                          FloatingActionButton.small(
-                            heroTag: 'drawing',
-                            elevation: 0,
-                            onPressed: () {
-                              ref.read(rotationProvider.notifier).toggleDrawingMode();
-                            },
-                            backgroundColor: rotationState.isDrawingMode
-                                ? theme.colorScheme.primary
-                                : theme.colorScheme.surface,
-                            child: Icon(
-                              rotationState.isDrawingMode
-                                  ? Icons.edit
-                                  : Icons.edit_outlined,
-                              color: rotationState.isDrawingMode
-                                  ? theme.colorScheme.onPrimary
-                                  : theme.colorScheme.onSurface,
-                            ),
-                          ),
-                          // Undo last drawing button (only visible when there are drawings)
-                          if (rotationState.drawings.isNotEmpty) ...[
-                            const SizedBox(width: 8),
-                            FloatingActionButton.small(
-                              heroTag: 'undo',
-                              elevation: 0,
-                              onPressed: () {
-                                ref.read(rotationProvider.notifier).undoLastDrawing();
-                              },
-                              backgroundColor: theme.colorScheme.surface,
-                              child: Icon(
-                                Icons.undo,
-                                color: theme.colorScheme.onSurface,
-                              ),
-                            ),
-                          ],
-                          // Clear all drawings button (only visible when there are drawings)
-                          if (rotationState.drawings.isNotEmpty) ...[
-                            const SizedBox(width: 8),
-                            FloatingActionButton.small(
-                              heroTag: 'clear',
-                              elevation: 0,
-                              onPressed: () {
-                                ref.read(rotationProvider.notifier).clearDrawings();
-                              },
-                              backgroundColor: theme.colorScheme.surface,
-                              child: Icon(
-                                Icons.delete_outline,
-                                color: theme.colorScheme.onSurface,
-                              ),
-                            ),
-                          ],
-                          // Copy coordinates button
-                          const SizedBox(width: 8),
-                          FloatingActionButton.small(
-                            heroTag: 'copy',
-                            elevation: 0,
-                            onPressed: () {
-                              _showPinDialog(context, ref, l10n, theme);
-                            },
-                            backgroundColor: theme.colorScheme.surface,
-                            child: Icon(
-                              Icons.copy,
-                              color: theme.colorScheme.onSurface,
-                            ),
-                          ),
-                          // Reset button
-                          const SizedBox(width: 8),
-                          FloatingActionButton.small(
-                            heroTag: 'reset',
-                            elevation: 0,
-                            onPressed: () {
-                              ref.read(rotationProvider.notifier).reset();
-                            },
-                            backgroundColor: theme.colorScheme.surface,
-                            child: Icon(
-                              Icons.refresh,
-                              color: theme.colorScheme.onSurface,
-                            ),
-                          ),
-                        ],
+                      // Copy coordinates button
+                      FloatingActionButton.small(
+                        heroTag: 'copy',
+                        elevation: 0,
+                        onPressed: () {
+                          _showPinDialog(context, ref, l10n, theme);
+                        },
+                        backgroundColor: theme.colorScheme.surface,
+                        child: Icon(
+                          Icons.copy,
+                          color: theme.colorScheme.onSurface,
+                        ),
                       ),
-                      const SizedBox(width: 8),
+                      // Clear all drawings button (only visible when there are drawings)
+                      if (rotationState.drawings.isNotEmpty) ...[
+                        const SizedBox(width: 4),
+                        FloatingActionButton.small(
+                          heroTag: 'clear',
+                          elevation: 0,
+                          onPressed: () {
+                            ref.read(rotationProvider.notifier).clearDrawings();
+                          },
+                          backgroundColor: theme.colorScheme.surface,
+                          child: Icon(
+                            Icons.delete_outline,
+                            color: theme.colorScheme.onSurface,
+                          ),
+                        ),
+                      ],
+                      // Undo last drawing button (only visible when there are drawings)
+                      if (rotationState.drawings.isNotEmpty) ...[
+                        const SizedBox(width: 4),
+                        FloatingActionButton.small(
+                          heroTag: 'undo',
+                          elevation: 0,
+                          onPressed: () {
+                            ref.read(rotationProvider.notifier).undoLastDrawing();
+                          },
+                          backgroundColor: theme.colorScheme.surface,
+                          child: Icon(
+                            Icons.undo,
+                            color: theme.colorScheme.onSurface,
+                          ),
+                        ),
+                      ],
+                      const SizedBox(width: 4),
+                      // Drawing mode toggle
+                      FloatingActionButton.small(
+                        heroTag: 'drawing',
+                        elevation: 0,
+                        onPressed: () {
+                          ref.read(rotationProvider.notifier).toggleDrawingMode();
+                        },
+                        backgroundColor: rotationState.isDrawingMode
+                            ? theme.colorScheme.primary
+                            : theme.colorScheme.surface,
+                        child: Icon(
+                          rotationState.isDrawingMode
+                              ? Icons.edit
+                              : Icons.edit_outlined,
+                          color: rotationState.isDrawingMode
+                              ? theme.colorScheme.onPrimary
+                              : theme.colorScheme.onSurface,
+                        ),
+                      ),
+                      const SizedBox(width: 4),
+                      // Grid toggle
+                      FloatingActionButton.small(
+                        heroTag: 'grid',
+                        elevation: 0,
+                        onPressed: () {
+                          ref.read(rotationProvider.notifier).toggleGrid();
+                        },
+                        backgroundColor: rotationState.showGrid
+                            ? theme.colorScheme.primary
+                            : theme.colorScheme.surface,
+                        child: Icon(
+                          rotationState.showGrid
+                              ? Icons.grid_on
+                              : Icons.grid_off,
+                          color: rotationState.showGrid
+                              ? theme.colorScheme.onPrimary
+                              : theme.colorScheme.onSurface,
+                        ),
+                      ),
+                      const SizedBox(width: 4),
+                      // Help button
+                      FloatingActionButton.small(
+                        heroTag: 'help',
+                        elevation: 0,
+                        onPressed: () {
+                          _showHelpDialog(context, l10n);
+                        },
+                        backgroundColor: theme.colorScheme.surface,
+                        child: Icon(
+                          Icons.help_outline,
+                          color: theme.colorScheme.onSurface,
+                        ),
+                      ),
+                      const SizedBox(width: 4),
+                      // Reset button (with confirmation)
+                      FloatingActionButton.small(
+                        heroTag: 'reset',
+                        elevation: 0,
+                        onPressed: _showResetConfirmation,
+                        backgroundColor: theme.colorScheme.surface,
+                        child: Icon(
+                          Icons.refresh,
+                          color: theme.colorScheme.onSurface,
+                        ),
+                      ),
+                      const SizedBox(width: 4),
                       // Close button (X)
                       Material(
                         elevation: 0,
@@ -1125,6 +1255,8 @@ class RotationsPage extends ConsumerWidget {
                       ),
                     ],
                   ),
+                    ],
+                  ),
             ),
         ],
       ),
@@ -1146,6 +1278,33 @@ class _RotateButton extends ConsumerWidget {
     this.isCircular = false,
   });
 
+  Future<void> _handleDoubleTap(BuildContext context, WidgetRef ref, AppLocalizations l10n) async {
+    ref.read(rotationProvider.notifier).rotateCounterClockwise();
+    
+    final prefs = await SharedPreferences.getInstance();
+    final hasDiscovered = prefs.getBool('has_discovered_double_tap_rotation') ?? false;
+    
+    if (!hasDiscovered && context.mounted) {
+      await prefs.setBool('has_discovered_double_tap_rotation', true);
+      
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text(l10n.doubleTapDiscoveryTitle),
+            content: Text(l10n.doubleTapDiscoveryMessage),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: Text(l10n.gotIt),
+              ),
+            ],
+          );
+        },
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
@@ -1154,7 +1313,7 @@ class _RotateButton extends ConsumerWidget {
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
       onDoubleTap: () {
-        ref.read(rotationProvider.notifier).rotateCounterClockwise();
+        _handleDoubleTap(context, ref, l10n);
       },
       child: Tooltip(
         message: l10n.rotateTooltip,

@@ -69,6 +69,11 @@
   "roleOutsideHitterDescription": "Außenangreifer (auch \"Flügelspieler\" oder \"Doppel\" genannt). Spielt auf den Positionen 4 und 6.",
   "roleLiberoName": "Libero",
   "roleLiberoDescription": "Libero. Defensivspezialist. Kann nicht angreifen oder blocken, trägt ein anderes Trikot.",
+  "roleSetterAbbr": "S",
+  "roleMiddleBlockerAbbr": "MB",
+  "roleOppositeAbbr": "OP",
+  "roleOutsideHitterAbbr": "OH",
+  "roleLiberoAbbr": "L",
   "teams": "Teams",
   "home": "Startseite",
   "teamDetails": "Team-Details",
@@ -124,6 +129,15 @@
   "enterPin": "PIN eingeben",
   "pin": "PIN",
   "pinRequired": "PIN ist erforderlich",
-  "incorrectPin": "Falscher PIN"
+  "incorrectPin": "Falscher PIN",
+  "help": "Hilfe",
+  "helpTitle": "Wie man es benutzt",
+  "helpMovePlayers": "• Ziehen Sie Spieler und legen Sie sie ab, um sie zu bewegen.",
+  "helpPlayerInfo": "• Doppeltippen Sie auf einen Spieler, um seine Informationen zu sehen.",
+  "helpRotate": "• Klicken Sie auf die Rotationstaste, um vorwärts zu rotieren.",
+  "dontShowAgain": "Nicht wieder anzeigen",
+  "doubleTapDiscoveryTitle": "Wussten Sie schon?",
+  "doubleTapDiscoveryMessage": "Sie haben gerade eine versteckte Funktion entdeckt! Doppeltippen rotiert rückwärts.",
+  "gotIt": "Verstanden!"
 }
 

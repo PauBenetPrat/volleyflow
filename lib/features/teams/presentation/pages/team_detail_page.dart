@@ -8,6 +8,7 @@ import '../../domain/models/player.dart';
 import '../../domain/models/coach.dart';
 import '../../domain/models/player_position.dart';
 import 'package:uuid/uuid.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class TeamDetailPage extends ConsumerStatefulWidget {
   final String teamId;
@@ -48,26 +49,39 @@ class _TeamDetailPageState extends ConsumerState<TeamDetailPage> {
   }
 
   void _saveTeam() {
-    if (_formKey.currentState!.validate()) {
-      final teamsState = ref.read(teamsProvider);
-      final existingTeam = teamsState.teams.firstWhere(
-        (t) => t.id == widget.teamId,
-        orElse: () => Team(id: widget.teamId, name: _nameController.text),
-      );
-      
-      final updatedTeam = existingTeam.copyWith(name: _nameController.text);
-      if (teamsState.teams.any((t) => t.id == widget.teamId)) {
-        ref.read(teamsProvider.notifier).updateTeam(updatedTeam);
-      } else {
-        ref.read(teamsProvider.notifier).addTeam(updatedTeam);
-      }
-      
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(AppLocalizations.of(context)!.teamSaved)),
+    // Restrict editing for now
+    _showPremiumDialog(context, AppLocalizations.of(context)!);
+  }
+
+  void _showPremiumDialog(BuildContext context, AppLocalizations l10n) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(l10n.premiumFeature),
+          content: Text(l10n.premiumFeatureMessage),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: Text(l10n.cancel),
+            ),
+            TextButton(
+              onPressed: () async {
+                final email = 'pau.benet.prat@gmail.com';
+                final uri = Uri.parse('mailto:$email?subject=${Uri.encodeComponent(l10n.premiumFeatureRequest)}');
+                if (await canLaunchUrl(uri)) {
+                  await launchUrl(uri);
+                }
+                if (context.mounted) {
+                  Navigator.of(context).pop();
+                }
+              },
+              child: Text(l10n.contactUs),
+            ),
+          ],
         );
-      }
-    }
+      },
+    );
   }
 
   @override
@@ -92,7 +106,7 @@ class _TeamDetailPageState extends ConsumerState<TeamDetailPage> {
           IconButton(
             icon: const Icon(Icons.delete),
             color: theme.colorScheme.error,
-            onPressed: () => _showDeleteTeamConfirmation(context, ref, team, l10n),
+            onPressed: () => _showPremiumDialog(context, l10n),
             tooltip: l10n.deleteTeam,
           ),
         ],
@@ -123,9 +137,7 @@ class _TeamDetailPageState extends ConsumerState<TeamDetailPage> {
             _SectionHeader(
               title: l10n.coaches,
               subtitle: '${team.coaches.length}/2',
-              onAdd: team.canAddCoach()
-                  ? () => _showAddCoachDialog(context, team)
-                  : null,
+              onAdd: () => _showPremiumDialog(context, l10n),
             ),
             const SizedBox(height: 8),
             if (team.coaches.isEmpty)
@@ -137,6 +149,8 @@ class _TeamDetailPageState extends ConsumerState<TeamDetailPage> {
               ...team.coaches.map((coach) => _CoachCard(
                     coach: coach,
                     team: team,
+                    onEdit: () => _showPremiumDialog(context, l10n),
+                    onDelete: () => _showPremiumDialog(context, l10n),
                   )),
             const SizedBox(height: 24),
             
@@ -144,9 +158,7 @@ class _TeamDetailPageState extends ConsumerState<TeamDetailPage> {
             _SectionHeader(
               title: l10n.players,
               subtitle: '${team.players.length}/18',
-              onAdd: team.canAddPlayer()
-                  ? () => _showAddPlayerDialog(context, team)
-                  : null,
+              onAdd: () => _showPremiumDialog(context, l10n),
             ),
             const SizedBox(height: 8),
             if (team.players.isEmpty)
@@ -158,6 +170,8 @@ class _TeamDetailPageState extends ConsumerState<TeamDetailPage> {
               ...team.players.map((player) => _PlayerCard(
                     player: player,
                     team: team,
+                    onEdit: () => _showPremiumDialog(context, l10n),
+                    onDelete: () => _showPremiumDialog(context, l10n),
                   )),
           ],
         ),
@@ -308,10 +322,14 @@ class _EmptyState extends StatelessWidget {
 class _PlayerCard extends ConsumerWidget {
   final Player player;
   final Team team;
+  final VoidCallback onEdit;
+  final VoidCallback onDelete;
 
   const _PlayerCard({
     required this.player,
     required this.team,
+    required this.onEdit,
+    required this.onDelete,
   });
 
   @override
@@ -379,54 +397,13 @@ class _PlayerCard extends ConsumerWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             IconButton(
-              icon: const Icon(Icons.edit),
-              onPressed: () {
-                showDialog(
-                  context: context,
-                  builder: (context) => _PlayerEditDialog(
-                    team: team,
-                    player: player,
-                  ),
-                );
-              },
+          icon: const Icon(Icons.edit),
+          onPressed: onEdit,
             ),
             IconButton(
               icon: const Icon(Icons.delete),
               color: theme.colorScheme.error,
-              onPressed: () {
-                showDialog(
-                  context: context,
-                  builder: (BuildContext dialogContext) {
-                    return AlertDialog(
-                      title: Text(l10n.deletePlayer),
-                      content: Text(
-                        l10n.deletePlayerConfirmation(player.alias ?? player.name),
-                      ),
-                      actions: [
-                        TextButton(
-                          onPressed: () => Navigator.of(dialogContext).pop(),
-                          child: Text(l10n.cancel),
-                        ),
-                        TextButton(
-                          onPressed: () {
-                            ref.read(teamsProvider.notifier).deletePlayerFromTeam(team.id, player.id);
-                            Navigator.of(dialogContext).pop();
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(l10n.playerDeleted),
-                              ),
-                            );
-                          },
-                          style: TextButton.styleFrom(
-                            foregroundColor: theme.colorScheme.error,
-                          ),
-                          child: Text(l10n.delete),
-                        ),
-                      ],
-                    );
-                  },
-                );
-              },
+              onPressed: onDelete,
             ),
           ],
         ),
@@ -438,10 +415,14 @@ class _PlayerCard extends ConsumerWidget {
 class _CoachCard extends ConsumerWidget {
   final Coach coach;
   final Team team;
+  final VoidCallback onEdit;
+  final VoidCallback onDelete;
 
   const _CoachCard({
     required this.coach,
     required this.team,
+    required this.onEdit,
+    required this.onDelete,
   });
 
   @override
@@ -490,54 +471,13 @@ class _CoachCard extends ConsumerWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             IconButton(
-              icon: const Icon(Icons.edit),
-              onPressed: () {
-                showDialog(
-                  context: context,
-                  builder: (context) => _CoachEditDialog(
-                    team: team,
-                    coach: coach,
-                  ),
-                );
-              },
+          icon: const Icon(Icons.edit),
+          onPressed: onEdit,
             ),
             IconButton(
               icon: const Icon(Icons.delete),
               color: theme.colorScheme.error,
-              onPressed: () {
-                showDialog(
-                  context: context,
-                  builder: (BuildContext dialogContext) {
-                    return AlertDialog(
-                      title: Text(l10n.deleteCoach),
-                      content: Text(
-                        l10n.deleteCoachConfirmation(coach.name),
-                      ),
-                      actions: [
-                        TextButton(
-                          onPressed: () => Navigator.of(dialogContext).pop(),
-                          child: Text(l10n.cancel),
-                        ),
-                        TextButton(
-                          onPressed: () {
-                            ref.read(teamsProvider.notifier).deleteCoachFromTeam(team.id, coach.id);
-                            Navigator.of(dialogContext).pop();
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(l10n.coachDeleted),
-                              ),
-                            );
-                          },
-                          style: TextButton.styleFrom(
-                            foregroundColor: theme.colorScheme.error,
-                          ),
-                          child: Text(l10n.delete),
-                        ),
-                      ],
-                    );
-                  },
-                );
-              },
+              onPressed: onDelete,
             ),
           ],
         ),

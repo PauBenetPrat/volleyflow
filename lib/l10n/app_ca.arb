@@ -69,6 +69,11 @@
   "roleOutsideHitterDescription": "Receptor-Atacant (també anomenat \"punta\" o \"doble\"). Juga a posicions 4 i 6.",
   "roleLiberoName": "Llibero",
   "roleLiberoDescription": "Llibero. Jugador defensiu especialitzat. No pot atacar ni bloquejar, porta samarreta diferent.",
+  "roleSetterAbbr": "Co",
+  "roleMiddleBlockerAbbr": "C",
+  "roleOppositeAbbr": "O",
+  "roleOutsideHitterAbbr": "R",
+  "roleLiberoAbbr": "L",
   "teams": "Equips",
   "home": "Inici",
   "teamDetails": "Detalls de l'Equip",
@@ -124,6 +129,19 @@
   "enterPin": "Introdueix el PIN",
   "pin": "PIN",
   "pinRequired": "El PIN és obligatori",
-  "incorrectPin": "PIN incorrecte"
+  "incorrectPin": "PIN incorrecte",
+  "help": "Ajuda",
+  "helpTitle": "Com funciona",
+  "helpMovePlayers": "• Arrossega els jugadors per moure'ls.",
+  "helpPlayerInfo": "• Fes doble toc sobre un jugador per veure la seva informació.",
+  "helpRotate": "• Clica el botó de rotació per rotar endavant.",
+  "dontShowAgain": "No tornar a mostrar",
+  "doubleTapDiscoveryTitle": "Ho sabies?",
+  "doubleTapDiscoveryMessage": "Acabes de descobrir una funció oculta! El doble toc rota endarrere.",
+  "gotIt": "Entesos!",
+  "premiumFeature": "Funció Premium",
+  "premiumFeatureMessage": "Crear múltiples equips és una funció premium. Per desbloquejar aquesta funció, contacta amb nosaltres.",
+  "premiumFeatureRequest": "Sol·licitud de Funció Premium",
+  "contactUs": "Contacta'ns"
 }
 

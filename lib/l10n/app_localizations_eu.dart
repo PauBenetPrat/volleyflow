@@ -237,6 +237,21 @@ class AppLocalizationsEu extends AppLocalizations {
       'Liberoa. Defentsa espezializatuko jokalaria. Ezin du eraso egin ezta blokeatu, kamiseta desberdina darama.';
 
   @override
+  String get roleSetterAbbr => 'S';
+
+  @override
+  String get roleMiddleBlockerAbbr => 'MB';
+
+  @override
+  String get roleOppositeAbbr => 'OP';
+
+  @override
+  String get roleOutsideHitterAbbr => 'OH';
+
+  @override
+  String get roleLiberoAbbr => 'L';
+
+  @override
   String get teams => 'Taldeak';
 
   @override
@@ -412,4 +427,32 @@ class AppLocalizationsEu extends AppLocalizations {
 
   @override
   String get incorrectPin => 'PIN okerra';
+
+  @override
+  String get help => 'Help';
+
+  @override
+  String get helpTitle => 'How to use';
+
+  @override
+  String get helpMovePlayers => '• Drag and drop players to move them.';
+
+  @override
+  String get helpPlayerInfo => '• Double tap on a player to see their info.';
+
+  @override
+  String get helpRotate => '• Click the rotation button to rotate forward.';
+
+  @override
+  String get dontShowAgain => 'Don\'t show again';
+
+  @override
+  String get doubleTapDiscoveryTitle => 'Did you know?';
+
+  @override
+  String get doubleTapDiscoveryMessage =>
+      'You just discovered a hidden feature! Double tapping rotates backwards.';
+
+  @override
+  String get gotIt => 'Got it!';
 }

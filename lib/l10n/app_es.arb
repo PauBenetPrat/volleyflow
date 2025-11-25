@@ -69,6 +69,11 @@
   "roleOutsideHitterDescription": "Receptor-Atacante (también llamado \"punta\" o \"doble\"). Juega en posiciones 4 y 6.",
   "roleLiberoName": "Líbero",
   "roleLiberoDescription": "Líbero. Jugador defensivo especializado. No puede atacar ni bloquear, lleva camiseta diferente.",
+  "roleSetterAbbr": "Co",
+  "roleMiddleBlockerAbbr": "C",
+  "roleOppositeAbbr": "O",
+  "roleOutsideHitterAbbr": "R",
+  "roleLiberoAbbr": "L",
   "teams": "Equipos",
   "home": "Inicio",
   "teamDetails": "Detalles del Equipo",
@@ -124,6 +129,15 @@
   "enterPin": "Introduce el PIN",
   "pin": "PIN",
   "pinRequired": "El PIN es obligatorio",
-  "incorrectPin": "PIN incorrecto"
+  "incorrectPin": "PIN incorrecto",
+  "help": "Ayuda",
+  "helpTitle": "Cómo usar",
+  "helpMovePlayers": "• Arrastra y suelta jugadores para moverlos.",
+  "helpPlayerInfo": "• Haz doble toque en un jugador para ver su información.",
+  "helpRotate": "• Haz clic en el botón de rotación para rotar hacia adelante.",
+  "dontShowAgain": "No mostrar de nuevo",
+  "doubleTapDiscoveryTitle": "¿Sabías que...?",
+  "doubleTapDiscoveryMessage": "¡Acabas de descubrir una función oculta! El doble toque rota hacia atrás.",
+  "gotIt": "¡Entendido!"
 }
 

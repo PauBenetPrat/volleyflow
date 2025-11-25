@@ -520,6 +520,36 @@ abstract class AppLocalizations {
   /// **'Libero. Defensive specialist player. Cannot attack or block, wears a different jersey.'**
   String get roleLiberoDescription;
 
+  /// No description provided for @roleSetterAbbr.
+  ///
+  /// In en, this message translates to:
+  /// **'S'**
+  String get roleSetterAbbr;
+
+  /// No description provided for @roleMiddleBlockerAbbr.
+  ///
+  /// In en, this message translates to:
+  /// **'MB'**
+  String get roleMiddleBlockerAbbr;
+
+  /// No description provided for @roleOppositeAbbr.
+  ///
+  /// In en, this message translates to:
+  /// **'OP'**
+  String get roleOppositeAbbr;
+
+  /// No description provided for @roleOutsideHitterAbbr.
+  ///
+  /// In en, this message translates to:
+  /// **'OH'**
+  String get roleOutsideHitterAbbr;
+
+  /// No description provided for @roleLiberoAbbr.
+  ///
+  /// In en, this message translates to:
+  /// **'L'**
+  String get roleLiberoAbbr;
+
   /// Teams menu item
   ///
   /// In en, this message translates to:
@@ -855,6 +885,60 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Incorrect PIN'**
   String get incorrectPin;
+
+  /// Help button tooltip
+  ///
+  /// In en, this message translates to:
+  /// **'Help'**
+  String get help;
+
+  /// Help dialog title
+  ///
+  /// In en, this message translates to:
+  /// **'How to use'**
+  String get helpTitle;
+
+  /// Help text for moving players
+  ///
+  /// In en, this message translates to:
+  /// **'• Drag and drop players to move them.'**
+  String get helpMovePlayers;
+
+  /// Help text for player info
+  ///
+  /// In en, this message translates to:
+  /// **'• Double tap on a player to see their info.'**
+  String get helpPlayerInfo;
+
+  /// Help text for rotating
+  ///
+  /// In en, this message translates to:
+  /// **'• Click the rotation button to rotate forward.'**
+  String get helpRotate;
+
+  /// Checkbox to not show help again
+  ///
+  /// In en, this message translates to:
+  /// **'Don\'t show again'**
+  String get dontShowAgain;
+
+  /// Title for double tap discovery dialog
+  ///
+  /// In en, this message translates to:
+  /// **'Did you know?'**
+  String get doubleTapDiscoveryTitle;
+
+  /// Message for double tap discovery dialog
+  ///
+  /// In en, this message translates to:
+  /// **'You just discovered a hidden feature! Double tapping rotates backwards.'**
+  String get doubleTapDiscoveryMessage;
+
+  /// Button to dismiss discovery dialog
+  ///
+  /// In en, this message translates to:
+  /// **'Got it!'**
+  String get gotIt;
 }
 
 class _AppLocalizationsDelegate
