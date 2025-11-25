@@ -129,6 +129,15 @@
   "enterPin": "Sartu PIN-a",
   "pin": "PIN",
   "pinRequired": "PIN-a beharrezkoa da",
-  "incorrectPin": "PIN okerra"
+  "incorrectPin": "PIN okerra",
+  "help": "Laguntza",
+  "helpTitle": "Nola erabili",
+  "helpMovePlayers": "• Arrastatu eta jaregin jokalariak mugitzeko.",
+  "helpPlayerInfo": "• Egin klik bikoitza jokalari batean bere informazioa ikusteko.",
+  "helpRotate": "• Egin klik errotazio botoian aurrera egiteko.",
+  "dontShowAgain": "Ez erakutsi berriro",
+  "doubleTapDiscoveryTitle": "Ba al zenekien?",
+  "doubleTapDiscoveryMessage": "Ezkutuko funtzio bat aurkitu duzu! Klik bikoitzak atzera egiten du.",
+  "gotIt": "Ulertuta!"
 }
 

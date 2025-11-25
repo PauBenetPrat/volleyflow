@@ -1,9 +1,11 @@
 import 'dart:convert';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:uuid/uuid.dart';
 import '../models/team.dart';
 import '../models/player.dart';
 import '../models/coach.dart';
+import '../models/player_position.dart';
 
 class TeamsState {
   final List<Team> teams;
@@ -54,7 +56,8 @@ class TeamsNotifier extends Notifier<TeamsState> {
         
         state = state.copyWith(teams: teams, isLoading: false);
       } else {
-        state = state.copyWith(isLoading: false);
+        // If no teams found, seed default team
+        _seedDefaultTeam();
       }
     } catch (e) {
       // Si hi ha error en carregar, continuar amb llista buida
@@ -166,6 +169,43 @@ class TeamsNotifier extends Notifier<TeamsState> {
       coaches: team.coaches.where((c) => c.id != coachId).toList(),
     );
     updateTeam(updatedTeam);
+  }
+
+  void _seedDefaultTeam() {
+    final uuid = Uuid();
+    final defaultTeam = Team(
+      id: uuid.v4(),
+      name: 'VolleyFlow Demo',
+      players: [
+        Player(id: uuid.v4(), name: 'Alex Johnson', number: 1, age: 22, height: 195, mainPosition: PlayerPosition.setter, gender: PlayerGender.male),
+        Player(id: uuid.v4(), name: 'Sam Smith', number: 2, age: 24, height: 188, mainPosition: PlayerPosition.attack, gender: PlayerGender.male),
+        Player(id: uuid.v4(), name: 'Chris Davis', number: 3, age: 23, height: 202, mainPosition: PlayerPosition.middleBlock, gender: PlayerGender.male),
+        Player(id: uuid.v4(), name: 'Pat Wilson', number: 4, age: 21, height: 198, mainPosition: PlayerPosition.opposite, gender: PlayerGender.male),
+        Player(id: uuid.v4(), name: 'Taylor Brown', number: 5, age: 25, height: 190, mainPosition: PlayerPosition.attack, gender: PlayerGender.male),
+        Player(id: uuid.v4(), name: 'Jordan Miller', number: 6, age: 22, height: 205, mainPosition: PlayerPosition.middleBlock, gender: PlayerGender.male),
+        Player(id: uuid.v4(), name: 'Casey Jones', number: 7, age: 20, height: 175, mainPosition: PlayerPosition.libero, gender: PlayerGender.male),
+        Player(id: uuid.v4(), name: 'Jamie White', number: 8, age: 26, height: 192, mainPosition: PlayerPosition.setter, gender: PlayerGender.male),
+        Player(id: uuid.v4(), name: 'Morgan Green', number: 9, age: 23, height: 189, mainPosition: PlayerPosition.attack, gender: PlayerGender.male),
+        Player(id: uuid.v4(), name: 'Drew Black', number: 10, age: 24, height: 200, mainPosition: PlayerPosition.middleBlock, gender: PlayerGender.male),
+        Player(id: uuid.v4(), name: 'Riley King', number: 11, age: 22, height: 196, mainPosition: PlayerPosition.opposite, gender: PlayerGender.male),
+        Player(id: uuid.v4(), name: 'Avery Scott', number: 12, age: 21, height: 191, mainPosition: PlayerPosition.attack, gender: PlayerGender.male),
+        Player(id: uuid.v4(), name: 'Quinn Hall', number: 13, age: 25, height: 203, mainPosition: PlayerPosition.middleBlock, gender: PlayerGender.male),
+        Player(id: uuid.v4(), name: 'Reese Adams', number: 14, age: 20, height: 178, mainPosition: PlayerPosition.libero, gender: PlayerGender.male),
+        Player(id: uuid.v4(), name: 'Skyler Clark', number: 15, age: 23, height: 194, mainPosition: PlayerPosition.setter, gender: PlayerGender.male),
+        Player(id: uuid.v4(), name: 'Cameron Lewis', number: 16, age: 24, height: 190, mainPosition: PlayerPosition.attack, gender: PlayerGender.male),
+        Player(id: uuid.v4(), name: 'Parker Young', number: 17, age: 22, height: 201, mainPosition: PlayerPosition.middleBlock, gender: PlayerGender.male),
+        Player(id: uuid.v4(), name: 'Dakota Hill', number: 18, age: 21, height: 197, mainPosition: PlayerPosition.opposite, gender: PlayerGender.male),
+      ],
+      coaches: [
+        Coach(id: uuid.v4(), name: 'Coach Carter', isPrimary: true),
+        Coach(id: uuid.v4(), name: 'Assistant Lee', isPrimary: false),
+      ],
+      createdAt: DateTime.now(),
+      updatedAt: DateTime.now(),
+    );
+
+    state = state.copyWith(teams: [defaultTeam], isLoading: false);
+    _saveToLocal();
   }
 }
 

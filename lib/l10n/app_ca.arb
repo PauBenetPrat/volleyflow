@@ -138,6 +138,10 @@
   "dontShowAgain": "No tornar a mostrar",
   "doubleTapDiscoveryTitle": "Ho sabies?",
   "doubleTapDiscoveryMessage": "Acabes de descobrir una funció oculta! El doble toc rota endarrere.",
-  "gotIt": "Entesos!"
+  "gotIt": "Entesos!",
+  "premiumFeature": "Funció Premium",
+  "premiumFeatureMessage": "Crear múltiples equips és una funció premium. Per desbloquejar aquesta funció, contacta amb nosaltres.",
+  "premiumFeatureRequest": "Sol·licitud de Funció Premium",
+  "contactUs": "Contacta'ns"
 }
 

@@ -140,17 +140,7 @@ class TeamsListPage extends ConsumerWidget {
                         team.coaches.length,
                       ),
                     ),
-                    trailing: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        IconButton(
-                          icon: const Icon(Icons.delete),
-                          color: theme.colorScheme.error,
-                          onPressed: () => _showDeleteTeamConfirmation(context, ref, team, l10n),
-                        ),
-                        const Icon(Icons.chevron_right),
-                      ],
-                    ),
+                    trailing: const Icon(Icons.chevron_right),
                     onTap: () {
                       context.push('/teams/${team.id}');
                     },
@@ -160,16 +150,8 @@ class TeamsListPage extends ConsumerWidget {
             ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
-          if (teamsState.canCreateTeam()) {
-            final newTeam = Team(
-              id: const Uuid().v4(),
-              name: l10n.newTeam,
-            );
-            ref.read(teamsProvider.notifier).addTeam(newTeam);
-            context.push('/teams/${newTeam.id}');
-          } else {
-            _showPremiumDialog(context, l10n);
-          }
+          // Always show premium dialog for now as creation is restricted
+          _showPremiumDialog(context, l10n);
         },
         icon: const Icon(Icons.add),
         label: Text(l10n.createTeam),

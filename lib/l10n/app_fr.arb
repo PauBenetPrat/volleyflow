@@ -129,6 +129,15 @@
   "enterPin": "Entrez le code PIN",
   "pin": "Code PIN",
   "pinRequired": "Le code PIN est requis",
-  "incorrectPin": "Code PIN incorrect"
+  "incorrectPin": "Code PIN incorrect",
+  "help": "Aide",
+  "helpTitle": "Comment utiliser",
+  "helpMovePlayers": "• Glissez et déposez les joueurs pour les déplacer.",
+  "helpPlayerInfo": "• Appuyez deux fois sur un joueur pour voir ses informations.",
+  "helpRotate": "• Cliquez sur le bouton de rotation pour tourner vers l'avant.",
+  "dontShowAgain": "Ne plus afficher",
+  "doubleTapDiscoveryTitle": "Le saviez-vous ?",
+  "doubleTapDiscoveryMessage": "Vous venez de découvrir une fonctionnalité cachée ! Le double tapotement fait tourner en arrière.",
+  "gotIt": "Compris !"
 }
 

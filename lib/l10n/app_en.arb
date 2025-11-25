@@ -571,6 +571,22 @@
   "gotIt": "Got it!",
   "@gotIt": {
     "description": "Button to dismiss discovery dialog"
+  },
+  "premiumFeature": "Premium Feature",
+  "@premiumFeature": {
+    "description": "Premium feature dialog title"
+  },
+  "premiumFeatureMessage": "Creating multiple teams is a premium feature. To unlock this feature, please contact us.",
+  "@premiumFeatureMessage": {
+    "description": "Premium feature dialog message"
+  },
+  "premiumFeatureRequest": "Premium Feature Request",
+  "@premiumFeatureRequest": {
+    "description": "Email subject for premium feature request"
+  },
+  "contactUs": "Contact Us",
+  "@contactUs": {
+    "description": "Contact us button"
   }
 }
 

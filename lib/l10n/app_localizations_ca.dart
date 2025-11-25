@@ -358,17 +358,17 @@ class AppLocalizationsCa extends AppLocalizations {
   String get teamSaved => 'Equip desat';
 
   @override
-  String get premiumFeature => 'Funcionalitat Premium';
+  String get premiumFeature => 'Funció Premium';
 
   @override
   String get premiumFeatureMessage =>
-      'Crear múltiples equips és una funcionalitat premium. Per desbloquejar aquesta funcionalitat, si us plau, contacta amb nosaltres.';
+      'Crear múltiples equips és una funció premium. Per desbloquejar aquesta funció, contacta amb nosaltres.';
 
   @override
-  String get premiumFeatureRequest => 'Sol·licitud de Funcionalitat Premium';
+  String get premiumFeatureRequest => 'Sol·licitud de Funció Premium';
 
   @override
-  String get contactUs => 'Contacta amb Nosaltres';
+  String get contactUs => 'Contacta\'ns';
 
   @override
   String get gender => 'Sexe';
