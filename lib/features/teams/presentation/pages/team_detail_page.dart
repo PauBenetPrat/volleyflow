@@ -9,6 +9,7 @@ import '../../domain/models/coach.dart';
 import '../../domain/models/player_position.dart';
 import 'package:uuid/uuid.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../../../auth/domain/providers/auth_provider.dart';
 
 class TeamDetailPage extends ConsumerStatefulWidget {
   final String teamId;
@@ -101,6 +102,15 @@ class _TeamDetailPageState extends ConsumerState<TeamDetailPage> {
       (t) => t.id == widget.teamId,
       orElse: () => Team(id: widget.teamId, name: _nameController.text),
     );
+    
+    // Check if user is authenticated and premium
+    final isAuthenticated = ref.watch(isAuthenticatedProvider);
+    final isPremiumAsync = ref.watch(isPremiumProvider);
+    final canEdit = isPremiumAsync.when(
+      data: (isPremium) => isAuthenticated && isPremium,
+      loading: () => false,
+      error: (_, __) => false,
+    );
 
     return Scaffold(
       appBar: AppBar(
@@ -108,13 +118,15 @@ class _TeamDetailPageState extends ConsumerState<TeamDetailPage> {
         actions: [
           IconButton(
             icon: const Icon(Icons.save),
-            onPressed: _saveTeam,
+            onPressed: canEdit ? _saveTeam : () => _showPremiumDialog(context, l10n),
             tooltip: l10n.save,
           ),
           IconButton(
             icon: const Icon(Icons.delete),
-            color: theme.colorScheme.error,
-            onPressed: () => _showDeleteTeamConfirmation(context, ref, team, l10n),
+            color: canEdit ? theme.colorScheme.error : theme.colorScheme.onSurface.withValues(alpha: 0.3),
+            onPressed: canEdit 
+                ? () => _showDeleteTeamConfirmation(context, ref, team, l10n)
+                : () => _showPremiumDialog(context, l10n),
             tooltip: l10n.deleteTeam,
           ),
         ],
@@ -145,7 +157,9 @@ class _TeamDetailPageState extends ConsumerState<TeamDetailPage> {
             _SectionHeader(
               title: l10n.coaches,
               subtitle: '${team.coaches.length}/2',
-              onAdd: () => _showAddCoachDialog(context, team),
+              onAdd: canEdit 
+                  ? () => _showAddCoachDialog(context, team)
+                  : () => _showPremiumDialog(context, l10n),
             ),
             const SizedBox(height: 8),
             if (team.coaches.isEmpty)
@@ -157,35 +171,40 @@ class _TeamDetailPageState extends ConsumerState<TeamDetailPage> {
               ...team.coaches.map((coach) => _CoachCard(
                     coach: coach,
                     team: team,
-                    onEdit: () => showDialog(
-                      context: context,
-                      builder: (context) => _CoachEditDialog(team: team, coach: coach),
-                    ),
-                    onDelete: () {
-                      showDialog(
-                        context: context,
-                        builder: (context) => AlertDialog(
-                          title: Text(l10n.deleteCoach),
-                          content: Text(l10n.deleteCoachConfirmation(coach.name)),
-                          actions: [
-                            TextButton(
-                              onPressed: () => Navigator.of(context).pop(),
-                              child: Text(l10n.cancel),
-                            ),
-                            TextButton(
-                              onPressed: () {
-                                ref.read(teamsProvider.notifier).deleteCoachFromTeam(team.id, coach.id);
-                                Navigator.of(context).pop();
-                              },
-                              style: TextButton.styleFrom(
-                                foregroundColor: theme.colorScheme.error,
+                    canEdit: canEdit,
+                    onEdit: canEdit 
+                        ? () => showDialog(
+                            context: context,
+                            builder: (context) => _CoachEditDialog(team: team, coach: coach),
+                          )
+                        : () => _showPremiumDialog(context, l10n),
+                    onDelete: canEdit 
+                        ? () {
+                            showDialog(
+                              context: context,
+                              builder: (context) => AlertDialog(
+                                title: Text(l10n.deleteCoach),
+                                content: Text(l10n.deleteCoachConfirmation(coach.name)),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () => Navigator.of(context).pop(),
+                                    child: Text(l10n.cancel),
+                                  ),
+                                  TextButton(
+                                    onPressed: () {
+                                      ref.read(teamsProvider.notifier).deleteCoachFromTeam(team.id, coach.id);
+                                      Navigator.of(context).pop();
+                                    },
+                                    style: TextButton.styleFrom(
+                                      foregroundColor: theme.colorScheme.error,
+                                    ),
+                                    child: Text(l10n.delete),
+                                  ),
+                                ],
                               ),
-                              child: Text(l10n.delete),
-                            ),
-                          ],
-                        ),
-                      );
-                    },
+                            );
+                          }
+                        : () => _showPremiumDialog(context, l10n),
                   )),
             const SizedBox(height: 24),
             
@@ -193,7 +212,9 @@ class _TeamDetailPageState extends ConsumerState<TeamDetailPage> {
             _SectionHeader(
               title: l10n.players,
               subtitle: '${team.players.length}/18',
-              onAdd: () => _showAddPlayerDialog(context, team),
+              onAdd: canEdit 
+                  ? () => _showAddPlayerDialog(context, team)
+                  : () => _showPremiumDialog(context, l10n),
             ),
             const SizedBox(height: 8),
             if (team.players.isEmpty)
@@ -205,35 +226,40 @@ class _TeamDetailPageState extends ConsumerState<TeamDetailPage> {
               ...team.players.map((player) => _PlayerCard(
                     player: player,
                     team: team,
-                    onEdit: () => showDialog(
-                      context: context,
-                      builder: (context) => _PlayerEditDialog(team: team, player: player),
-                    ),
-                    onDelete: () {
-                      showDialog(
-                        context: context,
-                        builder: (context) => AlertDialog(
-                          title: Text(l10n.deletePlayer),
-                          content: Text(l10n.deletePlayerConfirmation(player.name)),
-                          actions: [
-                            TextButton(
-                              onPressed: () => Navigator.of(context).pop(),
-                              child: Text(l10n.cancel),
-                            ),
-                            TextButton(
-                              onPressed: () {
-                                ref.read(teamsProvider.notifier).deletePlayerFromTeam(team.id, player.id);
-                                Navigator.of(context).pop();
-                              },
-                              style: TextButton.styleFrom(
-                                foregroundColor: theme.colorScheme.error,
+                    canEdit: canEdit,
+                    onEdit: canEdit 
+                        ? () => showDialog(
+                            context: context,
+                            builder: (context) => _PlayerEditDialog(team: team, player: player),
+                          )
+                        : () => _showPremiumDialog(context, l10n),
+                    onDelete: canEdit 
+                        ? () {
+                            showDialog(
+                              context: context,
+                              builder: (context) => AlertDialog(
+                                title: Text(l10n.deletePlayer),
+                                content: Text(l10n.deletePlayerConfirmation(player.name)),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () => Navigator.of(context).pop(),
+                                    child: Text(l10n.cancel),
+                                  ),
+                                  TextButton(
+                                    onPressed: () {
+                                      ref.read(teamsProvider.notifier).deletePlayerFromTeam(team.id, player.id);
+                                      Navigator.of(context).pop();
+                                    },
+                                    style: TextButton.styleFrom(
+                                      foregroundColor: theme.colorScheme.error,
+                                    ),
+                                    child: Text(l10n.delete),
+                                  ),
+                                ],
                               ),
-                              child: Text(l10n.delete),
-                            ),
-                          ],
-                        ),
-                      );
-                    },
+                            );
+                          }
+                        : () => _showPremiumDialog(context, l10n),
                   )),
           ],
         ),
@@ -384,12 +410,14 @@ class _EmptyState extends StatelessWidget {
 class _PlayerCard extends ConsumerWidget {
   final Player player;
   final Team team;
+  final bool canEdit;
   final VoidCallback onEdit;
   final VoidCallback onDelete;
 
   const _PlayerCard({
     required this.player,
     required this.team,
+    required this.canEdit,
     required this.onEdit,
     required this.onDelete,
   });
@@ -453,18 +481,23 @@ class _PlayerCard extends ConsumerWidget {
               Text(
                 '${l10n.position}: ${player.mainPosition!.getDisplayName(locale)}',
               ),
-          ],
+        ],
         ),
         trailing: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             IconButton(
-          icon: const Icon(Icons.edit),
-          onPressed: onEdit,
+              icon: Icon(
+                Icons.edit,
+                color: canEdit ? null : theme.colorScheme.onSurface.withValues(alpha: 0.3),
+              ),
+              onPressed: onEdit,
             ),
             IconButton(
-              icon: const Icon(Icons.delete),
-              color: theme.colorScheme.error,
+              icon: Icon(
+                Icons.delete,
+                color: canEdit ? theme.colorScheme.error : theme.colorScheme.onSurface.withValues(alpha: 0.3),
+              ),
               onPressed: onDelete,
             ),
           ],
@@ -477,12 +510,14 @@ class _PlayerCard extends ConsumerWidget {
 class _CoachCard extends ConsumerWidget {
   final Coach coach;
   final Team team;
+  final bool canEdit;
   final VoidCallback onEdit;
   final VoidCallback onDelete;
 
   const _CoachCard({
     required this.coach,
     required this.team,
+    required this.canEdit,
     required this.onEdit,
     required this.onDelete,
   });
@@ -533,12 +568,17 @@ class _CoachCard extends ConsumerWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             IconButton(
-          icon: const Icon(Icons.edit),
-          onPressed: onEdit,
+              icon: Icon(
+                Icons.edit,
+                color: canEdit ? null : theme.colorScheme.onSurface.withValues(alpha: 0.3),
+              ),
+              onPressed: onEdit,
             ),
             IconButton(
-              icon: const Icon(Icons.delete),
-              color: theme.colorScheme.error,
+              icon: Icon(
+                Icons.delete,
+                color: canEdit ? theme.colorScheme.error : theme.colorScheme.onSurface.withValues(alpha: 0.3),
+              ),
               onPressed: onDelete,
             ),
           ],
