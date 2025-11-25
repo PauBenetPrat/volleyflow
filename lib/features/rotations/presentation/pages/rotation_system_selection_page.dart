@@ -15,6 +15,10 @@ class RotationSystemSelectionPage extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(l10n.rotations),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => context.go('/'),
+        ),
       ),
       body: SafeArea(
         child: Padding(

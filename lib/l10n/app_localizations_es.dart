@@ -235,6 +235,21 @@ class AppLocalizationsEs extends AppLocalizations {
       'Líbero. Jugador defensivo especializado. No puede atacar ni bloquear, lleva camiseta diferente.';
 
   @override
+  String get roleSetterAbbr => 'Co';
+
+  @override
+  String get roleMiddleBlockerAbbr => 'C';
+
+  @override
+  String get roleOppositeAbbr => 'O';
+
+  @override
+  String get roleOutsideHitterAbbr => 'R';
+
+  @override
+  String get roleLiberoAbbr => 'L';
+
+  @override
   String get teams => 'Equipos';
 
   @override

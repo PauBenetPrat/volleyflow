@@ -379,16 +379,16 @@ class _PlayerCard extends ConsumerWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             IconButton(
-              icon: const Icon(Icons.edit),
-              onPressed: () {
-                showDialog(
-                  context: context,
-                  builder: (context) => _PlayerEditDialog(
-                    team: team,
-                    player: player,
-                  ),
-                );
-              },
+          icon: const Icon(Icons.edit),
+          onPressed: () {
+            showDialog(
+              context: context,
+              builder: (context) => _PlayerEditDialog(
+                team: team,
+                player: player,
+              ),
+            );
+          },
             ),
             IconButton(
               icon: const Icon(Icons.delete),
@@ -490,16 +490,16 @@ class _CoachCard extends ConsumerWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             IconButton(
-              icon: const Icon(Icons.edit),
-              onPressed: () {
-                showDialog(
-                  context: context,
-                  builder: (context) => _CoachEditDialog(
-                    team: team,
-                    coach: coach,
-                  ),
-                );
-              },
+          icon: const Icon(Icons.edit),
+          onPressed: () {
+            showDialog(
+              context: context,
+              builder: (context) => _CoachEditDialog(
+                team: team,
+                coach: coach,
+              ),
+            );
+          },
             ),
             IconButton(
               icon: const Icon(Icons.delete),

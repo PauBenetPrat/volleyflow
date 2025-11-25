@@ -1,3 +1,5 @@
+import '../../l10n/app_localizations.dart';
+
 // Player role abbreviations and descriptions
 class PlayerRole {
   // Internal role keys (used in data)
@@ -9,28 +11,29 @@ class PlayerRole {
   static const String outsideHitter2 = 'R2';
   static const String libero = 'L'; // For future use
   
-  // Display abbreviations
+  // Display abbreviations (fallback for when AppLocalizations is not available)
   static const String setterAbbr = 'S';
   static const String middleBlockerAbbr = 'MB';
   static const String oppositeAbbr = 'OP';
   static const String outsideHitterAbbr = 'OH';
   static const String liberoAbbr = 'L';
   
-  // Map internal role to display abbreviation
-  static String getDisplayAbbreviation(String internalRole) {
+  // Map internal role to display abbreviation using translations
+  // If l10n is provided, uses translations; otherwise falls back to English abbreviations
+  static String getDisplayAbbreviation(String internalRole, [AppLocalizations? l10n]) {
     switch (internalRole) {
       case setter:
-        return setterAbbr;
+        return l10n?.roleSetterAbbr ?? setterAbbr;
       case middleBlocker1:
       case middleBlocker2:
-        return middleBlockerAbbr;
+        return l10n?.roleMiddleBlockerAbbr ?? middleBlockerAbbr;
       case opposite:
-        return oppositeAbbr;
+        return l10n?.roleOppositeAbbr ?? oppositeAbbr;
       case outsideHitter1:
       case outsideHitter2:
-        return outsideHitterAbbr;
+        return l10n?.roleOutsideHitterAbbr ?? outsideHitterAbbr;
       case libero:
-        return liberoAbbr;
+        return l10n?.roleLiberoAbbr ?? liberoAbbr;
       default:
         return internalRole; // Fallback to original
     }

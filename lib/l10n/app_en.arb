@@ -296,6 +296,11 @@
   "@roleLiberoDescription": {
     "description": "Libero role description"
   },
+  "roleSetterAbbr": "S",
+  "roleMiddleBlockerAbbr": "MB",
+  "roleOppositeAbbr": "OP",
+  "roleOutsideHitterAbbr": "OH",
+  "roleLiberoAbbr": "L",
   "teams": "Teams",
   "@teams": {
     "description": "Teams menu item"

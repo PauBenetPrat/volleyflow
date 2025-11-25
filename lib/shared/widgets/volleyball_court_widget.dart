@@ -157,7 +157,7 @@ class _VolleyballCourtWidgetState extends ConsumerState<VolleyballCourtWidget>
 
   void _showPlayerInfoDialog(BuildContext context, String playerRole) {
     final l10n = AppLocalizations.of(context)!;
-    final displayAbbr = PlayerRole.getDisplayAbbreviation(playerRole);
+    final displayAbbr = PlayerRole.getDisplayAbbreviation(playerRole, l10n);
     
     // Get role name and description
     String roleName;
@@ -366,6 +366,7 @@ class _VolleyballCourtWidgetState extends ConsumerState<VolleyballCourtWidget>
                   builder: (context, child) {
                     // Watch provider inside AnimatedBuilder to ensure rebuild when customPositions change
                     final currentRotationState = ref.watch(rotationProvider);
+                    final l10n = AppLocalizations.of(context);
                     return CustomPaint(
                       size: Size(courtWidth, courtHeight),
                       painter: VolleyballCourtPainter(
@@ -384,6 +385,7 @@ class _VolleyballCourtWidgetState extends ConsumerState<VolleyballCourtWidget>
                         courtColor: courtBgColor,
                         lineColor: linesColor,
                         playerColor: playerColor,
+                        l10n: l10n,
                       ),
                     );
                   },
@@ -503,6 +505,7 @@ class _VolleyballCourtWidgetState extends ConsumerState<VolleyballCourtWidget>
                         lineColor: linesColor,
                         playerColor: playerColor,
                         courtHeight: courtHeight,
+                        l10n: AppLocalizations.of(context),
                       ),
                     ),
                   ),
@@ -530,6 +533,7 @@ class VolleyballCourtPainter extends CustomPainter {
   final Color courtColor;
   final Color lineColor;
   final Color playerColor;
+  final AppLocalizations? l10n; // Localizations for displaying abbreviations
 
   VolleyballCourtPainter({
     required this.playerPositions,
@@ -547,6 +551,7 @@ class VolleyballCourtPainter extends CustomPainter {
     required this.courtColor,
     required this.lineColor,
     required this.playerColor,
+    this.l10n,
   });
 
   // Helper function to get position coordinates based on rotation system
@@ -601,11 +606,11 @@ class VolleyballCourtPainter extends CustomPainter {
   }
 
   // Converteix les claus internes a les noves abreviatures en els missatges d'error
-  static String convertErrorToDisplayAbbreviations(String error) {
+  static String convertErrorToDisplayAbbreviations(String error, [AppLocalizations? l10n]) {
     const playerRoles = ['Co', 'C1', 'C2', 'R1', 'R2', 'O'];
     String displayError = error;
     for (final role in playerRoles) {
-      final displayAbbr = PlayerRole.getDisplayAbbreviation(role);
+      final displayAbbr = PlayerRole.getDisplayAbbreviation(role, l10n);
       // Reemplaçar les claus internes amb les noves abreviatures
       displayError = displayError.replaceAll(RegExp('\\b$role\\b'), displayAbbr);
     }
@@ -1037,8 +1042,8 @@ class VolleyballCourtPainter extends CustomPainter {
       }
       
       // Draw player role with smaller text and contrasting white color
-      // Use new abbreviations (S, OH, OPP, MB) instead of internal keys
-      final displayAbbr = PlayerRole.getDisplayAbbreviation(playerRole);
+      // Use translated abbreviations
+      final displayAbbr = PlayerRole.getDisplayAbbreviation(playerRole, l10n);
       final textSpan = TextSpan(
         text: displayAbbr,
         style: TextStyle(
@@ -1085,6 +1090,7 @@ class BenchPainter extends CustomPainter {
   final Color lineColor;
   final Color playerColor;
   final double courtHeight; // Used to calculate player radius
+  final AppLocalizations? l10n; // Localizations for displaying abbreviations
 
   BenchPainter({
     this.customPositions,
@@ -1092,6 +1098,7 @@ class BenchPainter extends CustomPainter {
     required this.lineColor,
     required this.playerColor,
     required this.courtHeight,
+    this.l10n,
   });
 
   // List of substitute players (bench players)
@@ -1198,7 +1205,7 @@ class BenchPainter extends CustomPainter {
         
         // Draw player role text
         final textSpan = TextSpan(
-          text: PlayerRole.getDisplayAbbreviation(role),
+          text: PlayerRole.getDisplayAbbreviation(role, l10n),
           style: TextStyle(
             color: Colors.white,
             fontSize: playerRadius * 0.9,

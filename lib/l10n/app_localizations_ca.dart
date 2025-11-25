@@ -236,6 +236,21 @@ class AppLocalizationsCa extends AppLocalizations {
       'Llibero. Jugador defensiu especialitzat. No pot atacar ni bloquejar, porta samarreta diferent.';
 
   @override
+  String get roleSetterAbbr => 'Co';
+
+  @override
+  String get roleMiddleBlockerAbbr => 'C';
+
+  @override
+  String get roleOppositeAbbr => 'O';
+
+  @override
+  String get roleOutsideHitterAbbr => 'R';
+
+  @override
+  String get roleLiberoAbbr => 'L';
+
+  @override
   String get teams => 'Equips';
 
   @override

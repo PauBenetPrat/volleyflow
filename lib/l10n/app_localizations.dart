@@ -520,6 +520,36 @@ abstract class AppLocalizations {
   /// **'Libero. Defensive specialist player. Cannot attack or block, wears a different jersey.'**
   String get roleLiberoDescription;
 
+  /// No description provided for @roleSetterAbbr.
+  ///
+  /// In en, this message translates to:
+  /// **'S'**
+  String get roleSetterAbbr;
+
+  /// No description provided for @roleMiddleBlockerAbbr.
+  ///
+  /// In en, this message translates to:
+  /// **'MB'**
+  String get roleMiddleBlockerAbbr;
+
+  /// No description provided for @roleOppositeAbbr.
+  ///
+  /// In en, this message translates to:
+  /// **'OP'**
+  String get roleOppositeAbbr;
+
+  /// No description provided for @roleOutsideHitterAbbr.
+  ///
+  /// In en, this message translates to:
+  /// **'OH'**
+  String get roleOutsideHitterAbbr;
+
+  /// No description provided for @roleLiberoAbbr.
+  ///
+  /// In en, this message translates to:
+  /// **'L'**
+  String get roleLiberoAbbr;
+
   /// Teams menu item
   ///
   /// In en, this message translates to:

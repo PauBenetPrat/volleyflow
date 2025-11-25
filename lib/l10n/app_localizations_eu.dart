@@ -237,6 +237,21 @@ class AppLocalizationsEu extends AppLocalizations {
       'Liberoa. Defentsa espezializatuko jokalaria. Ezin du eraso egin ezta blokeatu, kamiseta desberdina darama.';
 
   @override
+  String get roleSetterAbbr => 'S';
+
+  @override
+  String get roleMiddleBlockerAbbr => 'MB';
+
+  @override
+  String get roleOppositeAbbr => 'OP';
+
+  @override
+  String get roleOutsideHitterAbbr => 'OH';
+
+  @override
+  String get roleLiberoAbbr => 'L';
+
+  @override
   String get teams => 'Taldeak';
 
   @override
