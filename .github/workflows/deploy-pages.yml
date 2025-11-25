@@ -32,6 +32,9 @@ jobs:
     - name: Copy 404.html for GitHub Pages routing
       run: cp web/404.html build/web/404.html
     
+    - name: Create CNAME file for custom domain
+      run: echo "volleyflow.net" > build/web/CNAME
+    
     - name: Setup Pages
       uses: actions/configure-pages@v4
     
