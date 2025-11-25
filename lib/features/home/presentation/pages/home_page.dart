@@ -84,6 +84,16 @@ class HomePage extends StatelessWidget {
                 label: l10n.about,
                 onPressed: () => context.push('/about'),
               ),
+              const SizedBox(height: 32),
+              // Temporary login button for testing
+              OutlinedButton.icon(
+                onPressed: () => context.push('/login'),
+                icon: const Icon(Icons.login),
+                label: const Text('Sign In / Sign Up'),
+                style: OutlinedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                ),
+              ),
             ],
                   ),
                 ),

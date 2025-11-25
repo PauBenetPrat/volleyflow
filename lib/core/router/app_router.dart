@@ -8,6 +8,8 @@ import '../../features/match/presentation/pages/match_page.dart';
 import '../../features/settings/presentation/pages/settings_page.dart';
 import '../../features/teams/presentation/pages/teams_list_page.dart';
 import '../../features/teams/presentation/pages/team_detail_page.dart';
+import '../../features/auth/presentation/pages/login_page.dart';
+import '../../features/auth/presentation/pages/signup_page.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
   // Keep the router alive to prevent recreation on rebuilds
@@ -63,6 +65,16 @@ final routerProvider = Provider<GoRouter>((ref) {
           final teamId = state.pathParameters['teamId']!;
           return TeamDetailPage(teamId: teamId);
         },
+      ),
+      GoRoute(
+        path: '/login',
+        name: 'login',
+        builder: (context, state) => const LoginPage(),
+      ),
+      GoRoute(
+        path: '/signup',
+        name: 'signup',
+        builder: (context, state) => const SignupPage(),
       ),
     ],
   );
