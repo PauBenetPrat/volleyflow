@@ -426,4 +426,33 @@ class AppLocalizationsCa extends AppLocalizations {
 
   @override
   String get incorrectPin => 'PIN incorrecte';
+
+  @override
+  String get help => 'Ajuda';
+
+  @override
+  String get helpTitle => 'Com funciona';
+
+  @override
+  String get helpMovePlayers => '• Arrossega els jugadors per moure\'ls.';
+
+  @override
+  String get helpPlayerInfo =>
+      '• Fes doble toc sobre un jugador per veure la seva informació.';
+
+  @override
+  String get helpRotate => '• Clica el botó de rotació per rotar endavant.';
+
+  @override
+  String get dontShowAgain => 'No tornar a mostrar';
+
+  @override
+  String get doubleTapDiscoveryTitle => 'Ho sabies?';
+
+  @override
+  String get doubleTapDiscoveryMessage =>
+      'Acabes de descobrir una funció oculta! El doble toc rota endarrere.';
+
+  @override
+  String get gotIt => 'Entesos!';
 }

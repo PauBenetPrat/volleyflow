@@ -535,6 +535,42 @@
   "enterPin": "Enter PIN",
   "pin": "PIN",
   "pinRequired": "PIN is required",
-  "incorrectPin": "Incorrect PIN"
+  "incorrectPin": "Incorrect PIN",
+  "help": "Help",
+  "@help": {
+    "description": "Help button tooltip"
+  },
+  "helpTitle": "How to use",
+  "@helpTitle": {
+    "description": "Help dialog title"
+  },
+  "helpMovePlayers": "• Drag and drop players to move them.",
+  "@helpMovePlayers": {
+    "description": "Help text for moving players"
+  },
+  "helpPlayerInfo": "• Double tap on a player to see their info.",
+  "@helpPlayerInfo": {
+    "description": "Help text for player info"
+  },
+  "helpRotate": "• Click the rotation button to rotate forward.",
+  "@helpRotate": {
+    "description": "Help text for rotating"
+  },
+  "dontShowAgain": "Don't show again",
+  "@dontShowAgain": {
+    "description": "Checkbox to not show help again"
+  },
+  "doubleTapDiscoveryTitle": "Did you know?",
+  "@doubleTapDiscoveryTitle": {
+    "description": "Title for double tap discovery dialog"
+  },
+  "doubleTapDiscoveryMessage": "You just discovered a hidden feature! Double tapping rotates backwards.",
+  "@doubleTapDiscoveryMessage": {
+    "description": "Message for double tap discovery dialog"
+  },
+  "gotIt": "Got it!",
+  "@gotIt": {
+    "description": "Button to dismiss discovery dialog"
+  }
 }
 
