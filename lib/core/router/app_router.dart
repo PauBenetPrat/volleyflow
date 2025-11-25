@@ -10,6 +10,7 @@ import '../../features/teams/presentation/pages/teams_list_page.dart';
 import '../../features/teams/presentation/pages/team_detail_page.dart';
 import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/auth/presentation/pages/signup_page.dart';
+import '../../features/auth/presentation/pages/profile_page.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
   // Keep the router alive to prevent recreation on rebuilds
@@ -75,6 +76,11 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/signup',
         name: 'signup',
         builder: (context, state) => const SignupPage(),
+      ),
+      GoRoute(
+        path: '/profile',
+        name: 'profile',
+        builder: (context, state) => const ProfilePage(),
       ),
     ],
   );

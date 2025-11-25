@@ -49,8 +49,16 @@ class _TeamDetailPageState extends ConsumerState<TeamDetailPage> {
   }
 
   void _saveTeam() {
-    // Restrict editing for now
-    _showPremiumDialog(context, AppLocalizations.of(context)!);
+    if (_formKey.currentState!.validate()) {
+      final teamsState = ref.read(teamsProvider);
+      final team = teamsState.teams.firstWhere((t) => t.id == widget.teamId);
+      final updatedTeam = team.copyWith(name: _nameController.text);
+      ref.read(teamsProvider.notifier).updateTeam(updatedTeam);
+      
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(AppLocalizations.of(context)!.teamSaved)),
+      );
+    }
   }
 
   void _showPremiumDialog(BuildContext context, AppLocalizations l10n) {
@@ -106,7 +114,7 @@ class _TeamDetailPageState extends ConsumerState<TeamDetailPage> {
           IconButton(
             icon: const Icon(Icons.delete),
             color: theme.colorScheme.error,
-            onPressed: () => _showPremiumDialog(context, l10n),
+            onPressed: () => _showDeleteTeamConfirmation(context, ref, team, l10n),
             tooltip: l10n.deleteTeam,
           ),
         ],
@@ -137,7 +145,7 @@ class _TeamDetailPageState extends ConsumerState<TeamDetailPage> {
             _SectionHeader(
               title: l10n.coaches,
               subtitle: '${team.coaches.length}/2',
-              onAdd: () => _showPremiumDialog(context, l10n),
+              onAdd: () => _showAddCoachDialog(context, team),
             ),
             const SizedBox(height: 8),
             if (team.coaches.isEmpty)
@@ -149,8 +157,35 @@ class _TeamDetailPageState extends ConsumerState<TeamDetailPage> {
               ...team.coaches.map((coach) => _CoachCard(
                     coach: coach,
                     team: team,
-                    onEdit: () => _showPremiumDialog(context, l10n),
-                    onDelete: () => _showPremiumDialog(context, l10n),
+                    onEdit: () => showDialog(
+                      context: context,
+                      builder: (context) => _CoachEditDialog(team: team, coach: coach),
+                    ),
+                    onDelete: () {
+                      showDialog(
+                        context: context,
+                        builder: (context) => AlertDialog(
+                          title: Text(l10n.deleteCoach),
+                          content: Text(l10n.deleteCoachConfirmation(coach.name)),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.of(context).pop(),
+                              child: Text(l10n.cancel),
+                            ),
+                            TextButton(
+                              onPressed: () {
+                                ref.read(teamsProvider.notifier).deleteCoachFromTeam(team.id, coach.id);
+                                Navigator.of(context).pop();
+                              },
+                              style: TextButton.styleFrom(
+                                foregroundColor: theme.colorScheme.error,
+                              ),
+                              child: Text(l10n.delete),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
                   )),
             const SizedBox(height: 24),
             
@@ -158,7 +193,7 @@ class _TeamDetailPageState extends ConsumerState<TeamDetailPage> {
             _SectionHeader(
               title: l10n.players,
               subtitle: '${team.players.length}/18',
-              onAdd: () => _showPremiumDialog(context, l10n),
+              onAdd: () => _showAddPlayerDialog(context, team),
             ),
             const SizedBox(height: 8),
             if (team.players.isEmpty)
@@ -170,8 +205,35 @@ class _TeamDetailPageState extends ConsumerState<TeamDetailPage> {
               ...team.players.map((player) => _PlayerCard(
                     player: player,
                     team: team,
-                    onEdit: () => _showPremiumDialog(context, l10n),
-                    onDelete: () => _showPremiumDialog(context, l10n),
+                    onEdit: () => showDialog(
+                      context: context,
+                      builder: (context) => _PlayerEditDialog(team: team, player: player),
+                    ),
+                    onDelete: () {
+                      showDialog(
+                        context: context,
+                        builder: (context) => AlertDialog(
+                          title: Text(l10n.deletePlayer),
+                          content: Text(l10n.deletePlayerConfirmation(player.name)),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.of(context).pop(),
+                              child: Text(l10n.cancel),
+                            ),
+                            TextButton(
+                              onPressed: () {
+                                ref.read(teamsProvider.notifier).deletePlayerFromTeam(team.id, player.id);
+                                Navigator.of(context).pop();
+                              },
+                              style: TextButton.styleFrom(
+                                foregroundColor: theme.colorScheme.error,
+                              ),
+                              child: Text(l10n.delete),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
                   )),
           ],
         ),

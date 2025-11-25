@@ -7,6 +7,7 @@ import '../../domain/providers/teams_provider.dart';
 import '../../domain/models/team.dart';
 import 'team_detail_page.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../../../auth/domain/providers/auth_provider.dart';
 
 class TeamsListPage extends ConsumerWidget {
   const TeamsListPage({super.key});
@@ -149,9 +150,32 @@ class TeamsListPage extends ConsumerWidget {
               },
             ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {
-          // Always show premium dialog for now as creation is restricted
-          _showPremiumDialog(context, l10n);
+        onPressed: () async {
+          final isAuthenticated = ref.read(isAuthenticatedProvider);
+          
+          if (!isAuthenticated) {
+            _showPremiumDialog(context, l10n);
+            return;
+          }
+          
+          // Wait for premium status to load
+          final isPremiumAsync = await ref.read(isPremiumProvider.future);
+          
+          if (isPremiumAsync) {
+            // Premium user - allow team creation
+            final uuid = Uuid();
+            final newTeam = Team(
+              id: uuid.v4(),
+              name: 'New Team',
+              players: [],
+              coaches: [],
+            );
+            ref.read(teamsProvider.notifier).addTeam(newTeam);
+            context.push('/teams/${newTeam.id}');
+          } else {
+            // Non-premium user - show dialog
+            _showPremiumDialog(context, l10n);
+          }
         },
         icon: const Icon(Icons.add),
         label: Text(l10n.createTeam),

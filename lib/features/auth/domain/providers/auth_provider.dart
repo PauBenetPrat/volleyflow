@@ -22,3 +22,29 @@ final isAuthenticatedProvider = Provider<bool>((ref) {
     error: (_, __) => false,
   );
 });
+
+// Premium status provider
+final isPremiumProvider = FutureProvider<bool>((ref) async {
+  final userAsync = ref.watch(currentUserProvider);
+  
+  return userAsync.when(
+    data: (user) async {
+      if (user == null) return false;
+      
+      try {
+        final response = await Supabase.instance.client
+            .from('profiles')
+            .select('is_premium')
+            .eq('id', user.id)
+            .single();
+        
+        return response['is_premium'] as bool? ?? false;
+      } catch (e) {
+        print('Error fetching premium status: $e');
+        return false;
+      }
+    },
+    loading: () => false,
+    error: (_, __) => false,
+  );
+});
