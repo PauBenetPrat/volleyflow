@@ -427,30 +427,38 @@ class AppLocalizationsEs extends AppLocalizations {
   String get incorrectPin => 'PIN incorrecto';
 
   @override
-  String get help => 'Help';
+  String get help => 'Ayuda';
 
   @override
-  String get helpTitle => 'How to use';
+  String get helpTitle => 'Cómo usar';
 
   @override
-  String get helpMovePlayers => '• Drag and drop players to move them.';
+  String get helpMovePlayers => '• Arrastra y suelta jugadores para moverlos.';
 
   @override
-  String get helpPlayerInfo => '• Double tap on a player to see their info.';
+  String get helpPlayerInfo =>
+      '• Haz doble toque en un jugador para ver su información.';
 
   @override
-  String get helpRotate => '• Click the rotation button to rotate forward.';
+  String get helpRotate =>
+      '• Haz clic en el botón de rotación para rotar hacia adelante.';
 
   @override
-  String get dontShowAgain => 'Don\'t show again';
+  String get dontShowAgain => 'No mostrar de nuevo';
 
   @override
-  String get doubleTapDiscoveryTitle => 'Did you know?';
+  String get doubleTapDiscoveryTitle => '¿Sabías que...?';
 
   @override
   String get doubleTapDiscoveryMessage =>
-      'You just discovered a hidden feature! Double tapping rotates backwards.';
+      '¡Acabas de descubrir una función oculta! El doble toque rota hacia atrás.';
 
   @override
-  String get gotIt => 'Got it!';
+  String get gotIt => '¡Entendido!';
+
+  @override
+  String get buyMeACoffee => 'Invítame a un Café';
+
+  @override
+  String get supportDeveloper => 'Apoya al Desarrollador';
 }

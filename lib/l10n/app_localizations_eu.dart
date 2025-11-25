@@ -429,30 +429,37 @@ class AppLocalizationsEu extends AppLocalizations {
   String get incorrectPin => 'PIN okerra';
 
   @override
-  String get help => 'Help';
+  String get help => 'Laguntza';
 
   @override
-  String get helpTitle => 'How to use';
+  String get helpTitle => 'Nola erabili';
 
   @override
-  String get helpMovePlayers => '• Drag and drop players to move them.';
+  String get helpMovePlayers => '• Arrastatu eta jaregin jokalariak mugitzeko.';
 
   @override
-  String get helpPlayerInfo => '• Double tap on a player to see their info.';
+  String get helpPlayerInfo =>
+      '• Egin klik bikoitza jokalari batean bere informazioa ikusteko.';
 
   @override
-  String get helpRotate => '• Click the rotation button to rotate forward.';
+  String get helpRotate => '• Egin klik errotazio botoian aurrera egiteko.';
 
   @override
-  String get dontShowAgain => 'Don\'t show again';
+  String get dontShowAgain => 'Ez erakutsi berriro';
 
   @override
-  String get doubleTapDiscoveryTitle => 'Did you know?';
+  String get doubleTapDiscoveryTitle => 'Ba al zenekien?';
 
   @override
   String get doubleTapDiscoveryMessage =>
-      'You just discovered a hidden feature! Double tapping rotates backwards.';
+      'Ezkutuko funtzio bat aurkitu duzu! Klik bikoitzak atzera egiten du.';
 
   @override
-  String get gotIt => 'Got it!';
+  String get gotIt => 'Ulertuta!';
+
+  @override
+  String get buyMeACoffee => 'Gonbidatu Kafe Bat';
+
+  @override
+  String get supportDeveloper => 'Garatzailea Lagundu';
 }

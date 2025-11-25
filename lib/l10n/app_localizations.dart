@@ -939,6 +939,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Got it!'**
   String get gotIt;
+
+  /// Buy me a coffee button text
+  ///
+  /// In en, this message translates to:
+  /// **'Buy Me a Coffee'**
+  String get buyMeACoffee;
+
+  /// Support developer text
+  ///
+  /// In en, this message translates to:
+  /// **'Support the Developer'**
+  String get supportDeveloper;
 }
 
 class _AppLocalizationsDelegate

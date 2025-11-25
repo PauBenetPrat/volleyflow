@@ -455,4 +455,10 @@ class AppLocalizationsCa extends AppLocalizations {
 
   @override
   String get gotIt => 'Entesos!';
+
+  @override
+  String get buyMeACoffee => 'Convida\'m a un Cafè';
+
+  @override
+  String get supportDeveloper => 'Dona Suport al Desenvolupador';
 }

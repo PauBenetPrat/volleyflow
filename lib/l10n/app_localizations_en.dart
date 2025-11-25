@@ -452,4 +452,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get gotIt => 'Got it!';
+
+  @override
+  String get buyMeACoffee => 'Buy Me a Coffee';
+
+  @override
+  String get supportDeveloper => 'Support the Developer';
 }
