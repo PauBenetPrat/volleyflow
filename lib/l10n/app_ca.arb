@@ -142,6 +142,9 @@
   "premiumFeature": "Funció Premium",
   "premiumFeatureMessage": "Crear múltiples equips és una funció premium. Per desbloquejar aquesta funció, contacta amb nosaltres.",
   "premiumFeatureRequest": "Sol·licitud de Funció Premium",
-  "contactUs": "Contacta'ns"
+  "contactUs": "Contacta'ns",
+  "exit": "Sortir",
+  "exitConfirmation": "Estàs segur que vols sortir?",
+  "resetConfirmation": "Estàs segur que vols reiniciar totes les modificacions?"
 }
 

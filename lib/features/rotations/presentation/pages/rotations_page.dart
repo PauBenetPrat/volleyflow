@@ -114,7 +114,7 @@ class _RotationsPageState extends ConsumerState<RotationsPage> {
       barrierDismissible: false, // User must select a system
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Select Rotation System'),
+          title: Text(l10n.selectRotationSystem),
           content: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -428,19 +428,19 @@ class _RotationsPageState extends ConsumerState<RotationsPage> {
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
-            title: const Text('Sortir'),
-            content: const Text('Estàs segur que vols sortir?'),
+            title: Text(l10n.exit),
+            content: Text(l10n.exitConfirmation),
             actions: [
               TextButton(
                 onPressed: () => Navigator.of(context).pop(),
-                child: const Text('Cancel·lar'),
+                child: Text(l10n.cancel),
               ),
               TextButton(
                 onPressed: () {
                   Navigator.of(context).pop();
                   context.go('/rotations');
                 },
-                child: const Text('Sortir'),
+                child: Text(l10n.exit),
               ),
             ],
           );
@@ -455,7 +455,7 @@ class _RotationsPageState extends ConsumerState<RotationsPage> {
         builder: (BuildContext context) {
           return AlertDialog(
             title: Text(l10n.reset),
-            content: const Text('Estàs segur que vols reiniciar totes les modificacions?'),
+            content: Text(l10n.resetConfirmation),
             actions: [
               TextButton(
                 onPressed: () => Navigator.of(context).pop(),

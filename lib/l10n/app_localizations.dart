@@ -154,22 +154,22 @@ abstract class AppLocalizations {
   /// **'BASE'**
   String get base;
 
-  /// Sac phase
+  /// Serve phase
   ///
   /// In en, this message translates to:
-  /// **'SAC'**
+  /// **'SERVE'**
   String get sac;
 
   /// Reception phase
   ///
   /// In en, this message translates to:
-  /// **'RECEPCIO'**
+  /// **'RECEPTION'**
   String get recepcio;
 
   /// Defense phase
   ///
   /// In en, this message translates to:
-  /// **'DEFENSA'**
+  /// **'DEFENSE'**
   String get defensa;
 
   /// Rotation system title
@@ -939,6 +939,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Got it!'**
   String get gotIt;
+
+  /// Exit button
+  ///
+  /// In en, this message translates to:
+  /// **'Exit'**
+  String get exit;
+
+  /// Exit confirmation message
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to exit?'**
+  String get exitConfirmation;
+
+  /// Reset confirmation message
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to reset all changes?'**
+  String get resetConfirmation;
 }
 
 class _AppLocalizationsDelegate
