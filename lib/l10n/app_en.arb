@@ -32,15 +32,15 @@
   "@base": {
     "description": "Base phase"
   },
-  "sac": "SAC",
+  "sac": "SERVE",
   "@sac": {
-    "description": "Sac phase"
+    "description": "Serve phase"
   },
-  "recepcio": "RECEPCIO",
+  "recepcio": "RECEPTION",
   "@recepcio": {
     "description": "Reception phase"
   },
-  "defensa": "DEFENSA",
+  "defensa": "DEFENSE",
   "@defensa": {
     "description": "Defense phase"
   },
@@ -595,6 +595,18 @@
   "supportDeveloper": "Support the Developer",
   "@supportDeveloper": {
     "description": "Support developer text"
+  },
+  "exit": "Exit",
+  "@exit": {
+    "description": "Exit button"
+  },
+  "exitConfirmation": "Are you sure you want to exit?",
+  "@exitConfirmation": {
+    "description": "Exit confirmation message"
+  },
+  "resetConfirmation": "Are you sure you want to reset all changes?",
+  "@resetConfirmation": {
+    "description": "Reset confirmation message"
   }
 }
 

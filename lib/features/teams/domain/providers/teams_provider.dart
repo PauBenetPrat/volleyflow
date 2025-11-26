@@ -1,11 +1,13 @@
 import 'dart:convert';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:uuid/uuid.dart';
 import '../models/team.dart';
 import '../models/player.dart';
 import '../models/coach.dart';
 import '../models/player_position.dart';
+import '../../../auth/domain/services/supabase_teams_service.dart';
 
 class TeamsState {
   final List<Team> teams;
@@ -27,19 +29,93 @@ class TeamsState {
   }
 
   bool canCreateTeam() {
-    // For now, only allow 1 team
+    // For now, only allow 1 team for non-authenticated users
+    // Authenticated users can create unlimited teams
     return teams.length < 1;
   }
 }
 
 class TeamsNotifier extends Notifier<TeamsState> {
   static const String _storageKey = 'teams_storage';
+  final SupabaseTeamsService _supabaseService = SupabaseTeamsService();
 
   @override
   TeamsState build() {
-    // Carregar equips des de local storage al inicialitzar
-    _loadFromLocal();
+    // Load teams on initialization
+    _loadTeams();
     return TeamsState(teams: [], isLoading: true);
+  }
+
+  /// Check if user is authenticated
+  bool get _isAuthenticated => Supabase.instance.client.auth.currentUser != null;
+
+  /// Load teams from appropriate source
+  Future<void> _loadTeams() async {
+    if (_isAuthenticated) {
+      await _loadFromSupabase();
+    } else {
+      await _loadFromLocal();
+    }
+  }
+
+  /// Load teams from Supabase
+  Future<void> _loadFromSupabase() async {
+    try {
+      final teams = await _supabaseService.fetchTeams();
+      
+      // If no teams found, seed the demo team for new premium users
+      if (teams.isEmpty) {
+        await _seedDemoTeamToSupabase();
+      } else {
+        state = state.copyWith(teams: teams, isLoading: false);
+      }
+    } catch (e) {
+      print('Error loading teams from Supabase: $e');
+      state = state.copyWith(isLoading: false);
+    }
+  }
+
+  /// Seed demo team to Supabase for new premium users
+  Future<void> _seedDemoTeamToSupabase() async {
+    final uuid = Uuid();
+    final demoTeam = Team(
+      id: uuid.v4(),
+      name: 'VolleyFlow Demo',
+      players: [
+        Player(id: uuid.v4(), name: 'Alex Johnson', number: 1, age: 22, height: 195, mainPosition: PlayerPosition.setter, gender: PlayerGender.male),
+        Player(id: uuid.v4(), name: 'Sam Smith', number: 2, age: 24, height: 188, mainPosition: PlayerPosition.attack, gender: PlayerGender.male),
+        Player(id: uuid.v4(), name: 'Chris Davis', number: 3, age: 23, height: 202, mainPosition: PlayerPosition.middleBlock, gender: PlayerGender.male),
+        Player(id: uuid.v4(), name: 'Pat Wilson', number: 4, age: 21, height: 198, mainPosition: PlayerPosition.opposite, gender: PlayerGender.male),
+        Player(id: uuid.v4(), name: 'Taylor Brown', number: 5, age: 25, height: 190, mainPosition: PlayerPosition.attack, gender: PlayerGender.male),
+        Player(id: uuid.v4(), name: 'Jordan Miller', number: 6, age: 22, height: 205, mainPosition: PlayerPosition.middleBlock, gender: PlayerGender.male),
+        Player(id: uuid.v4(), name: 'Casey Jones', number: 7, age: 20, height: 175, mainPosition: PlayerPosition.libero, gender: PlayerGender.male),
+        Player(id: uuid.v4(), name: 'Jamie White', number: 8, age: 26, height: 192, mainPosition: PlayerPosition.setter, gender: PlayerGender.male),
+        Player(id: uuid.v4(), name: 'Morgan Green', number: 9, age: 23, height: 189, mainPosition: PlayerPosition.attack, gender: PlayerGender.male),
+        Player(id: uuid.v4(), name: 'Drew Black', number: 10, age: 24, height: 200, mainPosition: PlayerPosition.middleBlock, gender: PlayerGender.male),
+        Player(id: uuid.v4(), name: 'Riley King', number: 11, age: 22, height: 196, mainPosition: PlayerPosition.opposite, gender: PlayerGender.male),
+        Player(id: uuid.v4(), name: 'Avery Scott', number: 12, age: 21, height: 191, mainPosition: PlayerPosition.attack, gender: PlayerGender.male),
+        Player(id: uuid.v4(), name: 'Quinn Hall', number: 13, age: 25, height: 203, mainPosition: PlayerPosition.middleBlock, gender: PlayerGender.male),
+        Player(id: uuid.v4(), name: 'Reese Adams', number: 14, age: 20, height: 178, mainPosition: PlayerPosition.libero, gender: PlayerGender.male),
+        Player(id: uuid.v4(), name: 'Skyler Clark', number: 15, age: 23, height: 194, mainPosition: PlayerPosition.setter, gender: PlayerGender.male),
+        Player(id: uuid.v4(), name: 'Cameron Lewis', number: 16, age: 24, height: 190, mainPosition: PlayerPosition.attack, gender: PlayerGender.male),
+        Player(id: uuid.v4(), name: 'Parker Young', number: 17, age: 22, height: 201, mainPosition: PlayerPosition.middleBlock, gender: PlayerGender.male),
+        Player(id: uuid.v4(), name: 'Dakota Hill', number: 18, age: 21, height: 197, mainPosition: PlayerPosition.opposite, gender: PlayerGender.male),
+      ],
+      coaches: [
+        Coach(id: uuid.v4(), name: 'Coach Carter', isPrimary: true),
+        Coach(id: uuid.v4(), name: 'Assistant Lee', isPrimary: false),
+      ],
+      createdAt: DateTime.now(),
+      updatedAt: DateTime.now(),
+    );
+
+    try {
+      await _supabaseService.createTeam(demoTeam);
+      state = state.copyWith(teams: [demoTeam], isLoading: false);
+    } catch (e) {
+      print('Error seeding demo team to Supabase: $e');
+      state = state.copyWith(isLoading: false);
+    }
   }
 
   /// Carrega els equips des de local storage
@@ -56,8 +132,12 @@ class TeamsNotifier extends Notifier<TeamsState> {
         
         state = state.copyWith(teams: teams, isLoading: false);
       } else {
-        // If no teams found, seed default team
-        _seedDefaultTeam();
+        // If no teams found and not authenticated, seed default team
+        if (!_isAuthenticated) {
+          _seedDefaultTeam();
+        } else {
+          state = state.copyWith(isLoading: false);
+        }
       }
     } catch (e) {
       // Si hi ha error en carregar, continuar amb llista buida
@@ -79,21 +159,35 @@ class TeamsNotifier extends Notifier<TeamsState> {
     }
   }
 
-  void addTeam(Team team) {
-    if (state.canCreateTeam()) {
-      final now = DateTime.now();
-      final teamWithTimestamps = team.copyWith(
-        createdAt: team.createdAt ?? now,
-        updatedAt: now,
-      );
-      state = state.copyWith(
-        teams: [...state.teams, teamWithTimestamps],
-      );
+  void addTeam(Team team) async {
+    final now = DateTime.now();
+    final teamWithTimestamps = team.copyWith(
+      createdAt: team.createdAt ?? now,
+      updatedAt: now,
+    );
+
+    // Update local state immediately
+    state = state.copyWith(
+      teams: [...state.teams, teamWithTimestamps],
+    );
+
+    // Persist to appropriate storage
+    if (_isAuthenticated) {
+      try {
+        await _supabaseService.createTeam(teamWithTimestamps);
+      } catch (e) {
+        print('Error creating team in Supabase: $e');
+        // Revert on error
+        state = state.copyWith(
+          teams: state.teams.where((t) => t.id != team.id).toList(),
+        );
+      }
+    } else {
       _saveToLocal();
     }
   }
 
-  void updateTeam(Team team) {
+  void updateTeam(Team team) async {
     final index = state.teams.indexWhere((t) => t.id == team.id);
     if (index != -1) {
       final updatedTeams = List<Team>.from(state.teams);
@@ -102,15 +196,39 @@ class TeamsNotifier extends Notifier<TeamsState> {
       );
       updatedTeams[index] = teamWithTimestamp;
       state = state.copyWith(teams: updatedTeams);
-      _saveToLocal();
+
+      // Persist to appropriate storage
+      if (_isAuthenticated) {
+        try {
+          await _supabaseService.updateTeam(teamWithTimestamp);
+        } catch (e) {
+          print('Error updating team in Supabase: $e');
+        }
+      } else {
+        _saveToLocal();
+      }
     }
   }
 
-  void deleteTeam(String teamId) {
+  void deleteTeam(String teamId) async {
+    // Remove from local state
+    final previousTeams = state.teams;
     state = state.copyWith(
       teams: state.teams.where((t) => t.id != teamId).toList(),
     );
-    _saveToLocal();
+
+    // Persist to appropriate storage
+    if (_isAuthenticated) {
+      try {
+        await _supabaseService.deleteTeam(teamId);
+      } catch (e) {
+        print('Error deleting team from Supabase: $e');
+        // Revert on error
+        state = state.copyWith(teams: previousTeams);
+      }
+    } else {
+      _saveToLocal();
+    }
   }
 
   void addPlayerToTeam(String teamId, Player player) {

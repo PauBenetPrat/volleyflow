@@ -144,6 +144,9 @@
   "premiumFeatureRequest": "Sol·licitud de Funció Premium",
   "contactUs": "Contacta'ns",
   "buyMeACoffee": "Convida'm a un Cafè",
-  "supportDeveloper": "Dona Suport al Desenvolupador"
+  "supportDeveloper": "Dona Suport al Desenvolupador",
+  "exit": "Sortir",
+  "exitConfirmation": "Estàs segur que vols sortir?",
+  "resetConfirmation": "Estàs segur que vols reiniciar totes les modificacions?"
 }
 
