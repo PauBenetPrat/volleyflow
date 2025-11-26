@@ -588,6 +588,14 @@
   "@contactUs": {
     "description": "Contact us button"
   },
+  "buyMeACoffee": "Buy Me a Coffee",
+  "@buyMeACoffee": {
+    "description": "Buy me a coffee button text"
+  },
+  "supportDeveloper": "Support the Developer",
+  "@supportDeveloper": {
+    "description": "Support developer text"
+  },
   "exit": "Exit",
   "@exit": {
     "description": "Exit button"

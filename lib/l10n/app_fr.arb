@@ -113,6 +113,8 @@
   "premiumFeatureMessage": "Créer plusieurs équipes est une fonctionnalité premium. Pour débloquer cette fonctionnalité, veuillez nous contacter.",
   "premiumFeatureRequest": "Demande de Fonctionnalité Premium",
   "contactUs": "Contactez-nous",
+  "buyMeACoffee": "Offre-moi un Café",
+  "supportDeveloper": "Soutenir le Développeur",
   "exit": "Quitter",
   "exitConfirmation": "Êtes-vous sûr de vouloir quitter?",
   "resetConfirmation": "Êtes-vous sûr de vouloir réinitialiser toutes les modifications?",
@@ -141,6 +143,8 @@
   "dontShowAgain": "Ne plus afficher",
   "doubleTapDiscoveryTitle": "Le saviez-vous ?",
   "doubleTapDiscoveryMessage": "Vous venez de découvrir une fonctionnalité cachée ! Le double tapotement fait tourner en arrière.",
-  "gotIt": "Compris !"
+  "gotIt": "Compris !",
+  "buyMeACoffee": "Offrez-moi un Café",
+  "supportDeveloper": "Soutenir le Développeur"
 }
 

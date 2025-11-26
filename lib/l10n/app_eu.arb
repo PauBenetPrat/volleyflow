@@ -113,6 +113,8 @@
   "premiumFeatureMessage": "Talde anitz sortzea premium funtzionalitatea da. Funtzionalitate hau desblokeatzeko, mesedez jarri gurekin harremanetan.",
   "premiumFeatureRequest": "Premium Funtzionalitate Eskaera",
   "contactUs": "Jarri Gurekin Harremanetan",
+  "buyMeACoffee": "Gonbidatu Kafe Batera",
+  "supportDeveloper": "Lagundu Garatzaileari",
   "exit": "Irten",
   "exitConfirmation": "Ziur zaude irten nahi duzula?",
   "resetConfirmation": "Ziur zaude aldaketa guztiak berrezarri nahi dituzula?",
@@ -141,6 +143,8 @@
   "dontShowAgain": "Ez erakutsi berriro",
   "doubleTapDiscoveryTitle": "Ba al zenekien?",
   "doubleTapDiscoveryMessage": "Ezkutuko funtzio bat aurkitu duzu! Klik bikoitzak atzera egiten du.",
-  "gotIt": "Ulertuta!"
+  "gotIt": "Ulertuta!",
+  "buyMeACoffee": "Gonbidatu Kafe Bat",
+  "supportDeveloper": "Garatzailea Lagundu"
 }
 

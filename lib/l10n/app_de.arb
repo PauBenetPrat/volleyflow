@@ -113,6 +113,8 @@
   "premiumFeatureMessage": "Das Erstellen mehrerer Teams ist eine Premium-Funktion. Um diese Funktion freizuschalten, kontaktieren Sie uns bitte.",
   "premiumFeatureRequest": "Premium-Funktion anfordern",
   "contactUs": "Kontaktieren Sie uns",
+  "buyMeACoffee": "Kauf mir einen Kaffee",
+  "supportDeveloper": "Unterstütze den Entwickler",
   "exit": "Beenden",
   "exitConfirmation": "Sind Sie sicher, dass Sie beenden möchten?",
   "resetConfirmation": "Sind Sie sicher, dass Sie alle Änderungen zurücksetzen möchten?",
@@ -141,6 +143,8 @@
   "dontShowAgain": "Nicht wieder anzeigen",
   "doubleTapDiscoveryTitle": "Wussten Sie schon?",
   "doubleTapDiscoveryMessage": "Sie haben gerade eine versteckte Funktion entdeckt! Doppeltippen rotiert rückwärts.",
-  "gotIt": "Verstanden!"
+  "gotIt": "Verstanden!",
+  "buyMeACoffee": "Spendiere mir einen Kaffee",
+  "supportDeveloper": "Entwickler unterstützen"
 }
 
