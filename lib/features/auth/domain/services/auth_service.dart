@@ -50,10 +50,12 @@ class AuthService {
     final GoogleSignIn googleSignIn = kIsWeb
         ? GoogleSignIn(
             clientId: webClientId,
+            scopes: ['openid', 'email', 'profile'],
           )
         : GoogleSignIn(
             clientId: iosClientId,
             serverClientId: webClientId,
+            scopes: ['openid', 'email', 'profile'],
           );
     
     final googleUser = await googleSignIn.signIn();
