@@ -1,4 +1,7 @@
+import 'package:flutter/foundation.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:volleyball_coaching_app/core/config/supabase_config.dart';
 
 class AuthService {
   final SupabaseClient _supabase = Supabase.instance.client;
@@ -35,8 +38,54 @@ class AuthService {
     return response;
   }
 
+  // Sign in with Google
+  Future<AuthResponse> signInWithGoogle() async {
+    /// Web Client ID that you registered with Google Cloud.
+    /// This is required for web, but not for mobile.
+    const webClientId = SupabaseConfig.googleWebClientId;
+
+    /// iOS Client ID that you registered with Google Cloud.
+    const iosClientId = SupabaseConfig.googleIosClientId;
+
+    final GoogleSignIn googleSignIn = kIsWeb
+        ? GoogleSignIn(
+            clientId: webClientId,
+          )
+        : GoogleSignIn(
+            clientId: iosClientId,
+            serverClientId: webClientId,
+          );
+    
+    final googleUser = await googleSignIn.signIn();
+    
+    if (googleUser == null) {
+      throw 'Google Sign-In canceled by user.';
+    }
+    
+    final googleAuth = await googleUser.authentication;
+    final accessToken = googleAuth.accessToken;
+    final idToken = googleAuth.idToken;
+
+    if (accessToken == null) {
+      throw 'No Access Token found.';
+    }
+    if (idToken == null) {
+      throw 'No ID Token found.';
+    }
+
+    return _supabase.auth.signInWithIdToken(
+      provider: OAuthProvider.google,
+      idToken: idToken,
+      accessToken: accessToken,
+    );
+  }
+
   // Sign out
   Future<void> signOut() async {
+    final googleSignIn = GoogleSignIn();
+    if (await googleSignIn.isSignedIn()) {
+      await googleSignIn.signOut();
+    }
     await _supabase.auth.signOut();
   }
 
