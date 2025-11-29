@@ -19,7 +19,7 @@ class FullCourtRotationsPage extends StatefulWidget {
   State<FullCourtRotationsPage> createState() => _FullCourtRotationsPageState();
 }
 
-class _FullCourtRotationsPageState extends State<FullCourtRotationsPage> {
+class _FullCourtRotationsPageState extends State<FullCourtRotationsPage> with WidgetsBindingObserver {
   // State
   final Map<String, Offset> _playerPositions = {}; // ID -> Position
   final Map<String, Player> _players = {}; // ID -> Player
@@ -36,24 +36,13 @@ class _FullCourtRotationsPageState extends State<FullCourtRotationsPage> {
   @override
   void initState() {
     super.initState();
-    // Force landscape
-    SystemChrome.setPreferredOrientations([
-      DeviceOrientation.landscapeLeft,
-      DeviceOrientation.landscapeRight,
-    ]);
+    WidgetsBinding.instance.addObserver(this);
     
     _initializePlayers();
     
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _showStartingLineupDialog();
-      
-      // Default zoom on smaller screens (e.g. phones)
-      final size = MediaQuery.of(context).size;
-      if (size.shortestSide < 600) {
-        setState(() {
-          _isZoomed = true;
-        });
-      }
+      _checkOrientation();
     });
   }
 
@@ -117,13 +106,40 @@ class _FullCourtRotationsPageState extends State<FullCourtRotationsPage> {
 
   @override
   void dispose() {
-    SystemChrome.setPreferredOrientations([
-      DeviceOrientation.portraitUp,
-      DeviceOrientation.portraitDown,
-      DeviceOrientation.landscapeLeft,
-      DeviceOrientation.landscapeRight,
-    ]);
+    WidgetsBinding.instance.removeObserver(this);
     super.dispose();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _checkOrientation();
+  }
+
+  @override
+  void didChangeMetrics() {
+    // _checkOrientation(); // handled by didChangeDependencies usually, but keeping for safety if needed
+    // Actually didChangeMetrics fires for keyboard etc, didChangeDependencies fires for MediaQuery
+  }
+
+  void _checkOrientation() {
+    final orientation = MediaQuery.of(context).orientation;
+    final isPortrait = orientation == Orientation.portrait;
+    
+    // User reported "zooming out when going portrait" with previous logic.
+    // Previous logic: isPortrait -> Zoom In.
+    // If user saw Zoom Out, then isPortrait was false?
+    // Let's enforce: Portrait -> Zoom In (isZoomed = true), Landscape -> Zoom Out (isZoomed = false)
+    
+    if (isPortrait && !_isZoomed) {
+      setState(() {
+        _isZoomed = true;
+      });
+    } else if (!isPortrait && _isZoomed) {
+      setState(() {
+        _isZoomed = false;
+      });
+    }
   }
 
   void _initializePlayers({List<Player>? starters}) {
@@ -136,6 +152,11 @@ class _FullCourtRotationsPageState extends State<FullCourtRotationsPage> {
     // 1. Get roster
     final roster = widget.team.players.toList();
     final startingLineup = starters ?? roster.take(6).toList();
+    
+    // Add ALL players to the map to ensure they can be rendered
+    for (final player in roster) {
+      _players[player.id] = player;
+    }
     
     // 2. Place first 6 on Left Side (Home) in 4-2 formation
     final startingPositions = [
@@ -150,7 +171,6 @@ class _FullCourtRotationsPageState extends State<FullCourtRotationsPage> {
     // Add starters
     for (int i = 0; i < startingLineup.length; i++) {
       final player = startingLineup[i];
-      _players[player.id] = player;
       if (i < 6) {
         _playerPositions[player.id] = startingPositions[i];
         _playerLogicalPositions[player.id] = i + 1;
@@ -437,25 +457,26 @@ class _FullCourtRotationsPageState extends State<FullCourtRotationsPage> {
           ),
           
           // Court
-          Expanded(
-            child: FullCourtWidget(
-              playerPositions: _playerPositions,
-              players: _players,
-              leftBench: _isHomeOnLeft ? _homeBench : _opponentBench,
-              rightBench: _isHomeOnLeft ? _opponentBench : _homeBench,
-              isZoomed: _isZoomed,
-              isHomeOnLeft: _isHomeOnLeft,
-              isDrawingMode: _isDrawingMode,
-              controller: _controller,
-              frontRowPlayerIds: _playerLogicalPositions.entries
-                  .where((e) => [2, 3, 4].contains(e.value))
-                  .map((e) => e.key)
-                  .toSet(),
-              onPlayerMoved: _handlePlayerMoved,
-              onPlayerTap: _handlePlayerTap,
-              onBenchPlayerTap: _handleBenchPlayerTap,
+            Expanded(
+              child: FullCourtWidget(
+                playerPositions: _playerPositions,
+                players: _players,
+                leftBench: _isHomeOnLeft ? _homeBench : _opponentBench,
+                rightBench: _isHomeOnLeft ? _opponentBench : _homeBench,
+                isZoomed: _isZoomed,
+                isZoomedOnRight: !_isHomeOnLeft,
+                isHomeOnLeft: _isHomeOnLeft,
+                isDrawingMode: _isDrawingMode,
+                controller: _controller,
+                frontRowPlayerIds: _playerLogicalPositions.entries
+                    .where((e) => [2, 3, 4].contains(e.value))
+                    .map((e) => e.key)
+                    .toSet(),
+                onPlayerMoved: _handlePlayerMoved,
+                onPlayerTap: _handlePlayerTap,
+                onBenchPlayerTap: _handleBenchPlayerTap,
+              ),
             ),
-          ),
           
           // Right Controls
           Padding(

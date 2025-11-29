@@ -16,6 +16,7 @@ class FullCourtWidget extends StatefulWidget {
   final bool isDrawingMode;
   final FullCourtController? controller;
   final Set<String> frontRowPlayerIds;
+  final bool isZoomedOnRight;
 
   const FullCourtWidget({
     super.key,
@@ -31,6 +32,7 @@ class FullCourtWidget extends StatefulWidget {
     this.isDrawingMode = false,
     this.controller,
     this.frontRowPlayerIds = const {},
+    this.isZoomedOnRight = false,
   });
 
   @override
@@ -190,6 +192,7 @@ class _FullCourtWidgetState extends State<FullCourtWidget> {
                             playerPositions: widget.playerPositions,
                             players: widget.players,
                             isZoomed: widget.isZoomed,
+                            isZoomedOnRight: widget.isZoomedOnRight,
                             isHomeOnLeft: widget.isHomeOnLeft,
                             courtColor: Colors.orange.shade100,
                             lineColor: Colors.white,
@@ -204,14 +207,18 @@ class _FullCourtWidgetState extends State<FullCourtWidget> {
                           final id = entry.key;
                           final pos = entry.value;
                           
-                          // Skip if zoomed and on right side
-                          if (widget.isZoomed && pos.dx > 1.0) {
-                            return const SizedBox.shrink();
+                          // Skip if not visible in current zoom
+                          if (widget.isZoomed) {
+                            if (widget.isZoomedOnRight) {
+                              if (pos.dx <= 1.0) return const SizedBox.shrink();
+                            } else {
+                              if (pos.dx > 1.0) return const SizedBox.shrink();
+                            }
                           }
                           
                           final scaleX = courtWidth / (widget.isZoomed ? 1.0 : 2.0);
                           final scaleY = courtHeight;
-                          final offsetX = 0.0;
+                          final offsetX = widget.isZoomed && widget.isZoomedOnRight ? -1.0 * scaleX : 0.0;
                           
                           final drawX = pos.dx * scaleX + offsetX;
                           final drawY = pos.dy * scaleY;
@@ -264,65 +271,67 @@ class _FullCourtWidgetState extends State<FullCourtWidget> {
               child: Row(
                 children: [
                   // Left Bench (Home)
-                  Expanded(
-                    child: Container(
-                      color: widget.isHomeOnLeft ? Colors.blue.shade50 : Colors.red.shade50,
-                      padding: const EdgeInsets.all(4),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(widget.isHomeOnLeft ? 'Home Bench' : 'Opponent Bench', style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.black)),
-                          Expanded(
-                            child: ListView.builder(
-                              scrollDirection: Axis.horizontal,
-                              itemCount: widget.leftBench.length,
-                              itemBuilder: (context, index) {
-                                final player = widget.leftBench[index];
-                                return GestureDetector(
-                                  onTap: () => widget.onBenchPlayerTap(player, true),
-                                  child: Padding(
-                                    padding: const EdgeInsets.symmetric(horizontal: 4),
-                                    child: _buildBenchPlayerToken(player, widget.isHomeOnLeft ? Colors.blue : Colors.red),
-                                  ),
-                                );
-                              },
+                  if (!widget.isZoomed || !widget.isZoomedOnRight)
+                    Expanded(
+                      child: Container(
+                        color: widget.isHomeOnLeft ? Colors.blue.shade50 : Colors.red.shade50,
+                        padding: const EdgeInsets.all(4),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(widget.isHomeOnLeft ? 'Home Bench' : 'Opponent Bench', style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.black)),
+                            Expanded(
+                              child: ListView.builder(
+                                scrollDirection: Axis.horizontal,
+                                itemCount: widget.leftBench.length,
+                                itemBuilder: (context, index) {
+                                  final player = widget.leftBench[index];
+                                  return GestureDetector(
+                                    onTap: () => widget.onBenchPlayerTap(player, true),
+                                    child: Padding(
+                                      padding: const EdgeInsets.symmetric(horizontal: 4),
+                                      child: _buildBenchPlayerToken(player, widget.isHomeOnLeft ? Colors.blue : Colors.red),
+                                    ),
+                                  );
+                                },
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
-                  ),
                   
                   // Right Bench (Opponent)
-                  Expanded(
-                    child: Container(
-                      color: widget.isHomeOnLeft ? Colors.red.shade50 : Colors.blue.shade50,
-                      padding: const EdgeInsets.all(4),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          Text(widget.isHomeOnLeft ? 'Opponent Bench' : 'Home Bench', style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.black)),
-                          Expanded(
-                            child: ListView.builder(
-                              scrollDirection: Axis.horizontal,
-                              reverse: true,
-                              itemCount: widget.rightBench.length,
-                              itemBuilder: (context, index) {
-                                final player = widget.rightBench[index];
-                                return GestureDetector(
-                                  onTap: () => widget.onBenchPlayerTap(player, false),
-                                  child: Padding(
-                                    padding: const EdgeInsets.symmetric(horizontal: 4),
-                                    child: _buildBenchPlayerToken(player, widget.isHomeOnLeft ? Colors.red : Colors.blue),
-                                  ),
-                                );
-                              },
+                  if (!widget.isZoomed || widget.isZoomedOnRight)
+                    Expanded(
+                      child: Container(
+                        color: widget.isHomeOnLeft ? Colors.red.shade50 : Colors.blue.shade50,
+                        padding: const EdgeInsets.all(4),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            Text(widget.isHomeOnLeft ? 'Opponent Bench' : 'Home Bench', style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.black)),
+                            Expanded(
+                              child: ListView.builder(
+                                scrollDirection: Axis.horizontal,
+                                reverse: true,
+                                itemCount: widget.rightBench.length,
+                                itemBuilder: (context, index) {
+                                  final player = widget.rightBench[index];
+                                  return GestureDetector(
+                                    onTap: () => widget.onBenchPlayerTap(player, false),
+                                    child: Padding(
+                                      padding: const EdgeInsets.symmetric(horizontal: 4),
+                                      child: _buildBenchPlayerToken(player, widget.isHomeOnLeft ? Colors.red : Colors.blue),
+                                    ),
+                                  );
+                                },
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
-                  ),
                 ],
               ),
             ),
@@ -367,15 +376,17 @@ class _FullCourtWidgetState extends State<FullCourtWidget> {
   }
 
   Offset _getNormalizedPosition(Offset localPos, double width, double height) {
-    // If zoomed, we show 0.0-1.0 (Left side)
+    // If zoomed, we show 0.0-1.0 (Left side) or 1.0-2.0 (Right side)
     // If full, we show 0.0-2.0
     
-    double x = localPos.dx / (width / (widget.isZoomed ? 1.0 : 2.0));
-    double y = localPos.dy / height;
+    double scaleX = width / (widget.isZoomed ? 1.0 : 2.0);
+    double x = localPos.dx / scaleX;
     
-    // If zoomed, we are viewing the left half (0.0-1.0)
-    // Wait, user said "zoom in and just show the half interesting field".
-    // Usually this means the active side. For now let's assume Left side is active.
+    if (widget.isZoomed && widget.isZoomedOnRight) {
+      x += 1.0;
+    }
+    
+    double y = localPos.dy / height;
     
     return Offset(x, y);
   }
@@ -401,6 +412,7 @@ class FullCourtPainter extends CustomPainter {
   final Map<String, Offset> playerPositions;
   final Map<String, Player> players;
   final bool isZoomed;
+  final bool isZoomedOnRight;
   final bool isHomeOnLeft;
   final Color courtColor;
   final Color lineColor;
@@ -412,6 +424,7 @@ class FullCourtPainter extends CustomPainter {
     required this.playerPositions,
     required this.players,
     required this.isZoomed,
+    this.isZoomedOnRight = false,
     required this.isHomeOnLeft,
     required this.courtColor,
     required this.lineColor,
@@ -440,6 +453,9 @@ class FullCourtPainter extends CustomPainter {
     
     // If zoomed, we show 0-1. Offset is 0.
     double offsetX = 0.0;
+    if (isZoomed && isZoomedOnRight) {
+      offsetX = -1.0 * scaleX;
+    }
 
     void drawLine(double x1, double y1, double x2, double y2) {
       canvas.drawLine(

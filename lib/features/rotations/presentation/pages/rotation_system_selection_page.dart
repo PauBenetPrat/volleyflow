@@ -5,6 +5,7 @@ import 'package:volleyball_coaching_app/l10n/app_localizations.dart';
 import '../../domain/providers/rotation_provider.dart';
 import '../widgets/team_selection_dialog.dart';
 import '../../../teams/domain/models/team.dart';
+import '../../../teams/domain/providers/teams_provider.dart';
 
 class RotationSystemSelectionPage extends ConsumerWidget {
   const RotationSystemSelectionPage({super.key});
@@ -79,12 +80,35 @@ class RotationSystemSelectionPage extends ConsumerWidget {
                         description: l10n.rotationSystemPlayersDescription,
                         icon: Icons.sports_volleyball,
                         onTap: () async {
-                          final team = await showDialog<Team>(
-                            context: context,
-                            builder: (context) => const TeamSelectionDialog(),
-                          );
-                          if (team != null && context.mounted) {
-                            context.pushNamed('rotations-players-new', extra: team);
+                          final teamsState = ref.read(teamsProvider);
+                          
+                          if (teamsState.isLoading) {
+                             ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('Loading teams...')),
+                            );
+                            return;
+                          }
+
+                          final teams = teamsState.teams;
+
+                          if (teams.isEmpty) {
+                             await showDialog<Team>(
+                              context: context,
+                              builder: (context) => const TeamSelectionDialog(),
+                            );
+                          } else if (teams.length == 1) {
+                            final team = teams.first;
+                            if (context.mounted) {
+                              context.pushNamed('rotations-players-new', extra: team);
+                            }
+                          } else {
+                            final team = await showDialog<Team>(
+                              context: context,
+                              builder: (context) => const TeamSelectionDialog(),
+                            );
+                            if (team != null && context.mounted) {
+                              context.pushNamed('rotations-players-new', extra: team);
+                            }
                           }
                         },
                       ),
