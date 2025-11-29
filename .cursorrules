@@ -1,0 +1,17 @@
+# Cursor Rules for VolleyFlow
+
+## Git Operations
+- **DO NOT** make git commits automatically
+- **DO NOT** make git push automatically
+- Only perform git operations when explicitly requested by the user
+- When making changes, inform the user that they need to commit manually
+
+## Code Style
+- Follow Flutter/Dart best practices
+- Use meaningful variable and function names
+- Add comments for complex logic
+
+## Localization
+- All user-facing strings must be localized using AppLocalizations
+- Check existing ARB files before adding new translation keys
+

@@ -69,6 +69,18 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines on how to contrib
 - 💡 **Have an idea?** Open an [issue](https://github.com/PauBenetPrat/volleyflow/issues) using the feature request template
 - 🔧 **Want to code?** Fork the repo, make your changes, and submit a pull request
 
+## AI Agent Guidelines
+
+This project includes comprehensive guidelines for AI coding assistants to ensure code quality and maintainability.
+
+**For AI Agents:** See [`.agent/CLEAN_CODE_GUIDE.md`](.agent/CLEAN_CODE_GUIDE.md) for detailed clean code standards and requirements.
+
+**Key Principles:**
+- ✅ AI agents must prioritize clean, maintainable code
+- ⚠️ AI agents must request user consent before deviating from clean code standards
+- 📏 Clear thresholds for file length, function complexity, and code quality
+- 🤝 User maintains control over code quality trade-offs
+
 ## Future Enhancements
 
 - Player names assignment

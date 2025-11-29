@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 import 'package:volleyball_coaching_app/l10n/app_localizations.dart';
 import '../../domain/providers/auth_provider.dart';
 import '../../domain/services/auth_service.dart';
+import '../../../teams/domain/providers/teams_provider.dart';
+import '../../../teams/domain/providers/match_rosters_provider.dart';
 
 class LoginPage extends ConsumerStatefulWidget {
   const LoginPage({super.key});
@@ -37,6 +39,10 @@ class _LoginPageState extends ConsumerState<LoginPage> {
         email: _emailController.text.trim(),
         password: _passwordController.text,
       );
+
+      // Reload teams and rosters after successful login
+      ref.read(teamsProvider.notifier).reloadTeams();
+      ref.read(matchRostersProvider.notifier).loadRosters();
 
       if (mounted) {
         context.go('/');

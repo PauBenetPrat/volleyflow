@@ -623,6 +623,74 @@
   "start": "Start",
   "@start": {
     "description": "Start button"
+  },
+  "createMatchRoster": "Create Match Roster",
+  "@createMatchRoster": {
+    "description": "Create match roster button label"
+  },
+  "matchRoster": "Match Roster",
+  "@matchRoster": {
+    "description": "Match roster title"
+  },
+  "selectPlayers": "Select Players",
+  "@selectPlayers": {
+    "description": "Select players section title"
+  },
+  "matchDate": "Match Date",
+  "@matchDate": {
+    "description": "Match date field label"
+  },
+  "location": "Location",
+  "@location": {
+    "description": "Location field label"
+  },
+  "startMatch": "Start Match",
+  "@startMatch": {
+    "description": "Start match button label"
+  },
+  "rivalTeam": "Rival Team",
+  "@rivalTeam": {
+    "description": "Rival team name field label"
+  },
+  "selectAll": "Select All",
+  "@selectAll": {
+   "description": "Select all players checkbox label"
+  },
+  "matchRosters": "Match Rosters",
+  "@matchRosters": {
+    "description": "Match rosters menu item"
+  },
+  "matchRostersDescription": "Save and manage match call-ups",
+  "@matchRostersDescription": {
+    "description": "Match rosters description"
+  },
+  "noMatchRostersYet": "No match rosters yet",
+  "@noMatchRostersYet": {
+    "description": "Empty state message"
+  },
+  "createFirstMatchRoster": "Create your first match roster",
+  "@createFirstMatchRoster": {
+    "description": "Empty state subtitle"
+  },
+  "newMatchRoster": "New Roster",
+  "@newMatchRoster": {
+    "description": "New match roster button"
+  },
+  "editMatchRoster": "Edit Match Roster",
+  "@editMatchRoster": {
+    "description": "Edit match roster title"
+  },
+  "deleteMatchRoster": "Delete Match Roster",
+  "@deleteMatchRoster": {
+    "description": "Delete match roster dialog title"
+  },
+  "deleteMatchRosterConfirmation": "Are you sure you want to delete this match roster?",
+  "@deleteMatchRosterConfirmation": {
+    "description": "Delete confirmation message"
+  },
+  "edit": "Edit",
+  "@edit": {
+    "description": "Edit button label"
   }
 }
 

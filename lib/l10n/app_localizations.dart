@@ -412,7 +412,7 @@ abstract class AppLocalizations {
   /// **'Sets: {count}'**
   String sets(int count);
 
-  /// Start match button
+  /// Start match button label
   ///
   /// In en, this message translates to:
   /// **'Start Match'**
@@ -993,6 +993,102 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Start'**
   String get start;
+
+  /// Create match roster button label
+  ///
+  /// In en, this message translates to:
+  /// **'Create Match Roster'**
+  String get createMatchRoster;
+
+  /// Match roster title
+  ///
+  /// In en, this message translates to:
+  /// **'Match Roster'**
+  String get matchRoster;
+
+  /// Select players section title
+  ///
+  /// In en, this message translates to:
+  /// **'Select Players'**
+  String get selectPlayers;
+
+  /// Match date field label
+  ///
+  /// In en, this message translates to:
+  /// **'Match Date'**
+  String get matchDate;
+
+  /// Location field label
+  ///
+  /// In en, this message translates to:
+  /// **'Location'**
+  String get location;
+
+  /// Rival team name field label
+  ///
+  /// In en, this message translates to:
+  /// **'Rival Team'**
+  String get rivalTeam;
+
+  /// Select all players checkbox label
+  ///
+  /// In en, this message translates to:
+  /// **'Select All'**
+  String get selectAll;
+
+  /// Match rosters menu item
+  ///
+  /// In en, this message translates to:
+  /// **'Match Rosters'**
+  String get matchRosters;
+
+  /// Match rosters description
+  ///
+  /// In en, this message translates to:
+  /// **'Save and manage match call-ups'**
+  String get matchRostersDescription;
+
+  /// Empty state message
+  ///
+  /// In en, this message translates to:
+  /// **'No match rosters yet'**
+  String get noMatchRostersYet;
+
+  /// Empty state subtitle
+  ///
+  /// In en, this message translates to:
+  /// **'Create your first match roster'**
+  String get createFirstMatchRoster;
+
+  /// New match roster button
+  ///
+  /// In en, this message translates to:
+  /// **'New Roster'**
+  String get newMatchRoster;
+
+  /// Edit match roster title
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Match Roster'**
+  String get editMatchRoster;
+
+  /// Delete match roster dialog title
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Match Roster'**
+  String get deleteMatchRoster;
+
+  /// Delete confirmation message
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to delete this match roster?'**
+  String get deleteMatchRosterConfirmation;
+
+  /// Edit button label
+  ///
+  /// In en, this message translates to:
+  /// **'Edit'**
+  String get edit;
 }
 
 class _AppLocalizationsDelegate

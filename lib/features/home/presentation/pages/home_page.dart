@@ -58,10 +58,17 @@ class HomePage extends ConsumerWidget {
               const SizedBox(height: 48),
               
               // Menu Buttons
+              // Menu Buttons
               _MenuButton(
                 icon: Icons.rotate_right,
                 label: l10n.rotations,
                 onPressed: () => context.push('/rotations'),
+              ),
+              const SizedBox(height: 16),
+              _MenuButton(
+                icon: Icons.gavel,
+                label: l10n.refereeMatch,
+                onPressed: () => context.push('/match'),
               ),
               const SizedBox(height: 16),
               _MenuButton(
@@ -71,9 +78,9 @@ class HomePage extends ConsumerWidget {
               ),
               const SizedBox(height: 16),
               _MenuButton(
-                icon: Icons.gavel,
-                label: l10n.refereeMatch,
-                onPressed: () => context.push('/match'),
+                icon: Icons.event_note,
+                label: l10n.matchRosters,
+                onPressed: () => context.push('/rotations/match-rosters'),
               ),
               const SizedBox(height: 16),
               _MenuButton(

@@ -58,6 +58,11 @@ class TeamsNotifier extends Notifier<TeamsState> {
     }
   }
 
+  /// Public method to reload teams (useful after login/logout)
+  Future<void> reloadTeams() async {
+    await _loadTeams();
+  }
+
   /// Load teams from Supabase
   Future<void> _loadFromSupabase() async {
     try {

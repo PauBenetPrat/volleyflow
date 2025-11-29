@@ -10,6 +10,7 @@ import '../../domain/models/player_position.dart';
 import 'package:uuid/uuid.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../../auth/domain/providers/auth_provider.dart';
+import 'match_roster_page.dart';
 
 class TeamDetailPage extends ConsumerStatefulWidget {
   final String teamId;
@@ -264,6 +265,20 @@ class _TeamDetailPageState extends ConsumerState<TeamDetailPage> {
           ],
         ),
       ),
+      floatingActionButton: team.players.length >= 6
+          ? FloatingActionButton.extended(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => MatchRosterPage(team: team),
+                  ),
+                );
+              },
+              icon: const Icon(Icons.sports_volleyball),
+              label: Text(l10n.createMatchRoster),
+            )
+          : null,
     );
   }
 

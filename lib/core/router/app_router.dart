@@ -12,6 +12,7 @@ import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/auth/presentation/pages/signup_page.dart';
 import '../../features/auth/presentation/pages/profile_page.dart';
 import '../../features/rotations/presentation/pages/full_court_rotations_page.dart';
+import '../../features/rotations/presentation/pages/match_rosters_list_page.dart';
 import '../../features/teams/domain/models/team.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
@@ -48,6 +49,11 @@ final routerProvider = Provider<GoRouter>((ref) {
             },
           ),
         ],
+      ),
+      GoRoute(
+        path: '/rotations/match-rosters',
+        name: 'match-rosters',
+        builder: (context, state) => const MatchRostersListPage(),
       ),
       GoRoute(
         path: '/match',

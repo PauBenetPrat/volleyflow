@@ -151,6 +151,23 @@
   "selectTeam": "Selecciona Equip",
   "noTeamsFound": "No s'han trobat equips. Si us plau, crea un equip primer.",
   "selectStarting6": "Selecciona els 6 Titulars",
-  "start": "Començar"
+  "start": "Començar",
+  "createMatchRoster": "Crear Convocatòria",
+  "matchRoster": "Convocatòria",
+  "selectPlayers": "Seleccionar Jugadors",
+  "matchDate": "Data del Partit",
+  "location": "Ubicació",
+  "startMatch": "Iniciar Partit",
+  "rivalTeam": "Equip Rival",
+  "selectAll": "Seleccionar Tots",
+  "matchRosters": "Convocatòries",
+  "matchRostersDescription": "Guarda i gestiona convocatòries",
+  "noMatchRostersYet": "Encara no hi ha convocatòries",
+  "createFirstMatchRoster": "Crea la teva primera convocatòria",
+  "newMatchRoster": "Nova Convocatòria",
+  "editMatchRoster": "Editar Convocatòria",
+  "deleteMatchRoster": "Eliminar Convocatòria",
+  "deleteMatchRosterConfirmation": "Estàs segur que vols eliminar aquesta convocatòria?",
+  "edit": "Editar"
 }
 

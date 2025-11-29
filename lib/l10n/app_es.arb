@@ -149,6 +149,23 @@
   "doubleTapDiscoveryMessage": "¡Acabas de descubrir una función oculta! El doble toque rota hacia atrás.",
   "gotIt": "¡Entendido!",
   "buyMeACoffee": "Invítame a un Café",
-  "supportDeveloper": "Apoya al Desarrollador"
+  "supportDeveloper": "Apoya al Desarrollador",
+  "createMatchRoster": "Crear Convocatoria",
+  "matchRoster": "Convocatoria",
+  "selectPlayers": "Seleccionar Jugadores",
+  "matchDate": "Fecha del Partido",
+  "location": "Ubicación",
+  "startMatch": "Iniciar Partido",
+  "rivalTeam": "Equipo Rival",
+  "selectAll": "Seleccionar Todos",
+  "matchRosters": "Convocatorias",
+  "matchRostersDescription": "Guarda y gestiona convocatorias",
+  "noMatchRostersYet": "Aún no hay convocatorias",
+  "createFirstMatchRoster": "Crea tu primera convocatoria",
+  "newMatchRoster": "Nueva Convocatoria",
+  "editMatchRoster": "Editar Convocatoria",
+  "deleteMatchRoster": "Eliminar Convocatoria",
+  "deleteMatchRosterConfirmation": "¿Estás seguro de que quieres eliminar esta convocatoria?",
+  "edit": "Editar"
 }
 

@@ -14,6 +14,9 @@ class RotationSystemSelectionPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context)!;
+    
+    // Prefetch teams by watching the provider - this triggers loading when page is built
+    ref.watch(teamsProvider);
 
     return Scaffold(
       appBar: AppBar(

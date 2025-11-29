@@ -13,8 +13,9 @@ class PlayerSwapDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isPlaceholder = currentPlayer.name == '?';
     return AlertDialog(
-      title: Text('Swap ${currentPlayer.name}'),
+      title: Text(isPlaceholder ? 'Select Player' : 'Swap ${currentPlayer.name}'),
       content: SizedBox(
         width: double.maxFinite,
         child: benchPlayers.isEmpty

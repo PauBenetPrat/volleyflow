@@ -24,21 +24,21 @@ class PlayerPainter extends CustomPainter {
       
       if (isLeftSide) {
         // Point right
-        path.moveTo(center.dx + 20, center.dy); // Right point
-        path.lineTo(center.dx - 20, center.dy - 20); // Top left
-        path.lineTo(center.dx - 20, center.dy + 20); // Bottom left
+        path.moveTo(center.dx + 28, center.dy); // Right point
+        path.lineTo(center.dx - 28, center.dy - 28); // Top left
+        path.lineTo(center.dx - 28, center.dy + 28); // Bottom left
       } else {
         // Point left
-        path.moveTo(center.dx - 20, center.dy); // Left point
-        path.lineTo(center.dx + 20, center.dy - 20); // Top right
-        path.lineTo(center.dx + 20, center.dy + 20); // Bottom right
+        path.moveTo(center.dx - 28, center.dy); // Left point
+        path.lineTo(center.dx + 28, center.dy - 28); // Top right
+        path.lineTo(center.dx + 28, center.dy + 28); // Bottom right
       }
       
       path.close();
       canvas.drawPath(path, playerPaint);
     } else {
       // Draw Circle
-      canvas.drawCircle(center, 20, playerPaint);
+      canvas.drawCircle(center, 28, playerPaint);
     }
 
     // Draw Label
@@ -46,7 +46,7 @@ class PlayerPainter extends CustomPainter {
       text: label,
       style: const TextStyle(
         color: Colors.white,
-        fontSize: 12,
+        fontSize: 16,
         fontWeight: FontWeight.bold,
       ),
     );

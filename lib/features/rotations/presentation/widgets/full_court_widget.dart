@@ -17,6 +17,8 @@ class FullCourtWidget extends StatefulWidget {
   final FullCourtController? controller;
   final Set<String> frontRowPlayerIds;
   final bool isZoomedOnRight;
+  final Offset? ballPosition;
+  final Function(Offset newPosition)? onBallMoved;
 
   const FullCourtWidget({
     super.key,
@@ -33,6 +35,8 @@ class FullCourtWidget extends StatefulWidget {
     this.controller,
     this.frontRowPlayerIds = const {},
     this.isZoomedOnRight = false,
+    this.ballPosition,
+    this.onBallMoved,
   });
 
   @override
@@ -41,13 +45,16 @@ class FullCourtWidget extends StatefulWidget {
 
 class _FullCourtWidgetState extends State<FullCourtWidget> {
   // Constants
-  static const double _playerRadius = 20.0;
-  static const double _playerSize = 40.0;
+  static const double _playerRadius = 28.0;
+  static const double _playerSize = 56.0;
+  static const double _ballRadius = 20.0; // Increased from 12.0 to 20.0
+  static const double _ballSize = 40.0; // Size for icon
   static const double _benchHeightRatio = 0.15;
   static const double _touchThreshold = 0.15;
   static const Duration _animationDuration = Duration(milliseconds: 300);
 
   String? _draggedPlayerId;
+  bool _isDraggingBall = false;
   final List<List<Offset>> _drawingStrokes = [];
   List<Offset>? _currentStroke;
 
@@ -134,6 +141,9 @@ class _FullCourtWidgetState extends State<FullCourtWidget> {
                       } else {
                         final localPos = details.localPosition;
                         final normalizedPos = _getNormalizedPosition(localPos, courtWidth, courtHeight);
+                        
+                        // Ball drag disabled - ball is now static
+                        
                         final playerId = _findPlayerAt(normalizedPos);
                         if (playerId != null) {
                           setState(() {
@@ -171,6 +181,7 @@ class _FullCourtWidgetState extends State<FullCourtWidget> {
                       } else {
                         setState(() {
                           _draggedPlayerId = null;
+                          _isDraggingBall = false; // Reset ball dragging state even if not used
                         });
                       }
                     },
@@ -202,6 +213,56 @@ class _FullCourtWidgetState extends State<FullCourtWidget> {
                           ),
                           size: Size(courtWidth, courtHeight), // Ensure CustomPaint takes full size
                         ),
+                        
+                        // Ball
+                        if (widget.ballPosition != null) ...[
+                          Builder(builder: (context) {
+                             final pos = widget.ballPosition!;
+                             // Skip if not visible in current zoom
+                            if (widget.isZoomed) {
+                              if (widget.isZoomedOnRight) {
+                                if (pos.dx <= 1.0) return const SizedBox.shrink();
+                              } else {
+                                if (pos.dx > 1.0) return const SizedBox.shrink();
+                              }
+                            }
+                            
+                            final scaleX = courtWidth / (widget.isZoomed ? 1.0 : 2.0);
+                            final scaleY = courtHeight;
+                            final offsetX = widget.isZoomed && widget.isZoomedOnRight ? -1.0 * scaleX : 0.0;
+                            
+                            final drawX = pos.dx * scaleX + offsetX;
+                            final drawY = pos.dy * scaleY;
+
+                            return AnimatedPositioned(
+                              duration: _isDraggingBall ? Duration.zero : _animationDuration,
+                              curve: Curves.easeInOut,
+                              left: drawX - _ballSize / 2,
+                              top: drawY - _ballSize / 2,
+                              child: Container(
+                                width: _ballSize,
+                                height: _ballSize,
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  shape: BoxShape.circle,
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withValues(alpha: 0.3),
+                                      blurRadius: 6,
+                                      offset: const Offset(0, 3),
+                                    ),
+                                  ],
+                                ),
+                                child: Icon(
+                                  Icons.sports_volleyball,
+                                  size: _ballSize * 0.8,
+                                  color: Colors.orange.shade700,
+                                ),
+                              ),
+                            );
+                          }),
+                        ],
+
                         // Animated players
                         ...widget.playerPositions.entries.map((entry) {
                           final id = entry.key;
@@ -369,7 +430,7 @@ class _FullCourtWidgetState extends State<FullCourtWidget> {
         radius: _playerRadius,
         child: Text(
           player.number?.toString() ?? player.getInitials(),
-          style: const TextStyle(color: Colors.white, fontSize: 12),
+          style: const TextStyle(color: Colors.white, fontSize: 16),
         ),
       ),
     );

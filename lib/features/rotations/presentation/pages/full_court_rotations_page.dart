@@ -2,17 +2,21 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../../teams/domain/models/team.dart';
 import '../../../teams/domain/models/player.dart';
+import '../../../teams/domain/models/match_roster.dart';
 import '../widgets/full_court_widget.dart';
 import '../widgets/player_swap_dialog.dart';
 
 import '../widgets/full_court_controller.dart';
+import 'package:volleyball_coaching_app/l10n/app_localizations.dart';
 
 class FullCourtRotationsPage extends StatefulWidget {
   final Team team;
+  final MatchRoster? matchRoster;
 
   const FullCourtRotationsPage({
     super.key,
     required this.team,
+    this.matchRoster,
   });
 
   @override
@@ -32,19 +36,10 @@ class _FullCourtRotationsPageState extends State<FullCourtRotationsPage> with Wi
   int _opponentRotation = 1;
   bool _isDrawingMode = false;
   final FullCourtController _controller = FullCourtController();
+  
 
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addObserver(this);
-    
-    _initializePlayers();
-    
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _showStartingLineupDialog();
-      _checkOrientation();
-    });
-  }
+
+
 
   void _showStartingLineupDialog() async {
     final allPlayers = widget.team.players;
@@ -149,50 +144,44 @@ class _FullCourtRotationsPageState extends State<FullCourtRotationsPage> with Wi
     _homeBench.clear();
     _opponentBench.clear();
 
-    // 1. Get roster
-    final roster = widget.team.players.toList();
+    // 1. Get roster - use match roster players if provided
+    List<Player> roster;
+    if (widget.matchRoster != null && widget.matchRoster!.playerIds != null && widget.matchRoster!.playerIds!.isNotEmpty) {
+      // Filter team players to only include those in the match roster
+      roster = widget.team.players
+          .where((p) => widget.matchRoster!.playerIds!.contains(p.id))
+          .toList();
+    } else {
+      roster = widget.team.players.toList();
+    }
+    
     final startingLineup = starters ?? roster.take(6).toList();
     
-    // Add ALL players to the map to ensure they can be rendered
+    // Add ALL roster players to the map to ensure they can be rendered
     for (final player in roster) {
       _players[player.id] = player;
     }
     
-    // 2. Place first 6 on Left Side (Home) in 4-2 formation
-    final startingPositions = [
-      Offset(0.3, 0.8), // 1 (Back Right)
-      Offset(0.8, 0.8), // 2 (Front Right)
-      Offset(0.8, 0.5), // 3 (Front Center)
-      Offset(0.8, 0.2), // 4 (Front Left)
-      Offset(0.3, 0.2), // 5 (Back Left)
-      Offset(0.3, 0.5), // 6 (Back Center)
-    ];
+    // 2. Place placeholders on Left Side (Home)
+    final startingPositions = _getStandardPositions(true);
 
-    // Add starters
-    for (int i = 0; i < startingLineup.length; i++) {
-      final player = startingLineup[i];
-      if (i < 6) {
-        _playerPositions[player.id] = startingPositions[i];
-        _playerLogicalPositions[player.id] = i + 1;
-      }
+    for (int i = 0; i < 6; i++) {
+      final placeholderId = 'placeholder_$i';
+      final placeholder = Player(
+        id: placeholderId,
+        name: '?',
+        number: null,
+      );
+      _players[placeholderId] = placeholder;
+      _playerPositions[placeholderId] = startingPositions[i];
+      _playerLogicalPositions[placeholderId] = i + 1;
     }
 
-    // Add remaining to bench
-    for (final player in roster) {
-      if (!startingLineup.contains(player)) {
-        _homeBench.add(player);
-      }
-    }
+    // Add ALL roster players to bench
+    _homeBench.addAll(roster);
 
     // 3. Create 6 Ghost Players for Right Side (Opponent)
-    final opponentPositions = [
-      Offset(1.7, 0.8), // 1 (Back Left - Mirrored?)
-      Offset(1.2, 0.8), // 2
-      Offset(1.2, 0.5), // 3
-      Offset(1.2, 0.2), // 4
-      Offset(1.7, 0.2), // 5
-      Offset(1.7, 0.5), // 6
-    ];
+    final opponentPositions = _getStandardPositions(false);
 
     for (int i = 0; i < 6; i++) {
       final ghostId = 'ghost_$i';
@@ -208,6 +197,54 @@ class _FullCourtRotationsPageState extends State<FullCourtRotationsPage> with Wi
     
     setState(() {});
   }
+
+  List<Offset> _getStandardPositions(bool isLeft) {
+    if (isLeft) {
+      return [
+        const Offset(0.3, 0.8), // 1 (Back Right)
+        const Offset(0.8, 0.8), // 2 (Front Right)
+        const Offset(0.8, 0.5), // 3 (Front Center)
+        const Offset(0.8, 0.2), // 4 (Front Left)
+        const Offset(0.3, 0.2), // 5 (Back Left)
+        const Offset(0.3, 0.5), // 6 (Back Center)
+      ];
+    } else {
+      return [
+        const Offset(1.7, 0.2), // 1 (Back Right - Top Right on screen)
+        const Offset(1.2, 0.2), // 2 (Front Right - Top Left on screen)
+        const Offset(1.2, 0.5), // 3 (Front Center)
+        const Offset(1.2, 0.8), // 4 (Front Left - Bottom Left on screen)
+        const Offset(1.7, 0.8), // 5 (Back Left - Bottom Right on screen)
+        const Offset(1.7, 0.5), // 6 (Back Center)
+      ];
+    }
+  }
+
+  void _updateBallPositionForServe() {
+    setState(() {
+      if (_isHomeServing) {
+        // Home is serving
+        if (_isHomeOnLeft) {
+          // Home on left side
+          _ballPosition = const Offset(0.05, 0.9);
+        } else {
+          // Home on right side
+          _ballPosition = const Offset(1.95, 0.1);
+        }
+      } else {
+        // Opponent is serving (opposite side of home)
+        if (_isHomeOnLeft) {
+          // Opponent on right side
+          _ballPosition = const Offset(1.95, 0.1);
+        } else {
+          // Opponent on left side
+          _ballPosition = const Offset(0.05, 0.9);
+        }
+      }
+    });
+  }
+
+
 
   void _handlePlayerMoved(String playerId, Offset newPosition) {
     if (!_isDrawingMode) {
@@ -252,7 +289,11 @@ class _FullCourtRotationsPageState extends State<FullCourtRotationsPage> with Wi
           
           // Update bench
           _homeBench.remove(selectedBenchPlayer);
-          _homeBench.add(player);
+          if (!player.id.startsWith('placeholder_')) {
+            _homeBench.add(player);
+          } else {
+            _players.remove(player.id);
+          }
         }
       });
     }
@@ -262,6 +303,26 @@ class _FullCourtRotationsPageState extends State<FullCourtRotationsPage> with Wi
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text('Player: ${player.name}')),
     );
+  }
+
+  void _resetPositions(bool isHome) {
+    final isLeft = (_isHomeOnLeft && isHome) || (!_isHomeOnLeft && !isHome);
+    final standardPositions = _getStandardPositions(isLeft);
+    
+    // Find players on this side
+    final sidePlayers = _playerPositions.entries
+        .where((entry) {
+          final x = entry.value.dx;
+          return isLeft ? x <= 1.0 : x > 1.0;
+        })
+        .toList();
+
+    for (final entry in sidePlayers) {
+      final logicalPos = _playerLogicalPositions[entry.key];
+      if (logicalPos != null) {
+        _playerPositions[entry.key] = standardPositions[logicalPos - 1];
+      }
+    }
   }
 
   void _rotateSide(bool isLeft, {bool clockwise = true}) async {
@@ -295,45 +356,26 @@ class _FullCourtRotationsPageState extends State<FullCourtRotationsPage> with Wi
 
     if (sidePlayers.isEmpty) return;
 
-    final centerX = isLeft ? 0.5 : 1.5;
-    final centerY = 0.5;
-
-    // Sort players by angle to establish a cycle
-    sidePlayers.sort((a, b) {
-      final angleA = (a.value - Offset(centerX, centerY)).direction;
-      final angleB = (b.value - Offset(centerX, centerY)).direction;
-      return angleA.compareTo(angleB);
-    });
-
-    final positions = sidePlayers.map((e) => e.value).toList();
-    
-    // Animate the rotation with a smoother transition
-    await Future.delayed(const Duration(milliseconds: 100));
-    
+    // Update logical positions
     setState(() {
       if (clockwise) {
-        for (int i = 0; i < sidePlayers.length; i++) {
-          final nextIndex = (i + 1) % sidePlayers.length;
-          _playerPositions[sidePlayers[i].key] = positions[nextIndex];
-          
-          // Update logical position: 1->6->5->4->3->2->1
-          final currentLogical = _playerLogicalPositions[sidePlayers[i].key];
-          if (currentLogical != null) {
-            _playerLogicalPositions[sidePlayers[i].key] = currentLogical == 1 ? 6 : currentLogical - 1;
+        for (final entry in sidePlayers) {
+          final currentLogical = _playerLogicalPositions[entry.key];
+      if (currentLogical != null) {
+            _playerLogicalPositions[entry.key] = currentLogical == 1 ? 6 : currentLogical - 1;
           }
         }
       } else {
-        for (int i = 0; i < sidePlayers.length; i++) {
-          final prevIndex = (i - 1 + sidePlayers.length) % sidePlayers.length;
-          _playerPositions[sidePlayers[i].key] = positions[prevIndex];
-          
-          // Update logical position: 1->2->3->4->5->6->1
-          final currentLogical = _playerLogicalPositions[sidePlayers[i].key];
+        for (final entry in sidePlayers) {
+          final currentLogical = _playerLogicalPositions[entry.key];
           if (currentLogical != null) {
-            _playerLogicalPositions[sidePlayers[i].key] = currentLogical == 6 ? 1 : currentLogical + 1;
+             _playerLogicalPositions[entry.key] = currentLogical == 6 ? 1 : currentLogical + 1;
           }
         }
       }
+      
+      // Reset physical positions to standard
+      _resetPositions(isRotatingHome);
     });
   }
 
@@ -343,81 +385,354 @@ class _FullCourtRotationsPageState extends State<FullCourtRotationsPage> with Wi
       
       final newPositions = <String, Offset>{};
       _playerPositions.forEach((id, pos) {
-        double newX;
-        if (pos.dx < 1.0) {
-          newX = pos.dx + 1.0;
-        } else {
-          newX = pos.dx - 1.0;
-        }
-        newPositions[id] = Offset(newX, pos.dy);
+        // Rotate 180 degrees around center (1.0, 0.5)
+        // New X = 2.0 - Old X
+        // New Y = 1.0 - Old Y
+        newPositions[id] = Offset(2.0 - pos.dx, 1.0 - pos.dy);
       });
       _playerPositions.clear();
       _playerPositions.addAll(newPositions);
     });
+    // Update ball position after side change to reflect current server side
+    _updateBallPositionForServe();
+  }
+
+  void _rotateFieldAndReset() {
+    setState(() {
+      _isHomeOnLeft = !_isHomeOnLeft;
+      
+      // Reset both teams to standard positions on their new sides
+      _resetPositions(true);  // Reset Home
+      _resetPositions(false); // Reset Opponent
+    });
+    // Ensure ball position reflects current server side after field rotation
+    _updateBallPositionForServe();
+  }
+
+  // Match State
+  int _homeScore = 0;
+  int _opponentScore = 0;
+  int _homeSets = 0;
+  int _opponentSets = 0;
+  int _currentSet = 1;
+  bool _isHomeServing = true;
+  Offset _ballPosition = const Offset(0.05, 0.9); // Default serve pos (Home)
+  bool _matchStarted = false;
+  bool _isMatchSetupMode = true;
+  bool? _firstServerOfSet; // true = Home, false = Opponent
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    
+    _initializePlayers();
+    _updateBallPositionForServe();
+    
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _checkOrientation();
+    });
+  }
+
+  void _decrementScore(bool isHome) {
+    setState(() {
+      if (isHome) {
+        if (_homeScore > 0) _homeScore--;
+      } else {
+        if (_opponentScore > 0) _opponentScore--;
+      }
+    });
+  }
+
+  void _incrementScore(bool isHome) {
+    setState(() {
+      if (isHome) {
+        _homeScore++;
+        if (!_isHomeServing) {
+          // Sideout: Home wins serve
+          _isHomeServing = true;
+          _rotateSide(true, clockwise: true); // Rotate Home
+          _updateBallPositionForServe();
+        }
+      } else {
+        _opponentScore++;
+        if (_isHomeServing) {
+          // Sideout: Opponent wins serve
+          _isHomeServing = false;
+          _rotateSide(false, clockwise: true); // Rotate Opponent
+          _updateBallPositionForServe();
+        }
+      }
+      _checkSetWin();
+    });
+  }
+
+  void _showFirstServeDialog() {
+    final homeName = widget.team.name;
+    final oppName = widget.matchRoster?.rivalName ?? 'Opponent';
+    
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        title: const Text('Who Serves First?'),
+        content: const Text('Select the team that serves first.'),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              _startMatch(true);
+            },
+            child: Text(homeName),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              _startMatch(false);
+            },
+            child: Text(oppName),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _startMatch(bool isHomeServing) {
+    setState(() {
+      _matchStarted = true;
+      _isMatchSetupMode = false;
+      _firstServerOfSet = isHomeServing;
+      _isHomeServing = isHomeServing;
+      _updateBallPositionForServe();
+    });
+  }
+
+  void _checkSetWin() {
+    final winningScore = _currentSet == 5 ? 15 : 25;
+    final home = _homeScore;
+    final opp = _opponentScore;
+
+    if ((home >= winningScore || opp >= winningScore) && (home - opp).abs() >= 2) {
+      // Set Won
+      if (home > opp) {
+        _homeSets++;
+        _showSetWinDialog(true);
+      } else {
+        _opponentSets++;
+        _showSetWinDialog(false);
+      }
+    }
+  }
+
+  void _showSetWinDialog(bool homeWon) {
+    final l10n = AppLocalizations.of(context)!;
+    final homeName = widget.team.name;
+    final oppName = widget.matchRoster?.rivalName ?? 'Opponent';
+    final winner = homeWon ? homeName : oppName;
+    
+    // Check Match Win
+    if (_homeSets == 3 || _opponentSets == 3) {
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => AlertDialog(
+          title: Text('$winner Wins Match!'),
+          content: Text('Final Score: $_homeSets - $_opponentSets'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+                _resetMatch();
+              },
+              child: const Text('New Match'),
+            ),
+          ],
+        ),
+      );
+    } else {
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => AlertDialog(
+          title: Text('$winner Wins Set $_currentSet'),
+          content: Text('Score: $_homeScore - $_opponentScore'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+                _startNextSet();
+              },
+              child: const Text('Next Set'),
+            ),
+          ],
+        ),
+      );
+    }
+  }
+
+  void _startNextSet() {
+    setState(() {
+      _currentSet++;
+      _homeScore = 0;
+      _opponentScore = 0;
+      
+      // Switch sides and reset positions (except before set 5)
+      if (_currentSet != 5) {
+         _rotateFieldAndReset();
+      }
+      
+      // Alternate first server
+      if (_firstServerOfSet != null) {
+        _firstServerOfSet = !_firstServerOfSet!;
+        _isHomeServing = _firstServerOfSet!;
+      }
+      
+      _updateBallPositionForServe();
+    });
+  }
+
+  void _resetMatch() {
+    setState(() {
+      _homeScore = 0;
+      _opponentScore = 0;
+      _homeSets = 0;
+      _opponentSets = 0;
+      _currentSet = 1;
+      _matchStarted = false;
+      _isMatchSetupMode = true; // Reset to setup mode
+      _firstServerOfSet = null;
+      _initializePlayers(); // Reset players to bench/placeholders
+      _updateBallPositionForServe();
+    });
+  }
+
+  void _startMatchSetup() {
+    // Validate 6 players
+    final homePlayersOnCourt = _playerPositions.keys
+        .where((id) => !id.startsWith('ghost_') && !id.startsWith('placeholder_'))
+        .length;
+        
+    if (homePlayersOnCourt < 6) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please place 6 players on the court to start.')),
+      );
+      return;
+    }
+
+    _showFirstServeDialog();
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final theme = Theme.of(context);
+    final isLight = theme.brightness == Brightness.light;
+    
+    // Score styling
+    final homeColor = _isHomeServing 
+        ? (isLight ? Colors.orange.shade700 : Colors.yellow) 
+        : (isLight ? Colors.black : Colors.white);
+    final oppColor = !_isHomeServing 
+        ? (isLight ? Colors.orange.shade700 : Colors.yellow) 
+        : (isLight ? Colors.black : Colors.white);
+    final scoreStyle = TextStyle(fontWeight: FontWeight.bold, fontSize: 20);
+    final setsStyle = TextStyle(fontSize: 14, fontWeight: FontWeight.normal);
+
+    final homeName = widget.team.name;
+    final oppName = widget.matchRoster?.rivalName ?? 'Opponent';
+
     return Scaffold(
       appBar: AppBar(
-        title: Text('${widget.team.name} - Full Court'),
-        actions: _isDrawingMode
-            ? [
-                // Drawing mode actions
-                IconButton(
-                  icon: const Icon(Icons.undo),
-                  onPressed: () {
-                    _controller.undo();
-                  },
-                  tooltip: 'Undo',
+        title: Column(
+          children: [
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: _isHomeOnLeft 
+                ? [
+                    Text('$homeName $_homeScore', style: scoreStyle.copyWith(color: homeColor)),
+                    Text(' - ', style: scoreStyle.copyWith(color: isLight ? Colors.black : Colors.white)),
+                    Text('$_opponentScore $oppName', style: scoreStyle.copyWith(color: oppColor)),
+                  ]
+                : [
+                    Text('$oppName $_opponentScore', style: scoreStyle.copyWith(color: oppColor)),
+                    Text(' - ', style: scoreStyle.copyWith(color: isLight ? Colors.black : Colors.white)),
+                    Text('$_homeScore $homeName', style: scoreStyle.copyWith(color: homeColor)),
+                  ],
+            ),
+            Text(
+              _isHomeOnLeft 
+                  ? 'Sets: $_homeSets - $_opponentSets (Set $_currentSet)'
+                  : 'Sets: $_opponentSets - $_homeSets (Set $_currentSet)',
+              style: setsStyle,
+            ),
+          ],
+        ),
+        centerTitle: true,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (context) => AlertDialog(
+                  title: const Text('Reset Match?'),
+                  content: const Text('This will reset scores, sets, and player positions. Are you sure?'),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(context),
+                      child: const Text('Cancel'),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                        _resetMatch();
+                      },
+                      child: const Text('Reset'),
+                    ),
+                  ],
                 ),
-                IconButton(
-                  icon: const Icon(Icons.delete),
-                  onPressed: () {
-                    _controller.clear();
-                  },
-                  tooltip: 'Clear All',
-                ),
-                IconButton(
-                  icon: const Icon(Icons.close),
-                  onPressed: () {
-                    setState(() {
-                      _isDrawingMode = false;
-                    });
-                    _controller.clear();
-                  },
-                  tooltip: 'Exit Drawing Mode',
-                ),
-              ]
-            : [
-                // Normal mode actions
-                IconButton(
-                  icon: const Icon(Icons.edit),
-                  onPressed: () {
-                    setState(() {
-                      _isDrawingMode = true;
-                    });
-                  },
-                  tooltip: 'Drawing Mode',
-                ),
-                IconButton(
-                  icon: Icon(_isZoomed ? Icons.zoom_out : Icons.zoom_in),
-                  onPressed: () {
-                    setState(() {
-                      _isZoomed = !_isZoomed;
-                    });
-                  },
-                  tooltip: 'Zoom',
-                ),
-                IconButton(
-                  icon: const Icon(Icons.swap_horiz),
-                  onPressed: _rotateField,
-                  tooltip: 'Switch Sides',
-                ),
-              ],
+              );
+            },
+            tooltip: 'Reset Match',
+          ),
+          IconButton(
+            icon: const Icon(Icons.swap_horiz),
+            onPressed: _rotateField,
+            tooltip: 'Switch Sides',
+          ),
+          IconButton(
+            icon: Icon(_isZoomed ? Icons.zoom_out : Icons.zoom_in),
+            onPressed: () {
+              setState(() {
+                _isZoomed = !_isZoomed;
+              });
+            },
+            tooltip: 'Zoom',
+          ),
+          IconButton(
+            icon: Icon(_isDrawingMode ? Icons.edit_off : Icons.edit),
+            onPressed: () {
+              setState(() {
+                _isDrawingMode = !_isDrawingMode;
+              });
+            },
+            tooltip: 'Drawing Mode',
+          ),
+          if (_isDrawingMode) ...[
+            IconButton(
+              icon: const Icon(Icons.undo),
+              onPressed: () => _controller.undo(),
+              tooltip: 'Undo',
+            ),
+            IconButton(
+              icon: const Icon(Icons.delete_outline),
+              onPressed: () => _controller.clear(),
+              tooltip: 'Clear All',
+            ),
+          ],
+        ],
       ),
-      body: Center(
-        child: Row(
+      body: Row(
         children: [
           // Left Controls
           Padding(
@@ -425,58 +740,77 @@ class _FullCourtRotationsPageState extends State<FullCourtRotationsPage> with Wi
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text(
-                  _isHomeOnLeft ? 'Home' : 'Opponent',
-                  style: const TextStyle(fontWeight: FontWeight.bold),
-                ),
-                Text(
-                  'R${_isHomeOnLeft ? _homeRotation : _opponentRotation}',
-                  style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 8),
-                Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    FloatingActionButton.small(
-                      heroTag: 'rotate_left_ccw',
-                      onPressed: () => _rotateSide(true, clockwise: false),
-                      backgroundColor: _isHomeOnLeft ? Colors.blue.shade100 : Colors.red.shade100,
-                      child: Icon(Icons.rotate_left, color: _isHomeOnLeft ? Colors.blue : Colors.red),
-                    ),
-                    const SizedBox(height: 8),
-                    FloatingActionButton(
-                      heroTag: 'rotate_left_cw',
-                      onPressed: () => _rotateSide(true, clockwise: true),
+                if (_isMatchSetupMode)
+                   const SizedBox(width: 56)
+                else ...[
+                  Text(
+                    _isHomeOnLeft ? homeName : oppName,
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  Text(
+                    'R${_isHomeOnLeft ? _homeRotation : _opponentRotation}',
+                    style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 16),
+                  
+                  // Score Button (Primary)
+                  GestureDetector(
+                    onLongPress: () => _decrementScore(_isHomeOnLeft),
+                    child: FloatingActionButton(
+                      heroTag: 'score_left',
+                      onPressed: () => _incrementScore(_isHomeOnLeft),
                       backgroundColor: _isHomeOnLeft ? Colors.blue : Colors.red,
+                      child: const Icon(Icons.plus_one),
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  
+                  // Rotate Button (Secondary)
+                  GestureDetector(
+                    onLongPress: () => _rotateSide(true, clockwise: false),
+                    child: OutlinedButton(
+                      onPressed: () => _rotateSide(true),
+                      style: OutlinedButton.styleFrom(
+                        shape: const CircleBorder(), 
+                        padding: const EdgeInsets.all(12),
+                      ),
                       child: const Icon(Icons.rotate_right),
                     ),
-                  ],
-                ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(_isHomeOnLeft ? '$homeName Rot' : '$oppName Rot', style: const TextStyle(fontSize: 10)),
+                ],
               ],
             ),
           ),
           
           // Court
-            Expanded(
-              child: FullCourtWidget(
-                playerPositions: _playerPositions,
-                players: _players,
-                leftBench: _isHomeOnLeft ? _homeBench : _opponentBench,
-                rightBench: _isHomeOnLeft ? _opponentBench : _homeBench,
-                isZoomed: _isZoomed,
-                isZoomedOnRight: !_isHomeOnLeft,
-                isHomeOnLeft: _isHomeOnLeft,
-                isDrawingMode: _isDrawingMode,
-                controller: _controller,
-                frontRowPlayerIds: _playerLogicalPositions.entries
-                    .where((e) => [2, 3, 4].contains(e.value))
-                    .map((e) => e.key)
-                    .toSet(),
-                onPlayerMoved: _handlePlayerMoved,
-                onPlayerTap: _handlePlayerTap,
-                onBenchPlayerTap: _handleBenchPlayerTap,
-              ),
+          Expanded(
+            child: FullCourtWidget(
+              playerPositions: _playerPositions,
+              players: _players,
+              leftBench: _isHomeOnLeft ? _homeBench : _opponentBench,
+              rightBench: _isHomeOnLeft ? _opponentBench : _homeBench,
+              isZoomed: _isZoomed,
+              isZoomedOnRight: !_isHomeOnLeft,
+              isHomeOnLeft: _isHomeOnLeft,
+              isDrawingMode: _isDrawingMode,
+              controller: _controller,
+              frontRowPlayerIds: _playerLogicalPositions.entries
+                  .where((e) => [2, 3, 4].contains(e.value))
+                  .map((e) => e.key)
+                  .toSet(),
+              onPlayerMoved: _handlePlayerMoved,
+              onPlayerTap: _handlePlayerTap,
+              onBenchPlayerTap: _handleBenchPlayerTap,
+              ballPosition: _ballPosition,
+              onBallMoved: (newPos) {
+                setState(() {
+                  _ballPosition = newPos;
+                });
+              },
             ),
+          ),
           
           // Right Controls
           Padding(
@@ -484,38 +818,54 @@ class _FullCourtRotationsPageState extends State<FullCourtRotationsPage> with Wi
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text(
-                  !_isHomeOnLeft ? 'Home' : 'Opponent',
-                  style: const TextStyle(fontWeight: FontWeight.bold),
-                ),
-                Text(
-                  'R${!_isHomeOnLeft ? _homeRotation : _opponentRotation}',
-                  style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 8),
-                Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    FloatingActionButton.small(
-                      heroTag: 'rotate_right_ccw',
-                      onPressed: () => _rotateSide(false, clockwise: false),
-                      backgroundColor: !_isHomeOnLeft ? Colors.blue.shade100 : Colors.red.shade100,
-                      child: Icon(Icons.rotate_left, color: !_isHomeOnLeft ? Colors.blue : Colors.red),
-                    ),
-                    const SizedBox(height: 8),
-                    FloatingActionButton(
-                      heroTag: 'rotate_right_cw',
-                      onPressed: () => _rotateSide(false, clockwise: true),
+                if (_isMatchSetupMode)
+                   FloatingActionButton.extended(
+                     onPressed: _startMatchSetup,
+                     label: Text(l10n.startMatch),
+                     icon: const Icon(Icons.play_arrow),
+                   )
+                else ...[
+                  Text(
+                    _isHomeOnLeft ? oppName : homeName,
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  Text(
+                    'R${_isHomeOnLeft ? _opponentRotation : _homeRotation}',
+                    style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 16),
+                  
+                  // Score Button (Primary)
+                  GestureDetector(
+                    onLongPress: () => _decrementScore(!_isHomeOnLeft),
+                    child: FloatingActionButton(
+                      heroTag: 'score_right',
+                      onPressed: () => _incrementScore(!_isHomeOnLeft),
                       backgroundColor: !_isHomeOnLeft ? Colors.blue : Colors.red,
+                      child: const Icon(Icons.plus_one),
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  
+                  // Rotate Button (Secondary)
+                  GestureDetector(
+                    onLongPress: () => _rotateSide(false, clockwise: false),
+                    child: OutlinedButton(
+                      onPressed: () => _rotateSide(false),
+                      style: OutlinedButton.styleFrom(
+                        shape: const CircleBorder(), 
+                        padding: const EdgeInsets.all(12),
+                      ),
                       child: const Icon(Icons.rotate_right),
                     ),
-                  ],
-                ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(!_isHomeOnLeft ? '$homeName Rot' : '$oppName Rot', style: const TextStyle(fontSize: 10)),
+                ],
               ],
             ),
           ),
         ],
-      ),
       ),
     );
   }
