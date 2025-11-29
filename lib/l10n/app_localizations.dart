@@ -969,6 +969,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Are you sure you want to reset all changes?'**
   String get resetConfirmation;
+
+  /// Select team dialog title
+  ///
+  /// In en, this message translates to:
+  /// **'Select Team'**
+  String get selectTeam;
+
+  /// No teams found message
+  ///
+  /// In en, this message translates to:
+  /// **'No teams found. Please create a team first.'**
+  String get noTeamsFound;
+
+  /// Select starting 6 players dialog title
+  ///
+  /// In en, this message translates to:
+  /// **'Select Starting 6'**
+  String get selectStarting6;
+
+  /// Start button
+  ///
+  /// In en, this message translates to:
+  /// **'Start'**
+  String get start;
 }
 
 class _AppLocalizationsDelegate

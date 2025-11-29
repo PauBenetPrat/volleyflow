@@ -53,7 +53,8 @@ class Player {
   }
 
   String getInitials() {
-    final parts = name.trim().split(' ');
+    if (name.trim().isEmpty) return '';
+    final parts = name.trim().split(RegExp(r'\s+'));
     if (parts.isEmpty) return '';
     if (parts.length == 1) return parts[0][0].toUpperCase();
     return '${parts[0][0]}${parts[parts.length - 1][0]}'.toUpperCase();

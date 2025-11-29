@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:volleyball_coaching_app/l10n/app_localizations.dart';
 import '../../domain/providers/rotation_provider.dart';
+import '../widgets/team_selection_dialog.dart';
+import '../../../teams/domain/models/team.dart';
 
 class RotationSystemSelectionPage extends ConsumerWidget {
   const RotationSystemSelectionPage({super.key});
@@ -76,13 +78,14 @@ class RotationSystemSelectionPage extends ConsumerWidget {
                         title: l10n.rotationSystemPlayers,
                         description: l10n.rotationSystemPlayersDescription,
                         icon: Icons.sports_volleyball,
-                        onTap: () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(l10n.featureComingSoon(l10n.rotationSystemPlayers)),
-                              duration: const Duration(seconds: 2),
-                            ),
+                        onTap: () async {
+                          final team = await showDialog<Team>(
+                            context: context,
+                            builder: (context) => const TeamSelectionDialog(),
                           );
+                          if (team != null && context.mounted) {
+                            context.pushNamed('rotations-players-new', extra: team);
+                          }
                         },
                       ),
                     ],

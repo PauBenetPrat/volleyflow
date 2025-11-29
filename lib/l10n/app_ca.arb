@@ -147,6 +147,10 @@
   "supportDeveloper": "Dona Suport al Desenvolupador",
   "exit": "Sortir",
   "exitConfirmation": "Estàs segur que vols sortir?",
-  "resetConfirmation": "Estàs segur que vols reiniciar totes les modificacions?"
+  "resetConfirmation": "Estàs segur que vols reiniciar totes les modificacions?",
+  "selectTeam": "Selecciona Equip",
+  "noTeamsFound": "No s'han trobat equips. Si us plau, crea un equip primer.",
+  "selectStarting6": "Selecciona els 6 Titulars",
+  "start": "Començar"
 }
 

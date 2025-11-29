@@ -607,6 +607,22 @@
   "resetConfirmation": "Are you sure you want to reset all changes?",
   "@resetConfirmation": {
     "description": "Reset confirmation message"
+  },
+  "selectTeam": "Select Team",
+  "@selectTeam": {
+    "description": "Select team dialog title"
+  },
+  "noTeamsFound": "No teams found. Please create a team first.",
+  "@noTeamsFound": {
+    "description": "No teams found message"
+  },
+  "selectStarting6": "Select Starting 6",
+  "@selectStarting6": {
+    "description": "Select starting 6 players dialog title"
+  },
+  "start": "Start",
+  "@start": {
+    "description": "Start button"
   }
 }
 

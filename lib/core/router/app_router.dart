@@ -11,6 +11,8 @@ import '../../features/teams/presentation/pages/team_detail_page.dart';
 import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/auth/presentation/pages/signup_page.dart';
 import '../../features/auth/presentation/pages/profile_page.dart';
+import '../../features/rotations/presentation/pages/full_court_rotations_page.dart';
+import '../../features/teams/domain/models/team.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
   // Keep the router alive to prevent recreation on rebuilds
@@ -35,6 +37,14 @@ final routerProvider = Provider<GoRouter>((ref) {
             builder: (context, state) {
               final system = state.pathParameters['system'] ?? '4-2-no-libero';
               return RotationsPage(rotationSystem: system);
+            },
+          ),
+          GoRoute(
+            path: 'players/new',
+            name: 'rotations-players-new',
+            builder: (context, state) {
+              final team = state.extra as Team;
+              return FullCourtRotationsPage(team: team);
             },
           ),
         ],
