@@ -1,15 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'dart:ui' as ui;
 import '../../../teams/domain/models/team.dart';
 import '../../../teams/domain/models/player.dart';
 import '../../../teams/domain/models/match_roster.dart';
 import '../widgets/full_court_widget.dart';
 import '../widgets/player_swap_dialog.dart';
+import '../../domain/providers/match_state_provider.dart';
 
 import '../widgets/full_court_controller.dart';
 import 'package:volleyball_coaching_app/l10n/app_localizations.dart';
 
-class FullCourtRotationsPage extends StatefulWidget {
+class FullCourtRotationsPage extends ConsumerStatefulWidget {
   final Team team;
   final MatchRoster? matchRoster;
 
@@ -20,10 +23,10 @@ class FullCourtRotationsPage extends StatefulWidget {
   });
 
   @override
-  State<FullCourtRotationsPage> createState() => _FullCourtRotationsPageState();
+  ConsumerState<FullCourtRotationsPage> createState() => _FullCourtRotationsPageState();
 }
 
-class _FullCourtRotationsPageState extends State<FullCourtRotationsPage> with WidgetsBindingObserver {
+class _FullCourtRotationsPageState extends ConsumerState<FullCourtRotationsPage> with WidgetsBindingObserver {
   // State
   final Map<String, Offset> _playerPositions = {}; // ID -> Position
   final Map<String, Player> _players = {}; // ID -> Player
@@ -35,6 +38,7 @@ class _FullCourtRotationsPageState extends State<FullCourtRotationsPage> with Wi
   int _homeRotation = 1;
   int _opponentRotation = 1;
   bool _isDrawingMode = false;
+  bool _showPlayerNumbers = true; // Default to showing numbers
   final FullCourtController _controller = FullCourtController();
   
 
@@ -182,13 +186,19 @@ class _FullCourtRotationsPageState extends State<FullCourtRotationsPage> with Wi
 
     // 3. Create 6 Ghost Players for Right Side (Opponent)
     final opponentPositions = _getStandardPositions(false);
+    
+    // Get saved opponent player numbers from state
+    final savedState = ref.read(matchStateProvider);
+    final savedOpponentNumbers = savedState?.opponentPlayerNumbers ?? {};
 
     for (int i = 0; i < 6; i++) {
       final ghostId = 'ghost_$i';
+      // Use saved number if available, otherwise default to i+1
+      final savedNumber = savedOpponentNumbers[ghostId];
       final ghostPlayer = Player(
         id: ghostId,
         name: 'Opponent',
-        number: i + 1,
+        number: savedNumber ?? (i + 1),
       );
       _players[ghostId] = ghostPlayer;
       _playerPositions[ghostId] = opponentPositions[i];
@@ -196,6 +206,7 @@ class _FullCourtRotationsPageState extends State<FullCourtRotationsPage> with Wi
     }
     
     setState(() {});
+    _saveMatchState();
   }
 
   List<Offset> _getStandardPositions(bool isLeft) {
@@ -251,16 +262,21 @@ class _FullCourtRotationsPageState extends State<FullCourtRotationsPage> with Wi
       setState(() {
         _playerPositions[playerId] = newPosition;
       });
+      _saveMatchState();
     }
   }
 
   void _handlePlayerTap(String playerId) async {
-    // Only allow swapping real players (not ghosts)
-    if (playerId.startsWith('ghost_')) return;
-
     final player = _players[playerId];
     if (player == null) return;
 
+    // If it's a ghost player, allow editing the number
+    if (playerId.startsWith('ghost_')) {
+      _editOpponentPlayerNumber(playerId, player);
+      return;
+    }
+
+    // For real players, allow swapping with bench players
     // Determine which bench to use (Home bench)
     final bench = _homeBench;
 
@@ -296,6 +312,51 @@ class _FullCourtRotationsPageState extends State<FullCourtRotationsPage> with Wi
           }
         }
       });
+      _saveMatchState();
+    }
+  }
+
+  void _editOpponentPlayerNumber(String ghostId, Player player) async {
+    final numberController = TextEditingController(
+      text: player.number?.toString() ?? '',
+    );
+
+    final result = await showDialog<int>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Edit Opponent Player Number'),
+        content: TextField(
+          controller: numberController,
+          keyboardType: TextInputType.number,
+          decoration: const InputDecoration(
+            labelText: 'Player Number',
+            hintText: 'Enter number (1-99)',
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () {
+              final number = int.tryParse(numberController.text);
+              if (number != null && number >= 1 && number <= 99) {
+                Navigator.pop(context, number);
+              }
+            },
+            child: const Text('Save'),
+          ),
+        ],
+      ),
+    );
+
+    if (result != null) {
+      setState(() {
+        _players[ghostId] = player.copyWith(number: result);
+      });
+      ref.read(matchStateProvider.notifier).updateOpponentPlayerNumber(ghostId, result);
+      _saveMatchState();
     }
   }
 
@@ -377,6 +438,7 @@ class _FullCourtRotationsPageState extends State<FullCourtRotationsPage> with Wi
       // Reset physical positions to standard
       _resetPositions(isRotatingHome);
     });
+    _saveMatchState();
   }
 
   void _rotateField() {
@@ -395,6 +457,7 @@ class _FullCourtRotationsPageState extends State<FullCourtRotationsPage> with Wi
     });
     // Update ball position after side change to reflect current server side
     _updateBallPositionForServe();
+    _saveMatchState();
   }
 
   void _rotateFieldAndReset() {
@@ -407,6 +470,7 @@ class _FullCourtRotationsPageState extends State<FullCourtRotationsPage> with Wi
     });
     // Ensure ball position reflects current server side after field rotation
     _updateBallPositionForServe();
+    _saveMatchState();
   }
 
   // Match State
@@ -426,12 +490,101 @@ class _FullCourtRotationsPageState extends State<FullCourtRotationsPage> with Wi
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     
-    _initializePlayers();
-    _updateBallPositionForServe();
-    
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadMatchState();
       _checkOrientation();
     });
+  }
+
+  void _loadMatchState() {
+    final savedState = ref.read(matchStateProvider);
+    
+    if (savedState != null && savedState.matchRoster?.id == widget.matchRoster?.id) {
+      // Restore state from provider
+      setState(() {
+        // Clear and restore maps/lists
+        _playerPositions.clear();
+        _playerPositions.addAll(
+          savedState.playerPositions.map((k, v) => MapEntry(k, Offset(v.dx, v.dy)))
+        );
+        _players.clear();
+        _players.addAll(savedState.players);
+        _playerLogicalPositions.clear();
+        _playerLogicalPositions.addAll(savedState.playerLogicalPositions);
+        _homeBench.clear();
+        _homeBench.addAll(savedState.homeBench);
+        _opponentBench.clear();
+        _opponentBench.addAll(savedState.opponentBench);
+        
+        // Restore scores and match state
+        _homeScore = savedState.homeScore;
+        _opponentScore = savedState.opponentScore;
+        _homeSets = savedState.homeSets;
+        _opponentSets = savedState.opponentSets;
+        _currentSet = savedState.currentSet;
+        _isHomeServing = savedState.isHomeServing;
+        _ballPosition = savedState.ballPosition != null 
+            ? Offset(savedState.ballPosition!.dx, savedState.ballPosition!.dy)
+            : const Offset(0.05, 0.9);
+        _matchStarted = savedState.matchStarted;
+        _isMatchSetupMode = savedState.isMatchSetupMode;
+        _firstServerOfSet = savedState.firstServerOfSet;
+        _homeRotation = savedState.homeRotation;
+        _opponentRotation = savedState.opponentRotation;
+        
+        // Restore opponent player numbers
+        for (final entry in savedState.opponentPlayerNumbers.entries) {
+          final ghostId = entry.key;
+          final number = entry.value;
+          if (_players.containsKey(ghostId)) {
+            _players[ghostId] = _players[ghostId]!.copyWith(number: number);
+          }
+        }
+      });
+    } else {
+      // Initialize new match - clear old state if different roster
+      if (savedState != null && savedState.matchRoster?.id != widget.matchRoster?.id) {
+        ref.read(matchStateProvider.notifier).resetMatch();
+      }
+      ref.read(matchStateProvider.notifier).initializeMatch(widget.matchRoster);
+      _initializePlayers();
+      _updateBallPositionForServe();
+    }
+  }
+
+  void _saveMatchState() {
+    final currentState = MatchState(
+      matchRoster: widget.matchRoster,
+      playerPositions: _playerPositions.map((k, v) => MapEntry(k, ui.Offset(v.dx, v.dy))),
+      players: _players,
+      playerLogicalPositions: _playerLogicalPositions,
+      homeBench: _homeBench,
+      opponentBench: _opponentBench,
+      opponentPlayerNumbers: _getOpponentPlayerNumbers(),
+      homeScore: _homeScore,
+      opponentScore: _opponentScore,
+      homeSets: _homeSets,
+      opponentSets: _opponentSets,
+      currentSet: _currentSet,
+      isHomeServing: _isHomeServing,
+      ballPosition: _ballPosition != null ? ui.Offset(_ballPosition!.dx, _ballPosition!.dy) : null,
+      matchStarted: _matchStarted,
+      isMatchSetupMode: _isMatchSetupMode,
+      firstServerOfSet: _firstServerOfSet,
+      homeRotation: _homeRotation,
+      opponentRotation: _opponentRotation,
+    );
+    ref.read(matchStateProvider.notifier).updateState(currentState);
+  }
+
+  Map<String, int> _getOpponentPlayerNumbers() {
+    final numbers = <String, int>{};
+    for (final entry in _players.entries) {
+      if (entry.key.startsWith('ghost_') && entry.value.number != null) {
+        numbers[entry.key] = entry.value.number!;
+      }
+    }
+    return numbers;
   }
 
   void _decrementScore(bool isHome) {
@@ -514,11 +667,17 @@ class _FullCourtRotationsPageState extends State<FullCourtRotationsPage> with Wi
 
     if ((home >= winningScore || opp >= winningScore) && (home - opp).abs() >= 2) {
       // Set Won
+      setState(() {
+        if (home > opp) {
+          _homeSets++;
+        } else {
+          _opponentSets++;
+        }
+      });
+      _saveMatchState();
       if (home > opp) {
-        _homeSets++;
         _showSetWinDialog(true);
       } else {
-        _opponentSets++;
         _showSetWinDialog(false);
       }
     }
@@ -589,6 +748,7 @@ class _FullCourtRotationsPageState extends State<FullCourtRotationsPage> with Wi
       
       _updateBallPositionForServe();
     });
+    _saveMatchState();
   }
 
   void _resetMatch() {
@@ -603,7 +763,10 @@ class _FullCourtRotationsPageState extends State<FullCourtRotationsPage> with Wi
       _firstServerOfSet = null;
       _initializePlayers(); // Reset players to bench/placeholders
       _updateBallPositionForServe();
+      // Note: matchRoster is kept in memory - it's part of widget state
+      // Only cleared when navigating away or starting a new match
     });
+    _saveMatchState();
   }
 
   void _startMatchSetup() {
@@ -710,6 +873,15 @@ class _FullCourtRotationsPageState extends State<FullCourtRotationsPage> with Wi
             tooltip: 'Zoom',
           ),
           IconButton(
+            icon: Icon(_showPlayerNumbers ? Icons.badge : Icons.person),
+            onPressed: () {
+              setState(() {
+                _showPlayerNumbers = !_showPlayerNumbers;
+              });
+            },
+            tooltip: _showPlayerNumbers ? 'Show Initials' : 'Show Numbers',
+          ),
+          IconButton(
             icon: Icon(_isDrawingMode ? Icons.edit_off : Icons.edit),
             onPressed: () {
               setState(() {
@@ -795,6 +967,7 @@ class _FullCourtRotationsPageState extends State<FullCourtRotationsPage> with Wi
               isZoomedOnRight: !_isHomeOnLeft,
               isHomeOnLeft: _isHomeOnLeft,
               isDrawingMode: _isDrawingMode,
+              showPlayerNumbers: _showPlayerNumbers,
               controller: _controller,
               frontRowPlayerIds: _playerLogicalPositions.entries
                   .where((e) => [2, 3, 4].contains(e.value))
@@ -808,6 +981,7 @@ class _FullCourtRotationsPageState extends State<FullCourtRotationsPage> with Wi
                 setState(() {
                   _ballPosition = newPos;
                 });
+                _saveMatchState();
               },
             ),
           ),

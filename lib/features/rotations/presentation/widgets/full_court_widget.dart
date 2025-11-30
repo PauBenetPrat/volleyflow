@@ -14,6 +14,7 @@ class FullCourtWidget extends StatefulWidget {
   final Function(Player player, bool isLeftBench) onBenchPlayerTap;
   final bool isHomeOnLeft;
   final bool isDrawingMode;
+  final bool showPlayerNumbers;
   final FullCourtController? controller;
   final Set<String> frontRowPlayerIds;
   final bool isZoomedOnRight;
@@ -32,6 +33,7 @@ class FullCourtWidget extends StatefulWidget {
     required this.onBenchPlayerTap,
     this.isHomeOnLeft = true,
     this.isDrawingMode = false,
+    this.showPlayerNumbers = true,
     this.controller,
     this.frontRowPlayerIds = const {},
     this.isZoomedOnRight = false,
@@ -285,7 +287,9 @@ class _FullCourtWidgetState extends State<FullCourtWidget> {
                           final drawY = pos.dy * scaleY;
                           
                           final player = widget.players[id];
-                          final label = player?.number?.toString() ?? player?.getInitials() ?? '?';
+                          final label = widget.showPlayerNumbers
+                              ? (player?.number?.toString() ?? player?.getInitials() ?? '?')
+                              : (player?.getInitials() ?? player?.number?.toString() ?? '?');
                           
                           final isLeft = pos.dx <= 1.0;
                           final isHomeTeam = (widget.isHomeOnLeft && isLeft) || (!widget.isHomeOnLeft && !isLeft);
@@ -425,11 +429,13 @@ class _FullCourtWidgetState extends State<FullCourtWidget> {
         return ScaleTransition(scale: animation, child: child);
       },
       child: CircleAvatar(
-        key: ValueKey('${player.id}-$color'),
+        key: ValueKey('${player.id}-$color-${widget.showPlayerNumbers}'),
         backgroundColor: color,
         radius: _playerRadius,
         child: Text(
-          player.number?.toString() ?? player.getInitials(),
+          widget.showPlayerNumbers
+              ? (player.number?.toString() ?? player.getInitials())
+              : player.getInitials(),
           style: const TextStyle(color: Colors.white, fontSize: 16),
         ),
       ),
