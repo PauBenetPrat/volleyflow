@@ -15,6 +15,8 @@ class Player {
   final PlayerPosition? mainPosition;
   final bool isCaptain;
   final PlayerGender? gender;
+  final String? email;
+  final int sortOrder;
 
   Player({
     required this.id,
@@ -26,6 +28,8 @@ class Player {
     this.mainPosition,
     this.isCaptain = false,
     this.gender,
+    this.email,
+    this.sortOrder = 0,
   });
 
   Player copyWith({
@@ -38,6 +42,8 @@ class Player {
     PlayerPosition? mainPosition,
     bool? isCaptain,
     PlayerGender? gender,
+    String? email,
+    int? sortOrder,
   }) {
     return Player(
       id: id ?? this.id,
@@ -49,6 +55,8 @@ class Player {
       mainPosition: mainPosition ?? this.mainPosition,
       isCaptain: isCaptain ?? this.isCaptain,
       gender: gender ?? this.gender,
+      email: email ?? this.email,
+      sortOrder: sortOrder ?? this.sortOrder,
     );
   }
 
@@ -71,6 +79,8 @@ class Player {
       'mainPosition': mainPosition?.name,
       'isCaptain': isCaptain,
       'gender': gender?.name,
+      'email': email,
+      'sortOrder': sortOrder,
     };
   }
 
@@ -95,7 +105,8 @@ class Player {
               orElse: () => PlayerGender.male,
             )
           : null,
+      email: json['email'] as String?,
+      sortOrder: json['sortOrder'] as int? ?? 0,
     );
   }
 }
-

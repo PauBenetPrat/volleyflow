@@ -8,9 +8,12 @@ import '../../../teams/domain/models/match_roster.dart';
 import '../widgets/full_court_widget.dart';
 import '../widgets/player_swap_dialog.dart';
 import '../../domain/providers/match_state_provider.dart';
+import '../../../teams/domain/providers/match_rosters_provider.dart';
 
 import '../widgets/full_court_controller.dart';
 import 'package:volleyball_coaching_app/l10n/app_localizations.dart';
+import 'package:share_plus/share_plus.dart';
+import 'dart:convert';
 
 class FullCourtRotationsPage extends ConsumerStatefulWidget {
   final Team team;
@@ -55,10 +58,11 @@ class _FullCourtRotationsPageState extends ConsumerState<FullCourtRotationsPage>
       context: context,
       barrierDismissible: false,
       builder: (context) {
+        final l10n = AppLocalizations.of(context)!;
         return StatefulBuilder(
           builder: (context, setState) {
             return AlertDialog(
-              title: const Text('Select Starting 6'),
+              title: Text(l10n.selectStarting6),
               content: SizedBox(
                 width: double.maxFinite,
                 child: ListView.builder(
@@ -89,7 +93,7 @@ class _FullCourtRotationsPageState extends ConsumerState<FullCourtRotationsPage>
                   onPressed: selected.length == 6 
                     ? () => Navigator.pop(context, allPlayers.where((p) => selected.contains(p.id)).toList()) 
                     : null,
-                  child: const Text('Start'),
+                  child: Text(l10n.start),
                 ),
               ],
             );
@@ -105,6 +109,14 @@ class _FullCourtRotationsPageState extends ConsumerState<FullCourtRotationsPage>
 
   @override
   void dispose() {
+    // Restore all orientations when leaving the page
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+      DeviceOrientation.landscapeLeft,
+      DeviceOrientation.landscapeRight,
+    ]);
+    
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
@@ -112,6 +124,11 @@ class _FullCourtRotationsPageState extends ConsumerState<FullCourtRotationsPage>
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+    // Enforce landscape again to be sure
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.landscapeLeft,
+      DeviceOrientation.landscapeRight,
+    ]);
     _checkOrientation();
   }
 
@@ -317,6 +334,7 @@ class _FullCourtRotationsPageState extends ConsumerState<FullCourtRotationsPage>
   }
 
   void _editOpponentPlayerNumber(String ghostId, Player player) async {
+    final l10n = AppLocalizations.of(context)!;
     final numberController = TextEditingController(
       text: player.number?.toString() ?? '',
     );
@@ -324,19 +342,19 @@ class _FullCourtRotationsPageState extends ConsumerState<FullCourtRotationsPage>
     final result = await showDialog<int>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Edit Opponent Player Number'),
+        title: Text(l10n.editOpponentPlayerNumber),
         content: TextField(
           controller: numberController,
           keyboardType: TextInputType.number,
-          decoration: const InputDecoration(
-            labelText: 'Player Number',
-            hintText: 'Enter number (1-99)',
+          decoration: InputDecoration(
+            labelText: l10n.playerNumber,
+            hintText: l10n.enterNumber,
           ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            child: Text(l10n.cancel),
           ),
           TextButton(
             onPressed: () {
@@ -345,7 +363,7 @@ class _FullCourtRotationsPageState extends ConsumerState<FullCourtRotationsPage>
                 Navigator.pop(context, number);
               }
             },
-            child: const Text('Save'),
+            child: Text(l10n.save),
           ),
         ],
       ),
@@ -484,11 +502,18 @@ class _FullCourtRotationsPageState extends ConsumerState<FullCourtRotationsPage>
   bool _matchStarted = false;
   bool _isMatchSetupMode = true;
   bool? _firstServerOfSet; // true = Home, false = Opponent
+  bool _set5SwitchDone = false; // Track if court switch at 8 points in set 5 has been done
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    
+    // Force landscape orientation for better court visualization
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.landscapeLeft,
+      DeviceOrientation.landscapeRight,
+    ]);
     
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _loadMatchState();
@@ -496,49 +521,65 @@ class _FullCourtRotationsPageState extends ConsumerState<FullCourtRotationsPage>
     });
   }
 
-  void _loadMatchState() {
+  Future<void> _loadMatchState() async {
+    // Attempt to load from local database first
+    await ref.read(matchStateProvider.notifier).loadFromDatabase();
+    
     final savedState = ref.read(matchStateProvider);
     
-    if (savedState != null && savedState.matchRoster?.id == widget.matchRoster?.id) {
+    // Check if we have a saved state that matches the current roster (or if we are resuming the active match)
+    // If widget.matchRoster is null, we might be resuming an ad-hoc match
+    bool shouldRestore = false;
+    
+    if (savedState != null) {
+      if (widget.matchRoster != null) {
+        // If we opened a specific roster, only restore if it matches
+        if (savedState.matchRoster?.id == widget.matchRoster?.id) {
+          shouldRestore = true;
+        }
+      } else {
+        // If we opened without a roster (e.g. direct navigation), restore whatever is there
+        shouldRestore = true;
+      }
+    }
+    
+    if (shouldRestore && savedState != null) {
+      final state = savedState;
       // Restore state from provider
       setState(() {
         // Clear and restore maps/lists
         _playerPositions.clear();
         _playerPositions.addAll(
-          savedState.playerPositions.map((k, v) => MapEntry(k, Offset(v.dx, v.dy)))
+          state.playerPositions.map((k, v) => MapEntry(k, Offset(v.dx, v.dy)))
         );
         _players.clear();
-        _players.addAll(savedState.players);
+        _players.addAll(state.players);
         _playerLogicalPositions.clear();
-        _playerLogicalPositions.addAll(savedState.playerLogicalPositions);
+        _playerLogicalPositions.addAll(state.playerLogicalPositions);
         _homeBench.clear();
-        _homeBench.addAll(savedState.homeBench);
+        _homeBench.addAll(state.homeBench);
         _opponentBench.clear();
-        _opponentBench.addAll(savedState.opponentBench);
+        _opponentBench.addAll(state.opponentBench);
         
-        // Restore scores and match state
-        _homeScore = savedState.homeScore;
-        _opponentScore = savedState.opponentScore;
-        _homeSets = savedState.homeSets;
-        _opponentSets = savedState.opponentSets;
-        _currentSet = savedState.currentSet;
-        _isHomeServing = savedState.isHomeServing;
-        _ballPosition = savedState.ballPosition != null 
-            ? Offset(savedState.ballPosition!.dx, savedState.ballPosition!.dy)
-            : const Offset(0.05, 0.9);
-        _matchStarted = savedState.matchStarted;
-        _isMatchSetupMode = savedState.isMatchSetupMode;
-        _firstServerOfSet = savedState.firstServerOfSet;
-        _homeRotation = savedState.homeRotation;
-        _opponentRotation = savedState.opponentRotation;
+        _homeScore = state.homeScore;
+        _opponentScore = state.opponentScore;
+        _homeSets = state.homeSets;
+        _opponentSets = state.opponentSets;
+        _currentSet = state.currentSet;
+        _isHomeServing = state.isHomeServing;
+        _ballPosition = state.ballPosition != null 
+            ? Offset(state.ballPosition!.dx, state.ballPosition!.dy)
+            : const Offset(0.5, 0.5); // Default fallback
+            
+        _matchStarted = state.matchStarted;
+        _isMatchSetupMode = state.isMatchSetupMode;
+        _firstServerOfSet = state.firstServerOfSet;
+        _homeRotation = state.homeRotation;
+        _opponentRotation = state.opponentRotation;
         
         // Restore opponent player numbers
-        for (final entry in savedState.opponentPlayerNumbers.entries) {
-          final ghostId = entry.key;
-          final number = entry.value;
-          if (_players.containsKey(ghostId)) {
-            _players[ghostId] = _players[ghostId]!.copyWith(number: number);
-          }
+        for (final entry in state.opponentPlayerNumbers.entries) {
+          ref.read(matchStateProvider.notifier).updateOpponentPlayerNumber(entry.key, entry.value);
         }
       });
     } else {
@@ -597,30 +638,97 @@ class _FullCourtRotationsPageState extends ConsumerState<FullCourtRotationsPage>
     });
   }
 
-  void _incrementScore(bool isHome) {
+  void _incrementScore(bool isHome, {bool isAce = false}) {
+    // 1. Record the point log BEFORE updating the score (or after, depending on preference - usually we log the RESULTING score)
+    // Let's calculate the resulting score first
+    final newHomeScore = isHome ? _homeScore + 1 : _homeScore;
+    final newOpponentScore = !isHome ? _opponentScore + 1 : _opponentScore;
+
+    // Get current players on court (Home team)
+    final homePlayerIds = _playerLogicalPositions.entries
+        .where((e) => !e.key.startsWith('ghost_')) // Only real players
+        .map((e) => e.key)
+        .toList();
+
+    final log = PointLog(
+      homeScore: newHomeScore,
+      opponentScore: newOpponentScore,
+      setNumber: _currentSet,
+      type: isAce 
+          ? (isHome ? PointType.aceHome : PointType.aceOpponent) 
+          : PointType.normal,
+      homePlayerIds: homePlayerIds,
+      timestamp: DateTime.now(),
+      homeRotation: _homeRotation,
+      opponentRotation: _opponentRotation,
+    );
+
+    // Add log to state
+    ref.read(matchStateProvider.notifier).addLog(log);
+
     setState(() {
       if (isHome) {
         _homeScore++;
-        if (!_isHomeServing) {
-          // Sideout: Home wins serve
-          _isHomeServing = true;
-          _rotateSide(true, clockwise: true); // Rotate Home
-          _updateBallPositionForServe();
-        }
       } else {
         _opponentScore++;
-        if (_isHomeServing) {
-          // Sideout: Opponent wins serve
-          _isHomeServing = false;
-          _rotateSide(false, clockwise: true); // Rotate Opponent
-          _updateBallPositionForServe();
+      }
+      
+      // Update serve side based on who won the point
+      // If serving team won point -> continue serving
+      // If receiving team won point -> switch serve (and they will rotate)
+      final bool wasHomeServing = _isHomeServing;
+      _isHomeServing = isHome; // Winner serves
+      
+      // Check for rotation (Sideout)
+      // Rotation happens when receiving team wins the point
+      if (wasHomeServing != isHome) {
+        if (isHome) {
+          // Home team won point and wasn't serving -> Rotate Home
+          _rotateSide(true);
+        } else {
+          // Opponent won point and wasn't serving -> Rotate Opponent
+          _rotateSide(false);
         }
       }
+      
+      _updateBallPositionForServe();
+      
+      // Check for court switch in set 5 at 8 points
+      if (_currentSet == 5 && !_set5SwitchDone && (_homeScore == 8 || _opponentScore == 8)) {
+        _set5SwitchDone = true;
+        _showCourtSwitchDialog();
+      }
+      
       _checkSetWin();
     });
+    _saveMatchState();
+  }
+
+  void _showCourtSwitchDialog() {
+    final l10n = AppLocalizations.of(context)!;
+    
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        title: const Text('🔄 Court Switch - Set 5'),
+        content: Text('Score: $_homeScore - $_opponentScore\n\nTeams switch sides at 8 points in the 5th set.'),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              // Perform the court switch
+              _rotateFieldAndReset();
+            },
+            child: const Text('Continue'),
+          ),
+        ],
+      ),
+    );
   }
 
   void _showFirstServeDialog() {
+    final l10n = AppLocalizations.of(context)!;
     final homeName = widget.team.name;
     final oppName = widget.matchRoster?.rivalName ?? 'Opponent';
     
@@ -628,8 +736,8 @@ class _FullCourtRotationsPageState extends ConsumerState<FullCourtRotationsPage>
       context: context,
       barrierDismissible: false,
       builder: (context) => AlertDialog(
-        title: const Text('Who Serves First?'),
-        content: const Text('Select the team that serves first.'),
+        title: Text(l10n.whoServesFirst),
+        content: Text(l10n.selectTeamServesFirst),
         actions: [
           TextButton(
             onPressed: () {
@@ -683,6 +791,28 @@ class _FullCourtRotationsPageState extends ConsumerState<FullCourtRotationsPage>
     }
   }
 
+  Future<void> _saveMatchResult() async {
+    if (widget.matchRoster == null) return;
+    
+    try {
+      final updatedRoster = widget.matchRoster!.copyWith(
+        setsHome: _homeSets,
+        setsOpponent: _opponentSets,
+        matchCompleted: true,
+        completedAt: DateTime.now(),
+      );
+      
+      await ref.read(matchRostersProvider.notifier).updateRoster(updatedRoster);
+    } catch (e) {
+      print('Error saving match result: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to save match result: $e')),
+        );
+      }
+    }
+  }
+
   void _showSetWinDialog(bool homeWon) {
     final l10n = AppLocalizations.of(context)!;
     final homeName = widget.team.name;
@@ -691,19 +821,37 @@ class _FullCourtRotationsPageState extends ConsumerState<FullCourtRotationsPage>
     
     // Check Match Win
     if (_homeSets == 3 || _opponentSets == 3) {
+      // Save match result if we have a roster
+      _saveMatchResult();
+      
       showDialog(
         context: context,
         barrierDismissible: false,
         builder: (context) => AlertDialog(
-          title: Text('$winner Wins Match!'),
-          content: Text('Final Score: $_homeSets - $_opponentSets'),
+          title: Text('🏆 $winner Wins Match!'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text('Final Score: $_homeSets - $_opponentSets'),
+              const SizedBox(height: 16),
+              const Text('Match result saved!', style: TextStyle(color: Colors.green)),
+            ],
+          ),
           actions: [
+            TextButton.icon(
+              onPressed: () async {
+                Navigator.pop(context);
+                await _exportMatchLog();
+              },
+              icon: const Icon(Icons.share),
+              label: const Text('Share Stats'),
+            ),
             TextButton(
               onPressed: () {
                 Navigator.pop(context);
                 _resetMatch();
               },
-              child: const Text('New Match'),
+              child: Text(l10n.newMatch),
             ),
           ],
         ),
@@ -721,7 +869,7 @@ class _FullCourtRotationsPageState extends ConsumerState<FullCourtRotationsPage>
                 Navigator.pop(context);
                 _startNextSet();
               },
-              child: const Text('Next Set'),
+              child: Text(l10n.nextSet),
             ),
           ],
         ),
@@ -734,6 +882,7 @@ class _FullCourtRotationsPageState extends ConsumerState<FullCourtRotationsPage>
       _currentSet++;
       _homeScore = 0;
       _opponentScore = 0;
+      _set5SwitchDone = false; // Reset for next set (in case it's set 5)
       
       // Switch sides and reset positions (except before set 5)
       if (_currentSet != 5) {
@@ -751,6 +900,68 @@ class _FullCourtRotationsPageState extends ConsumerState<FullCourtRotationsPage>
     _saveMatchState();
   }
 
+  Future<void> _exportMatchLog() async {
+    final state = ref.read(matchStateProvider);
+    if (state == null || state.logs.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('No match logs available')),
+      );
+      return;
+    }
+
+    final buffer = StringBuffer();
+    // CSV Header
+    buffer.writeln('Set,Home Score,Opponent Score,Type,Home Rotation,Opponent Rotation,Timestamp,Players on Court');
+
+    for (final log in state.logs) {
+      final playerNames = log.homePlayerIds
+          .map((id) => _players[id]?.name ?? '?')
+          .join(';');
+      
+      buffer.writeln(
+        '${log.setNumber},'
+        '${log.homeScore},'
+        '${log.opponentScore},'
+        '${log.type.name},'
+        '${log.homeRotation},'
+        '${log.opponentRotation},'
+        '${log.timestamp.toIso8601String()},'
+        '"$playerNames"'
+      );
+    }
+
+    final csvData = buffer.toString();
+    final timestamp = DateTime.now().millisecondsSinceEpoch;
+    
+    // Share as CSV file
+    try {
+      final box = context.findRenderObject() as RenderBox?;
+      
+      await Share.shareXFiles(
+        [
+          XFile.fromData(
+            utf8.encode(csvData),
+            mimeType: 'text/csv',
+            name: 'match_log_$timestamp.csv',
+          ),
+        ],
+        text: 'Volleyball Match Log',
+        subject: 'Match Log - ${widget.team.name}',
+        sharePositionOrigin: box!.localToGlobal(Offset.zero) & box.size,
+      );
+    } catch (e) {
+      // Fallback to clipboard if sharing fails
+      Clipboard.setData(ClipboardData(text: csvData));
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Sharing failed. Copied to clipboard instead. Error: $e'),
+          ),
+        );
+      }
+    }
+  }
+
   void _resetMatch() {
     setState(() {
       _homeScore = 0;
@@ -761,6 +972,7 @@ class _FullCourtRotationsPageState extends ConsumerState<FullCourtRotationsPage>
       _matchStarted = false;
       _isMatchSetupMode = true; // Reset to setup mode
       _firstServerOfSet = null;
+      _set5SwitchDone = false; // Reset court switch flag
       _initializePlayers(); // Reset players to bench/placeholders
       _updateBallPositionForServe();
       // Note: matchRoster is kept in memory - it's part of widget state
@@ -833,24 +1045,29 @@ class _FullCourtRotationsPageState extends ConsumerState<FullCourtRotationsPage>
         centerTitle: true,
         actions: [
           IconButton(
+            icon: const Icon(Icons.copy_all),
+            onPressed: _exportMatchLog,
+            tooltip: 'Export Match Log (CSV)',
+          ),
+          IconButton(
             icon: const Icon(Icons.refresh),
             onPressed: () {
               showDialog(
                 context: context,
                 builder: (context) => AlertDialog(
-                  title: const Text('Reset Match?'),
-                  content: const Text('This will reset scores, sets, and player positions. Are you sure?'),
+                  title: Text(l10n.resetMatch),
+                  content: Text(l10n.resetMatchConfirmation),
                   actions: [
                     TextButton(
                       onPressed: () => Navigator.pop(context),
-                      child: const Text('Cancel'),
+                      child: Text(l10n.cancel),
                     ),
                     TextButton(
                       onPressed: () {
                         Navigator.pop(context);
                         _resetMatch();
                       },
-                      child: const Text('Reset'),
+                      child: Text(l10n.reset),
                     ),
                   ],
                 ),
@@ -879,7 +1096,7 @@ class _FullCourtRotationsPageState extends ConsumerState<FullCourtRotationsPage>
                 _showPlayerNumbers = !_showPlayerNumbers;
               });
             },
-            tooltip: _showPlayerNumbers ? 'Show Initials' : 'Show Numbers',
+            tooltip: _showPlayerNumbers ? l10n.showInitials : l10n.showNumbers,
           ),
           IconButton(
             icon: Icon(_isDrawingMode ? Icons.edit_off : Icons.edit),
@@ -925,6 +1142,16 @@ class _FullCourtRotationsPageState extends ConsumerState<FullCourtRotationsPage>
                   ),
                   const SizedBox(height: 16),
                   
+                  // ACE Button
+                  FloatingActionButton.small(
+                    heroTag: 'ace_left',
+                    onPressed: () => _incrementScore(_isHomeOnLeft, isAce: true),
+                    backgroundColor: Colors.orange,
+                    tooltip: 'ACE',
+                    child: const Icon(Icons.local_fire_department, color: Colors.white),
+                  ),
+                  const SizedBox(height: 8),
+
                   // Score Button (Primary)
                   GestureDetector(
                     onLongPress: () => _decrementScore(_isHomeOnLeft),
@@ -1009,6 +1236,16 @@ class _FullCourtRotationsPageState extends ConsumerState<FullCourtRotationsPage>
                   ),
                   const SizedBox(height: 16),
                   
+                  // ACE Button
+                  FloatingActionButton.small(
+                    heroTag: 'ace_right',
+                    onPressed: () => _incrementScore(!_isHomeOnLeft, isAce: true),
+                    backgroundColor: Colors.orange,
+                    tooltip: 'ACE',
+                    child: const Icon(Icons.local_fire_department, color: Colors.white),
+                  ),
+                  const SizedBox(height: 8),
+
                   // Score Button (Primary)
                   GestureDetector(
                     onLongPress: () => _decrementScore(!_isHomeOnLeft),

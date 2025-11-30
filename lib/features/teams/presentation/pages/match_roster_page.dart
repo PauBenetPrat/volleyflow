@@ -104,7 +104,7 @@ class _MatchRosterPageState extends ConsumerState<MatchRosterPage> {
     if (_rivalNameController.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('${l10n.rivalTeam} is required'),
+          content: Text(l10n.rivalTeamRequired(l10n.rivalTeam)),
           backgroundColor: Colors.red,
         ),
       );
@@ -114,7 +114,7 @@ class _MatchRosterPageState extends ConsumerState<MatchRosterPage> {
     if (_matchDate == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('${l10n.matchDate} is required'),
+          content: Text(l10n.rivalTeamRequired(l10n.matchDate)),
           backgroundColor: Colors.red,
         ),
       );
@@ -143,8 +143,8 @@ class _MatchRosterPageState extends ConsumerState<MatchRosterPage> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(widget.existingRoster != null 
-                  ? 'Match roster updated'
-                  : 'Match roster created'),
+                  ? l10n.matchRosterUpdated
+                  : l10n.matchRosterCreated),
               backgroundColor: Colors.green,
             ),
           );
@@ -156,7 +156,7 @@ class _MatchRosterPageState extends ConsumerState<MatchRosterPage> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Error saving roster: ${e.toString()}'),
+              content: Text(l10n.errorSavingRoster(e.toString())),
               backgroundColor: Colors.red,
               duration: const Duration(seconds: 5),
             ),
@@ -196,13 +196,22 @@ class _MatchRosterPageState extends ConsumerState<MatchRosterPage> {
       appBar: AppBar(
         title: Text(widget.existingRoster != null ? l10n.editMatchRoster : l10n.createMatchRoster),
         actions: [
-          TextButton.icon(
-            onPressed: widget.saveRoster ? (canSave ? _startMatch : null) : (canStartMatch ? _startMatch : null),
-            icon: Icon(widget.saveRoster ? Icons.save : Icons.sports_volleyball),
-            label: Text(widget.saveRoster ? l10n.save : l10n.startMatch),
-            style: TextButton.styleFrom(
-              foregroundColor: (widget.saveRoster ? canSave : canStartMatch) ? Colors.white : Colors.white54,
-            ),
+          Builder(
+            builder: (context) {
+              final isEnabled = widget.saveRoster ? canSave : canStartMatch;
+              final isDark = theme.brightness == Brightness.dark;
+              
+              return TextButton.icon(
+                onPressed: isEnabled ? _startMatch : null,
+                icon: Icon(widget.saveRoster ? Icons.save : Icons.sports_volleyball),
+                label: Text(widget.saveRoster ? l10n.save : l10n.startMatch),
+                style: TextButton.styleFrom(
+                  foregroundColor: isEnabled 
+                      ? (isDark ? Colors.white : theme.colorScheme.primary)
+                      : (isDark ? Colors.white54 : theme.colorScheme.primary.withOpacity(0.5)),
+                ),
+              );
+            }
           ),
         ],
       ),
@@ -219,7 +228,7 @@ class _MatchRosterPageState extends ConsumerState<MatchRosterPage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Match Details',
+                      l10n.matchDetails,
                       style: theme.textTheme.titleMedium,
                     ),
                     const SizedBox(height: 16),
@@ -229,11 +238,11 @@ class _MatchRosterPageState extends ConsumerState<MatchRosterPage> {
                       controller: _rivalNameController,
                       decoration: InputDecoration(
                         labelText: '${l10n.rivalTeam} *',
-                        hintText: 'e.g., CV Barcelona',
+                        hintText: l10n.exampleRivalName,
                         prefixIcon: const Icon(Icons.shield),
                         border: const OutlineInputBorder(),
                         errorText: _rivalNameController.text.isEmpty && hasRivalName == false 
-                            ? 'Required'
+                            ? l10n.required
                             : null,
                       ),
                       maxLength: 50,
@@ -276,7 +285,7 @@ class _MatchRosterPageState extends ConsumerState<MatchRosterPage> {
                                   Text(
                                     _matchDate != null
                                         ? '${_matchDate!.day}/${_matchDate!.month}/${_matchDate!.year}'
-                                        : 'Select date',
+                                        : l10n.selectDate,
                                     style: TextStyle(
                                       color: _matchDate == null
                                           ? Colors.grey
@@ -299,7 +308,7 @@ class _MatchRosterPageState extends ConsumerState<MatchRosterPage> {
                       Padding(
                         padding: const EdgeInsets.only(top: 4, left: 16),
                         child: Text(
-                          'Required',
+                          l10n.required,
                           style: TextStyle(
                             color: Colors.red,
                             fontSize: 12,
@@ -313,8 +322,8 @@ class _MatchRosterPageState extends ConsumerState<MatchRosterPage> {
                     TextField(
                       controller: _locationController,
                       decoration: InputDecoration(
-                        labelText: '${l10n.location} (Optional)',
-                        hintText: 'e.g., Sports Center Arena',
+                        labelText: '${l10n.location} (${l10n.optional})',
+                        hintText: l10n.exampleLocation,
                         prefixIcon: const Icon(Icons.location_on),
                         border: const OutlineInputBorder(),
                       ),
@@ -378,7 +387,7 @@ class _MatchRosterPageState extends ConsumerState<MatchRosterPage> {
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 8),
                 child: Text(
-                  'Select at least $_minPlayers players to start match',
+                  l10n.selectAtLeastPlayers(_minPlayers),
                   style: TextStyle(
                     color: Colors.orange.shade700,
                     fontSize: 12,
@@ -390,7 +399,7 @@ class _MatchRosterPageState extends ConsumerState<MatchRosterPage> {
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 8),
                 child: Text(
-                  'Players can be added later (optional)',
+                  l10n.playersCanBeAddedLater,
                   style: TextStyle(
                     color: Colors.blue.shade700,
                     fontSize: 12,

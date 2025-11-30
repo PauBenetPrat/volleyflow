@@ -262,7 +262,7 @@ class _MatchRosterCard extends StatelessWidget {
                   Text(
                     roster.playerIds != null && roster.playerIds!.isNotEmpty
                         ? '${roster.playerIds!.length} ${l10n.players.toLowerCase()}'
-                        : 'No players selected',
+                        : l10n.noPlayersSelected,
                     style: theme.textTheme.bodySmall,
                   ),
                   if (roster.location != null) ...[

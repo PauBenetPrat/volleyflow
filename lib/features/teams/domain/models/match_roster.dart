@@ -6,6 +6,10 @@ class MatchRoster {
   final List<String>? playerIds; // Up to 14, optional
   final String? location;
   final DateTime createdAt;
+  final int? setsHome;
+  final int? setsOpponent;
+  final bool matchCompleted;
+  final DateTime? completedAt;
 
   const MatchRoster({
     required this.id,
@@ -15,6 +19,10 @@ class MatchRoster {
     this.playerIds,
     this.location,
     required this.createdAt,
+    this.setsHome,
+    this.setsOpponent,
+    this.matchCompleted = false,
+    this.completedAt,
   });
 
   factory MatchRoster.fromJson(Map<String, dynamic> json) {
@@ -63,6 +71,10 @@ class MatchRoster {
       playerIds: playerIds,
       location: json['location']?.toString(),
       createdAt: createdAt,
+      setsHome: json['sets_home'] as int?,
+      setsOpponent: json['sets_opponent'] as int?,
+      matchCompleted: json['match_completed'] as bool? ?? false,
+      completedAt: json['completed_at'] != null ? DateTime.parse(json['completed_at'].toString()) : null,
     );
   }
 
@@ -75,6 +87,10 @@ class MatchRoster {
       'player_ids': playerIds?.isNotEmpty == true ? playerIds : <String>[], // Empty array instead of null for Supabase
       'location': location,
       'created_at': createdAt.toIso8601String(),
+      'sets_home': setsHome,
+      'sets_opponent': setsOpponent,
+      'match_completed': matchCompleted,
+      'completed_at': completedAt?.toIso8601String(),
     };
   }
 
@@ -86,6 +102,10 @@ class MatchRoster {
     List<String>? playerIds,
     String? location,
     DateTime? createdAt,
+    int? setsHome,
+    int? setsOpponent,
+    bool? matchCompleted,
+    DateTime? completedAt,
   }) {
     return MatchRoster(
       id: id ?? this.id,
@@ -95,6 +115,10 @@ class MatchRoster {
       playerIds: playerIds ?? this.playerIds,
       location: location ?? this.location,
       createdAt: createdAt ?? this.createdAt,
+      setsHome: setsHome ?? this.setsHome,
+      setsOpponent: setsOpponent ?? this.setsOpponent,
+      matchCompleted: matchCompleted ?? this.matchCompleted,
+      completedAt: completedAt ?? this.completedAt,
     );
   }
 }

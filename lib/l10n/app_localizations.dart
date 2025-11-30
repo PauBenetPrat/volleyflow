@@ -274,7 +274,7 @@ abstract class AppLocalizations {
   /// **'Copy coordinates to clipboard'**
   String get copyCoordinates;
 
-  /// Tooltip for reset button
+  /// Reset button label
   ///
   /// In en, this message translates to:
   /// **'Reset'**
@@ -418,10 +418,10 @@ abstract class AppLocalizations {
   /// **'Start Match'**
   String get startMatch;
 
-  /// Reset match button
+  /// Dialog title for reset confirmation
   ///
   /// In en, this message translates to:
-  /// **'Reset Match'**
+  /// **'Reset Match?'**
   String get resetMatch;
 
   /// Match won dialog title
@@ -982,13 +982,13 @@ abstract class AppLocalizations {
   /// **'No teams found. Please create a team first.'**
   String get noTeamsFound;
 
-  /// Select starting 6 players dialog title
+  /// Dialog title for selecting starting lineup
   ///
   /// In en, this message translates to:
   /// **'Select Starting 6'**
   String get selectStarting6;
 
-  /// Start button
+  /// Start button label
   ///
   /// In en, this message translates to:
   /// **'Start'**
@@ -1089,6 +1089,144 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Edit'**
   String get edit;
+
+  /// Dialog title for editing opponent player number
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Opponent Player Number'**
+  String get editOpponentPlayerNumber;
+
+  /// Label for player number input
+  ///
+  /// In en, this message translates to:
+  /// **'Player Number'**
+  String get playerNumber;
+
+  /// Hint text for player number input
+  ///
+  /// In en, this message translates to:
+  /// **'Enter number (1-99)'**
+  String get enterNumber;
+
+  /// Dialog title asking which team serves first
+  ///
+  /// In en, this message translates to:
+  /// **'Who Serves First?'**
+  String get whoServesFirst;
+
+  /// Dialog content for first serve selection
+  ///
+  /// In en, this message translates to:
+  /// **'Select the team that serves first.'**
+  String get selectTeamServesFirst;
+
+  /// Button to start a new match
+  ///
+  /// In en, this message translates to:
+  /// **'New Match'**
+  String get newMatch;
+
+  /// Button to start next set
+  ///
+  /// In en, this message translates to:
+  /// **'Next Set'**
+  String get nextSet;
+
+  /// Dialog content for reset confirmation
+  ///
+  /// In en, this message translates to:
+  /// **'This will reset scores, sets, and player positions. Are you sure?'**
+  String get resetMatchConfirmation;
+
+  /// Section title for match details
+  ///
+  /// In en, this message translates to:
+  /// **'Match Details'**
+  String get matchDetails;
+
+  /// Required field indicator
+  ///
+  /// In en, this message translates to:
+  /// **'Required'**
+  String get required;
+
+  /// Example text for rival team name
+  ///
+  /// In en, this message translates to:
+  /// **'e.g., CV Barcelona'**
+  String get exampleRivalName;
+
+  /// Placeholder text for date selection
+  ///
+  /// In en, this message translates to:
+  /// **'Select date'**
+  String get selectDate;
+
+  /// Optional field indicator
+  ///
+  /// In en, this message translates to:
+  /// **'Optional'**
+  String get optional;
+
+  /// Example text for location
+  ///
+  /// In en, this message translates to:
+  /// **'e.g., Sports Center Arena'**
+  String get exampleLocation;
+
+  /// Warning message for minimum players
+  ///
+  /// In en, this message translates to:
+  /// **'Select at least {count} players to start match'**
+  String selectAtLeastPlayers(int count);
+
+  /// Info message that players are optional for roster save
+  ///
+  /// In en, this message translates to:
+  /// **'Players can be added later (optional)'**
+  String get playersCanBeAddedLater;
+
+  /// Required field error message
+  ///
+  /// In en, this message translates to:
+  /// **'{field} is required'**
+  String rivalTeamRequired(String field);
+
+  /// Success message for roster creation
+  ///
+  /// In en, this message translates to:
+  /// **'Match roster created'**
+  String get matchRosterCreated;
+
+  /// Success message for roster update
+  ///
+  /// In en, this message translates to:
+  /// **'Match roster updated'**
+  String get matchRosterUpdated;
+
+  /// Error message for roster save failure
+  ///
+  /// In en, this message translates to:
+  /// **'Error saving roster: {error}'**
+  String errorSavingRoster(String error);
+
+  /// Message when no players are in roster
+  ///
+  /// In en, this message translates to:
+  /// **'No players selected'**
+  String get noPlayersSelected;
+
+  /// Tooltip for showing player initials
+  ///
+  /// In en, this message translates to:
+  /// **'Show Initials'**
+  String get showInitials;
+
+  /// Tooltip for showing player numbers
+  ///
+  /// In en, this message translates to:
+  /// **'Show Numbers'**
+  String get showNumbers;
 }
 
 class _AppLocalizationsDelegate

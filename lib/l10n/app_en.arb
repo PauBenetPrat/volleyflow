@@ -691,6 +691,129 @@
   "edit": "Edit",
   "@edit": {
     "description": "Edit button label"
+  },
+  "selectStarting6": "Select Starting 6",
+  "@selectStarting6": {
+    "description": "Dialog title for selecting starting lineup"
+  },
+  "start": "Start",
+  "@start": {
+    "description": "Start button label"
+  },
+  "editOpponentPlayerNumber": "Edit Opponent Player Number",
+  "@editOpponentPlayerNumber": {
+    "description": "Dialog title for editing opponent player number"
+  },
+  "playerNumber": "Player Number",
+  "@playerNumber": {
+    "description": "Label for player number input"
+  },
+  "enterNumber": "Enter number (1-99)",
+  "@enterNumber": {
+    "description": "Hint text for player number input"
+  },
+  "whoServesFirst": "Who Serves First?",
+  "@whoServesFirst": {
+    "description": "Dialog title asking which team serves first"
+  },
+  "selectTeamServesFirst": "Select the team that serves first.",
+  "@selectTeamServesFirst": {
+    "description": "Dialog content for first serve selection"
+  },
+  "newMatch": "New Match",
+  "@newMatch": {
+    "description": "Button to start a new match"
+  },
+  "nextSet": "Next Set",
+  "@nextSet": {
+    "description": "Button to start next set"
+  },
+  "resetMatch": "Reset Match?",
+  "@resetMatch": {
+    "description": "Dialog title for reset confirmation"
+  },
+  "resetMatchConfirmation": "This will reset scores, sets, and player positions. Are you sure?",
+  "@resetMatchConfirmation": {
+    "description": "Dialog content for reset confirmation"
+  },
+  "reset": "Reset",
+  "@reset": {
+    "description": "Reset button label"
+  },
+  "matchDetails": "Match Details",
+  "@matchDetails": {
+    "description": "Section title for match details"
+  },
+  "required": "Required",
+  "@required": {
+    "description": "Required field indicator"
+  },
+  "exampleRivalName": "e.g., CV Barcelona",
+  "@exampleRivalName": {
+    "description": "Example text for rival team name"
+  },
+  "selectDate": "Select date",
+  "@selectDate": {
+    "description": "Placeholder text for date selection"
+  },
+  "optional": "Optional",
+  "@optional": {
+    "description": "Optional field indicator"
+  },
+  "exampleLocation": "e.g., Sports Center Arena",
+  "@exampleLocation": {
+    "description": "Example text for location"
+  },
+  "selectAtLeastPlayers": "Select at least {count} players to start match",
+  "@selectAtLeastPlayers": {
+    "description": "Warning message for minimum players",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "playersCanBeAddedLater": "Players can be added later (optional)",
+  "@playersCanBeAddedLater": {
+    "description": "Info message that players are optional for roster save"
+  },
+  "rivalTeamRequired": "{field} is required",
+  "@rivalTeamRequired": {
+    "description": "Required field error message",
+    "placeholders": {
+      "field": {
+        "type": "String"
+      }
+    }
+  },
+  "matchRosterCreated": "Match roster created",
+  "@matchRosterCreated": {
+    "description": "Success message for roster creation"
+  },
+  "matchRosterUpdated": "Match roster updated",
+  "@matchRosterUpdated": {
+    "description": "Success message for roster update"
+  },
+  "errorSavingRoster": "Error saving roster: {error}",
+  "@errorSavingRoster": {
+    "description": "Error message for roster save failure",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "noPlayersSelected": "No players selected",
+  "@noPlayersSelected": {
+    "description": "Message when no players are in roster"
+  },
+  "showInitials": "Show Initials",
+  "@showInitials": {
+    "description": "Tooltip for showing player initials"
+  },
+  "showNumbers": "Show Numbers",
+  "@showNumbers": {
+    "description": "Tooltip for showing player numbers"
   }
 }
 

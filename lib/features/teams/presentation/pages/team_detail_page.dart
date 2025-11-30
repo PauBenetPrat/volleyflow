@@ -224,44 +224,76 @@ class _TeamDetailPageState extends ConsumerState<TeamDetailPage> {
                 message: l10n.noPlayersYet,
               )
             else
-              ...team.players.map((player) => _PlayerCard(
-                    player: player,
-                    team: team,
-                    canEdit: canEdit,
-                    onEdit: canEdit 
-                        ? () => showDialog(
-                            context: context,
-                            builder: (context) => _PlayerEditDialog(team: team, player: player),
-                          )
-                        : () => _showPremiumDialog(context, l10n),
-                    onDelete: canEdit 
-                        ? () {
-                            showDialog(
-                              context: context,
-                              builder: (context) => AlertDialog(
-                                title: Text(l10n.deletePlayer),
-                                content: Text(l10n.deletePlayerConfirmation(player.name)),
-                                actions: [
-                                  TextButton(
-                                    onPressed: () => Navigator.of(context).pop(),
-                                    child: Text(l10n.cancel),
-                                  ),
-                                  TextButton(
-                                    onPressed: () {
-                                      ref.read(teamsProvider.notifier).deletePlayerFromTeam(team.id, player.id);
-                                      Navigator.of(context).pop();
-                                    },
-                                    style: TextButton.styleFrom(
-                                      foregroundColor: theme.colorScheme.error,
-                                    ),
-                                    child: Text(l10n.delete),
-                                  ),
-                                ],
-                              ),
-                            );
+              Builder(
+                builder: (context) {
+                  // Sort players by sortOrder before displaying
+                  final sortedPlayers = List<Player>.from(team.players)
+                    ..sort((a, b) => a.sortOrder.compareTo(b.sortOrder));
+                  
+                  return ReorderableListView(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    onReorder: canEdit
+                        ? (oldIndex, newIndex) {
+                            final players = List<Player>.from(sortedPlayers);
+                            if (newIndex > oldIndex) newIndex--;
+                            
+                            final player = players.removeAt(oldIndex);
+                            players.insert(newIndex, player);
+                            
+                            // Update sortOrder for all players and update team at once
+                            final updatedPlayers = players.asMap().entries.map((entry) {
+                              return entry.value.copyWith(sortOrder: entry.key);
+                            }).toList();
+                            
+                            final updatedTeam = team.copyWith(players: updatedPlayers);
+                            ref.read(teamsProvider.notifier).updateTeam(updatedTeam);
                           }
-                        : () => _showPremiumDialog(context, l10n),
-                  )),
+                        : (_, __) {},
+                    children: sortedPlayers.map<Widget>((player) {
+                      return _PlayerCard(
+                        key: ValueKey(player.id),
+                        player: player,
+                        team: team,
+                        canEdit: canEdit,
+                        onEdit: canEdit 
+                            ? () => showDialog(
+                                context: context,
+                                builder: (context) => _PlayerEditDialog(team: team, player: player),
+                              )
+                            : () => _showPremiumDialog(context, l10n),
+                        onDelete: canEdit 
+                            ? () {
+                                showDialog(
+                                  context: context,
+                                  builder: (context) => AlertDialog(
+                                    title: Text(l10n.deletePlayer),
+                                    content: Text(l10n.deletePlayerConfirmation(player.name)),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () => Navigator.of(context).pop(),
+                                        child: Text(l10n.cancel),
+                                      ),
+                                      TextButton(
+                                        onPressed: () {
+                                          ref.read(teamsProvider.notifier).deletePlayerFromTeam(team.id, player.id);
+                                          Navigator.of(context).pop();
+                                        },
+                                        style: TextButton.styleFrom(
+                                          foregroundColor: theme.colorScheme.error,
+                                        ),
+                                        child: Text(l10n.delete),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              }
+                            : () => _showPremiumDialog(context, l10n),
+                      );
+                    }).toList(),
+                  );
+                },
+              ),
           ],
         ),
       ),
@@ -423,6 +455,7 @@ class _EmptyState extends StatelessWidget {
 }
 
 class _PlayerCard extends ConsumerWidget {
+  final Key? key;
   final Player player;
   final Team team;
   final bool canEdit;
@@ -430,12 +463,13 @@ class _PlayerCard extends ConsumerWidget {
   final VoidCallback onDelete;
 
   const _PlayerCard({
+    this.key,
     required this.player,
     required this.team,
     required this.canEdit,
     required this.onEdit,
     required this.onDelete,
-  });
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -486,6 +520,7 @@ class _PlayerCard extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             if (player.alias != null) Text(player.name),
+            if (player.email != null) Text('📧 ${player.email}'),
             if (player.gender != null)
               Text('${l10n.gender}: ${player.gender == PlayerGender.male ? l10n.male : l10n.female}'),
             if (player.number != null) Text('${l10n.number}: ${player.number}'),
@@ -620,6 +655,7 @@ class _PlayerEditDialogState extends ConsumerState<_PlayerEditDialog> {
   final _formKey = GlobalKey<FormState>();
   late final TextEditingController _nameController;
   late final TextEditingController _aliasController;
+  late final TextEditingController _emailController;
   late final TextEditingController _numberController;
   late final TextEditingController _ageController;
   late final TextEditingController _heightController;
@@ -632,6 +668,7 @@ class _PlayerEditDialogState extends ConsumerState<_PlayerEditDialog> {
     super.initState();
     _nameController = TextEditingController(text: widget.player?.name ?? '');
     _aliasController = TextEditingController(text: widget.player?.alias ?? '');
+    _emailController = TextEditingController(text: widget.player?.email ?? '');
     _numberController = TextEditingController(
       text: widget.player?.number?.toString() ?? '',
     );
@@ -650,6 +687,7 @@ class _PlayerEditDialogState extends ConsumerState<_PlayerEditDialog> {
   void dispose() {
     _nameController.dispose();
     _aliasController.dispose();
+    _emailController.dispose();
     _numberController.dispose();
     _ageController.dispose();
     _heightController.dispose();
@@ -664,6 +702,9 @@ class _PlayerEditDialogState extends ConsumerState<_PlayerEditDialog> {
         alias: _aliasController.text.trim().isEmpty
             ? null
             : _aliasController.text.trim(),
+        email: _emailController.text.trim().isEmpty
+            ? null
+            : _emailController.text.trim(),
         number: _numberController.text.trim().isEmpty
             ? null
             : int.tryParse(_numberController.text.trim()),
@@ -723,6 +764,15 @@ class _PlayerEditDialogState extends ConsumerState<_PlayerEditDialog> {
                   labelText: l10n.alias,
                   border: const OutlineInputBorder(),
                 ),
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: _emailController,
+                decoration: const InputDecoration(
+                  labelText: 'Email',
+                  border: OutlineInputBorder(),
+                ),
+                keyboardType: TextInputType.emailAddress,
               ),
               const SizedBox(height: 16),
               Row(

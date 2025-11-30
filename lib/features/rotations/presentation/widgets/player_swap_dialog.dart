@@ -15,7 +15,18 @@ class PlayerSwapDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     final isPlaceholder = currentPlayer.name == '?';
     return AlertDialog(
-      title: Text(isPlaceholder ? 'Select Player' : 'Swap ${currentPlayer.name}'),
+      title: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(isPlaceholder ? 'Select Player' : 'Swap ${currentPlayer.name}'),
+          IconButton(
+            icon: const Icon(Icons.close),
+            onPressed: () => Navigator.of(context).pop(),
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(),
+          ),
+        ],
+      ),
       content: SizedBox(
         width: double.maxFinite,
         child: benchPlayers.isEmpty
@@ -26,8 +37,14 @@ class PlayerSwapDialog extends StatelessWidget {
                 itemBuilder: (context, index) {
                   final player = benchPlayers[index];
                   return ListTile(
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 0),
+                    dense: true, // Make list items more compact
                     leading: CircleAvatar(
-                      child: Text(player.number?.toString() ?? player.getInitials()),
+                      radius: 16, // Smaller avatar
+                      child: Text(
+                        player.number?.toString() ?? player.getInitials(),
+                        style: const TextStyle(fontSize: 12),
+                      ),
                     ),
                     title: Text(player.name),
                     subtitle: player.mainPosition != null ? Text(player.mainPosition!.name) : null,
@@ -38,12 +55,7 @@ class PlayerSwapDialog extends StatelessWidget {
                 },
               ),
       ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Cancel'),
-        ),
-      ],
+      // Actions removed to save vertical space
     );
   }
 }
