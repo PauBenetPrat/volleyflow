@@ -18,6 +18,12 @@ class PlayerRole {
   static const String outsideHitterAbbr = 'OH';
   static const String liberoAbbr = 'L';
   
+  // Specific role abbreviations (fallback)
+  static const String middleBlocker1Abbr = 'MB1';
+  static const String middleBlocker2Abbr = 'MB2';
+  static const String outsideHitter1Abbr = 'OH1';
+  static const String outsideHitter2Abbr = 'OH2';
+  
   // Map internal role to display abbreviation using translations
   // If l10n is provided, uses translations; otherwise falls back to English abbreviations
   static String getDisplayAbbreviation(String internalRole, [AppLocalizations? l10n]) {
@@ -25,13 +31,15 @@ class PlayerRole {
       case setter:
         return l10n?.roleSetterAbbr ?? setterAbbr;
       case middleBlocker1:
+        return l10n?.roleMiddleBlocker1Abbr ?? middleBlocker1Abbr;
       case middleBlocker2:
-        return l10n?.roleMiddleBlockerAbbr ?? middleBlockerAbbr;
+        return l10n?.roleMiddleBlocker2Abbr ?? middleBlocker2Abbr;
       case opposite:
         return l10n?.roleOppositeAbbr ?? oppositeAbbr;
       case outsideHitter1:
+        return l10n?.roleOutsideHitter1Abbr ?? outsideHitter1Abbr;
       case outsideHitter2:
-        return l10n?.roleOutsideHitterAbbr ?? outsideHitterAbbr;
+        return l10n?.roleOutsideHitter2Abbr ?? outsideHitter2Abbr;
       case libero:
         return l10n?.roleLiberoAbbr ?? liberoAbbr;
       default:

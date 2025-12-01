@@ -20,6 +20,8 @@ class SettingsPage extends ConsumerWidget {
       {'locale': const Locale('eu', ''), 'name': 'Euskera'},
       {'locale': const Locale('fr', ''), 'name': 'Français'},
       {'locale': const Locale('de', ''), 'name': 'Deutsch'},
+      {'locale': const Locale('ja', ''), 'name': '日本語'},
+      {'locale': const Locale('zh', ''), 'name': '中文'},
     ];
 
     return Scaffold(

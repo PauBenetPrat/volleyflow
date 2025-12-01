@@ -57,6 +57,8 @@ class VolleyballCoachingApp extends ConsumerWidget {
         Locale('eu', ''), // Euskera
         Locale('fr', ''), // Français
         Locale('de', ''), // Deutsch
+        Locale('ja', ''), // 日本語
+        Locale('zh', ''), // 中文
       ],
     );
   }
