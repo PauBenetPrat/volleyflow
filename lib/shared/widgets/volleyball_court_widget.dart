@@ -18,6 +18,7 @@ class VolleyballCourtWidget extends ConsumerStatefulWidget {
   final Color? playerCircleColor;
   final RotationValidationResult? validationResult; // Resultat de validació
   final bool showGrid; // Mostrar/amagar la graella
+  final Map<String, PositionCoord>? customPositions; // Override positions for drag & drop
 
   const VolleyballCourtWidget({
     super.key,
@@ -30,6 +31,7 @@ class VolleyballCourtWidget extends ConsumerStatefulWidget {
     this.playerCircleColor,
     this.validationResult,
     this.showGrid = false,
+    this.customPositions,
   });
 
   @override
@@ -58,6 +60,7 @@ class _VolleyballCourtWidgetState extends ConsumerState<VolleyballCourtWidget>
     _animationController = AnimationController(
       duration: const Duration(milliseconds: 800),
       vsync: this,
+      value: 1.0, // Start at 1.0 to show current positions immediately
     );
     
     _animation = CurvedAnimation(
@@ -80,8 +83,10 @@ class _VolleyballCourtWidgetState extends ConsumerState<VolleyballCourtWidget>
     
     // Merge custom positions with base positions
     final coords = Map<String, PositionCoord>.from(baseCoords);
-    if (customPositions != null) {
-      customPositions.forEach((role, customCoord) {
+    // Use widget.customPositions if provided, otherwise fallback to provider (though provider is usually source of truth)
+    final effectiveCustomPositions = widget.customPositions ?? customPositions;
+    if (effectiveCustomPositions != null) {
+      effectiveCustomPositions.forEach((role, customCoord) {
         coords[role] = customCoord;
       });
     }
@@ -112,12 +117,13 @@ class _VolleyballCourtWidgetState extends ConsumerState<VolleyballCourtWidget>
 
   String? _getPlayerAtBenchPosition(Offset position, Size size, Map<String, PositionCoord>? customPositions) {
     if (widget.rotation == null || widget.phase == null) return null;
-    if (customPositions == null) return null;
+    final effectiveCustomPositions = widget.customPositions ?? customPositions;
+    if (effectiveCustomPositions == null) return null;
     
     final playerRadius = size.height * 0.06;
     
     // Check only players that are on bench (y > 1.0)
-    for (final entry in customPositions.entries) {
+    for (final entry in effectiveCustomPositions.entries) {
       final coord = entry.value;
       if (coord.y <= 1.0) continue; // Not on bench
       
@@ -277,7 +283,7 @@ class _VolleyballCourtWidgetState extends ConsumerState<VolleyballCourtWidget>
                   final playerRole = _getPlayerAtPosition(
                     localPosition,
                     Size(courtWidth, courtHeight),
-                    rotationState.customPositions,
+                    widget.customPositions ?? rotationState.customPositions,
                   );
                   if (playerRole != null) {
                     _showPlayerInfoDialog(context, playerRole);
@@ -294,7 +300,7 @@ class _VolleyballCourtWidgetState extends ConsumerState<VolleyballCourtWidget>
                 final player = _getPlayerAtPosition(
                   localPosition, 
                   Size(courtWidth, courtHeight),
-                  rotationState.customPositions,
+                  widget.customPositions ?? rotationState.customPositions,
                 );
                 if (player != null) {
                   setState(() {
@@ -343,9 +349,10 @@ class _VolleyballCourtWidgetState extends ConsumerState<VolleyballCourtWidget>
                   // Always validate one final time when drag ends
                   if (_draggedPlayer != null) {
                     final rotationState = ref.read(rotationProvider);
-                    if (rotationState.customPositions != null && 
-                        rotationState.customPositions!.containsKey(_draggedPlayer)) {
-                      final finalPosition = rotationState.customPositions![_draggedPlayer]!;
+                    final effectiveCustomPositions = widget.customPositions ?? rotationState.customPositions;
+                    if (effectiveCustomPositions != null && 
+                        effectiveCustomPositions.containsKey(_draggedPlayer)) {
+                      final finalPosition = effectiveCustomPositions[_draggedPlayer]!;
                       ref.read(rotationProvider.notifier).updatePlayerPosition(
                         _draggedPlayer!,
                         finalPosition,
@@ -379,7 +386,7 @@ class _VolleyballCourtWidgetState extends ConsumerState<VolleyballCourtWidget>
                         rotationSystem: widget.rotationSystem ?? currentRotationState.rotationSystem,
                         previousRotation: _previousRotation,
                         previousPhase: _previousPhase,
-                        customPositions: currentRotationState.customPositions,
+                        customPositions: widget.customPositions ?? currentRotationState.customPositions,
                         validationResult: widget.validationResult,
                         drawings: currentRotationState.drawings,
                         showGrid: currentRotationState.showGrid,
@@ -1045,11 +1052,14 @@ class VolleyballCourtPainter extends CustomPainter {
       // Draw player role with smaller text and contrasting white color
       // Use translated abbreviations
       String text = PlayerRole.getDisplayAbbreviation(playerRole, l10n);
+      
+      // Use black color for 3-character abbreviations (MB1, MB2, OH1, OH2) for better contrast
+      final textColor = text.length == 3 ? Colors.black : Colors.white;
 
       final textSpan = TextSpan(
         text: text,
         style: TextStyle(
-          color: Colors.white, // Contrasting white text
+          color: textColor, // Black for 3-char abbreviations, white for others
           fontSize: playerRadius * 0.9, // Smaller text
           fontWeight: isSecondary ? FontWeight.w600 : FontWeight.bold,
         ),
@@ -1206,10 +1216,14 @@ class BenchPainter extends CustomPainter {
         }
         
         // Draw player role text
+        final roleText = PlayerRole.getDisplayAbbreviation(role, l10n);
+        // Use black color for 3-character abbreviations (MB1, MB2, OH1, OH2) for better contrast
+        final textColor = roleText.length == 3 ? Colors.black : Colors.white;
+        
         final textSpan = TextSpan(
-          text: PlayerRole.getDisplayAbbreviation(role, l10n),
+          text: roleText,
           style: TextStyle(
-            color: Colors.white,
+            color: textColor, // Black for 3-char abbreviations, white for others
             fontSize: playerRadius * 0.9,
             fontWeight: isSecondary ? FontWeight.w600 : FontWeight.bold,
           ),
