@@ -1053,14 +1053,17 @@ class VolleyballCourtPainter extends CustomPainter {
       // Use translated abbreviations
       String text = PlayerRole.getDisplayAbbreviation(playerRole, l10n);
       
-      // Use black color for 3-character abbreviations (MB1, MB2, OH1, OH2) for better contrast
-      final textColor = text.length == 3 ? Colors.black : Colors.white;
+      // Use smaller font for 3-character abbreviations on triangles (front row) to prevent overflow
+      final baseFontSize = playerRadius * 0.9;
+      final fontSize = (isFrontRow && text.length == 3) 
+          ? baseFontSize * 0.75  // 25% smaller for 3-char on triangles
+          : baseFontSize;
 
       final textSpan = TextSpan(
         text: text,
         style: TextStyle(
-          color: textColor, // Black for 3-char abbreviations, white for others
-          fontSize: playerRadius * 0.9, // Smaller text
+          color: Colors.white, // Contrasting white text
+          fontSize: fontSize,
           fontWeight: isSecondary ? FontWeight.w600 : FontWeight.bold,
         ),
       );
@@ -1216,14 +1219,10 @@ class BenchPainter extends CustomPainter {
         }
         
         // Draw player role text
-        final roleText = PlayerRole.getDisplayAbbreviation(role, l10n);
-        // Use black color for 3-character abbreviations (MB1, MB2, OH1, OH2) for better contrast
-        final textColor = roleText.length == 3 ? Colors.black : Colors.white;
-        
         final textSpan = TextSpan(
-          text: roleText,
+          text: PlayerRole.getDisplayAbbreviation(role, l10n),
           style: TextStyle(
-            color: textColor, // Black for 3-char abbreviations, white for others
+            color: Colors.white,
             fontSize: playerRadius * 0.9,
             fontWeight: isSecondary ? FontWeight.w600 : FontWeight.bold,
           ),
