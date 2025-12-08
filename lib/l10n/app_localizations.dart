@@ -11,6 +11,8 @@ import 'app_localizations_en.dart';
 import 'app_localizations_es.dart';
 import 'app_localizations_eu.dart';
 import 'app_localizations_fr.dart';
+import 'app_localizations_ja.dart';
+import 'app_localizations_zh.dart';
 
 // ignore_for_file: type=lint
 
@@ -103,7 +105,9 @@ abstract class AppLocalizations {
     Locale('en'),
     Locale('es'),
     Locale('eu'),
-    Locale('fr')
+    Locale('fr'),
+    Locale('ja'),
+    Locale('zh')
   ];
 
   /// Application title
@@ -549,6 +553,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'L'**
   String get roleLiberoAbbr;
+
+  /// Middle Blocker 1 abbreviation
+  ///
+  /// In en, this message translates to:
+  /// **'MB1'**
+  String get roleMiddleBlocker1Abbr;
+
+  /// Middle Blocker 2 abbreviation
+  ///
+  /// In en, this message translates to:
+  /// **'MB2'**
+  String get roleMiddleBlocker2Abbr;
+
+  /// Outside Hitter 1 abbreviation
+  ///
+  /// In en, this message translates to:
+  /// **'OH1'**
+  String get roleOutsideHitter1Abbr;
+
+  /// Outside Hitter 2 abbreviation
+  ///
+  /// In en, this message translates to:
+  /// **'OH2'**
+  String get roleOutsideHitter2Abbr;
 
   /// Teams menu item
   ///
@@ -1245,7 +1273,9 @@ class _AppLocalizationsDelegate
         'en',
         'es',
         'eu',
-        'fr'
+        'fr',
+        'ja',
+        'zh'
       ].contains(locale.languageCode);
 
   @override
@@ -1267,6 +1297,10 @@ AppLocalizations lookupAppLocalizations(Locale locale) {
       return AppLocalizationsEu();
     case 'fr':
       return AppLocalizationsFr();
+    case 'ja':
+      return AppLocalizationsJa();
+    case 'zh':
+      return AppLocalizationsZh();
   }
 
   throw FlutterError(
