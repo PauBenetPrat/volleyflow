@@ -20,6 +20,8 @@ class FullCourtWidget extends StatefulWidget {
   final bool isZoomedOnRight;
   final Offset? ballPosition;
   final Function(Offset newPosition)? onBallMoved;
+  final String? homeTeamName;
+  final String? opponentTeamName;
 
   const FullCourtWidget({
     super.key,
@@ -39,6 +41,8 @@ class FullCourtWidget extends StatefulWidget {
     this.isZoomedOnRight = false,
     this.ballPosition,
     this.onBallMoved,
+    this.homeTeamName,
+    this.opponentTeamName,
   });
 
   @override
@@ -344,7 +348,12 @@ class _FullCourtWidgetState extends State<FullCourtWidget> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(widget.isHomeOnLeft ? 'Home Bench' : 'Opponent Bench', style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.black)),
+                            Text(
+                              widget.isHomeOnLeft 
+                                ? (widget.homeTeamName ?? 'Home Bench') 
+                                : (widget.opponentTeamName ?? 'Opponent Bench'), 
+                              style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.black)
+                            ),
                             Expanded(
                               child: ListView.builder(
                                 scrollDirection: Axis.horizontal,
@@ -375,7 +384,12 @@ class _FullCourtWidgetState extends State<FullCourtWidget> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
-                            Text(widget.isHomeOnLeft ? 'Opponent Bench' : 'Home Bench', style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.black)),
+                            Text(
+                              widget.isHomeOnLeft 
+                                ? (widget.opponentTeamName ?? 'Opponent Bench') 
+                                : (widget.homeTeamName ?? 'Home Bench'), 
+                              style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.black)
+                            ),
                             Expanded(
                               child: ListView.builder(
                                 scrollDirection: Axis.horizontal,
@@ -575,40 +589,70 @@ class FullCourtPainter extends CustomPainter {
       final player = players[id];
       final label = player?.number?.toString() ?? player?.getInitials() ?? '?';
       
-      // Draw Player Shape
-      final playerPaint = Paint()..color = color;
-      
+      // Draw Player Shape (With Volume)
+      final center = Offset(drawX, drawY);
+      final path = Path();
+      const radius = 28.0;
+
       // Check if in Front Zone (Attack Line to Net)
       final isFrontRow = (pos.dx > 0.66 && pos.dx < 1.0) || (pos.dx > 1.0 && pos.dx < 1.33);
-      
+
       if (isFrontRow) {
         // Draw Triangle pointing toward net
-        final path = Path();
         final isLeftSide = pos.dx < 1.0;
         
         if (isLeftSide) {
           // Point right
-          path.moveTo(drawX + 20, drawY); // Right point
-          path.lineTo(drawX - 20, drawY - 20); // Top left
-          path.lineTo(drawX - 20, drawY + 20); // Bottom left
+          path.moveTo(center.dx + radius, center.dy); // Right point
+          path.lineTo(center.dx - radius, center.dy - radius); // Top left
+          path.lineTo(center.dx - radius, center.dy + radius); // Bottom left
         } else {
           // Point left
-          path.moveTo(drawX - 20, drawY); // Left point
-          path.lineTo(drawX + 20, drawY - 20); // Top right
-          path.lineTo(drawX + 20, drawY + 20); // Bottom right
+          path.moveTo(center.dx - radius, center.dy); // Left point
+          path.lineTo(center.dx + radius, center.dy - radius); // Top right
+          path.lineTo(center.dx + radius, center.dy + radius); // Bottom right
         }
-        
         path.close();
-        canvas.drawPath(path, playerPaint);
       } else {
         // Draw Circle
-        canvas.drawCircle(Offset(drawX, drawY), 20, playerPaint);
+        path.addOval(Rect.fromCircle(center: center, radius: radius));
       }
+      
+      // Draw Shadow
+      canvas.drawShadow(path, Colors.black, 6.0, true);
+      
+      // Draw Gradient Fill (3D Effect)
+      final gradient = RadialGradient(
+        center: const Alignment(-0.3, -0.3),
+        colors: [
+          Color.lerp(color, Colors.white, 0.3)!, 
+          color, 
+          Color.lerp(color, Colors.black, 0.2)!,
+        ],
+        stops: const [0.0, 0.5, 1.0],
+      ).createShader(Rect.fromCircle(center: center, radius: radius));
+      
+      final shapePaint = Paint()..shader = gradient;
+      canvas.drawPath(path, shapePaint);
+      
+      // Draw Border
+      final borderPaint = Paint()
+        ..color = Colors.white.withValues(alpha: 0.5)
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1.5;
+      canvas.drawPath(path, borderPaint);
       
       // Draw Label
       final textSpan = TextSpan(
         text: label,
-        style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
+        style: const TextStyle(
+          color: Colors.white, 
+          fontSize: 16, 
+          fontWeight: FontWeight.bold,
+          shadows: [
+            Shadow(offset: Offset(0, 1), blurRadius: 2, color: Colors.black54),
+          ]
+        ),
       );
       final textPainter = TextPainter(
         text: textSpan,

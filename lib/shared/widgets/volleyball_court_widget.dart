@@ -983,70 +983,79 @@ class VolleyballCourtPainter extends CustomPainter {
       
       // Use role color, with reduced opacity for secondary players
       // If in violation, use red color
-      final shapePaint = Paint()
-        ..style = PaintingStyle.fill
-        ..color = isInViolation
-            ? Colors.red.withValues(alpha: 0.8)
-            : (isSecondary 
-            ? roleColor.withValues(alpha: 0.7) // Lighter/dimmer for secondary
-                : roleColor);
+      // Use role color, with reduced opacity for secondary players
+      // If in violation, use red color
+      final baseColor = isInViolation ? Colors.red : roleColor;
       
       // Shadow offset for depth effect
       const shadowOffset = Offset(3.5, 3.5);
-      // Create shadow paint - use reduced opacity for secondary players to avoid light edges
-      final shadowPaint = Paint()
-        ..style = PaintingStyle.fill
-        ..color = Colors.black.withValues(alpha: isSecondary ? 0.2 : 0.5);
       
-      // Draw triangle for front row players, circle for back row players
+      // Initialize Path
+      final path = Path();
+      
       if (isFrontRow) {
         // Draw triangle pointing right (towards net) - rotated 90 degrees clockwise
         final triangleSize = playerRadius * 1.2;
-        
-        // Draw shadow first
-        final shadowTrianglePath = Path();
-        shadowTrianglePath.moveTo(currentPosition.dx + triangleSize + shadowOffset.dx, currentPosition.dy + shadowOffset.dy);
-        shadowTrianglePath.lineTo(currentPosition.dx - triangleSize * 0.5 + shadowOffset.dx, currentPosition.dy - triangleSize + shadowOffset.dy);
-        shadowTrianglePath.lineTo(currentPosition.dx - triangleSize * 0.5 + shadowOffset.dx, currentPosition.dy + triangleSize + shadowOffset.dy);
-        shadowTrianglePath.close();
-        canvas.drawPath(shadowTrianglePath, shadowPaint);
-        
-        // Draw main triangle
-        final trianglePath = Path();
-        trianglePath.moveTo(currentPosition.dx + triangleSize, currentPosition.dy); // Right point (towards net)
-        trianglePath.lineTo(currentPosition.dx - triangleSize * 0.5, currentPosition.dy - triangleSize); // Top left
-        trianglePath.lineTo(currentPosition.dx - triangleSize * 0.5, currentPosition.dy + triangleSize); // Bottom left
-        trianglePath.close();
-        
-        canvas.drawPath(trianglePath, shapePaint);
-        
-        // Draw border for secondary players or players in violation
-        if (isSecondary || isInViolation) {
-          final borderPaint = Paint()
-            ..style = PaintingStyle.stroke
-            ..color = isInViolation ? Colors.red : roleColor
-            ..strokeWidth = isInViolation ? 3.0 : 2.0;
-          canvas.drawPath(trianglePath, borderPaint);
-        }
+        path.moveTo(currentPosition.dx + triangleSize, currentPosition.dy); // Right point (towards net)
+        path.lineTo(currentPosition.dx - triangleSize * 0.5, currentPosition.dy - triangleSize); // Top left
+        path.lineTo(currentPosition.dx - triangleSize * 0.5, currentPosition.dy + triangleSize); // Bottom left
+        path.close();
       } else {
-        // Draw shadow circle first
-        canvas.drawCircle(
-          Offset(currentPosition.dx + shadowOffset.dx, currentPosition.dy + shadowOffset.dy),
-          playerRadius,
-          shadowPaint,
-        );
+        // Draw Circle
+        path.addOval(Rect.fromCircle(center: currentPosition, radius: playerRadius));
+      }
+
+      // Draw Shadow
+      canvas.drawShadow(path, Colors.black, isSecondary ? 2.0 : 4.0, true);
+
+      // Draw Gradient Fill (3D Effect)
+      final gradient = RadialGradient(
+        center: const Alignment(-0.3, -0.3),
+        colors: [
+          Color.lerp(baseColor, Colors.white, 0.3)!, 
+          baseColor, 
+          Color.lerp(baseColor, Colors.black, 0.2)!,
+        ],
+        stops: const [0.0, 0.5, 1.0],
+      ).createShader(path.getBounds());
+
+      final shapePaint = Paint()
+        ..shader = gradient
+        ..style = PaintingStyle.fill;
         
-        // Draw circle for back row players
-        canvas.drawCircle(currentPosition, playerRadius, shapePaint);
-      
-        // Draw border for secondary players or players in violation
-        if (isSecondary || isInViolation) {
+      if (isSecondary) {
+        shapePaint.color = baseColor.withValues(alpha: 0.7); // Apply opacity if basic color used (fallback)
+        // Note: Shader ignores paint color usually, but keeping it robust.
+        // Actually, to make gradient transparent for secondary players, we should adjust gradient colors.
+        // Re-creating gradient for secondary if needed:
+         final secondaryGradient = RadialGradient(
+          center: const Alignment(-0.3, -0.3),
+          colors: [
+            Color.lerp(baseColor, Colors.white, 0.3)!.withValues(alpha: 0.7), 
+            baseColor.withValues(alpha: 0.7), 
+            Color.lerp(baseColor, Colors.black, 0.2)!.withValues(alpha: 0.7),
+          ],
+          stops: const [0.0, 0.5, 1.0],
+        ).createShader(path.getBounds());
+        shapePaint.shader = secondaryGradient;
+      }
+
+      canvas.drawPath(path, shapePaint);
+
+      // Draw border for secondary players or players in violation
+      if (isSecondary || isInViolation) {
         final borderPaint = Paint()
           ..style = PaintingStyle.stroke
-            ..color = isInViolation ? Colors.red : roleColor
-            ..strokeWidth = isInViolation ? 3.0 : 2.0;
-        canvas.drawCircle(currentPosition, playerRadius, borderPaint);
-        }
+          ..color = isInViolation ? Colors.red : roleColor
+          ..strokeWidth = isInViolation ? 3.0 : 2.0;
+        canvas.drawPath(path, borderPaint);
+      } else {
+        // Subtle white border for normal players
+         final borderPaint = Paint()
+          ..style = PaintingStyle.stroke
+          ..color = Colors.white.withValues(alpha: 0.5)
+          ..strokeWidth = 1.5;
+        canvas.drawPath(path, borderPaint);
       }
       
       // Draw player role with smaller text and contrasting white color
@@ -1197,25 +1206,60 @@ class BenchPainter extends CustomPainter {
         final playerPos = Offset(benchX, benchY);
 
         // Get color for this player role
+        // Get color for this player role
         final roleColor = getRoleColor(role);
         final isSecondary = role == 'C2' || role == 'R2';
 
-        // Draw circle for bench players
+        // Draw circle for bench players with Volume
+        
+        // Shadow
+        final path = Path()..addOval(Rect.fromCircle(center: playerPos, radius: playerRadius));
+        canvas.drawShadow(path, Colors.black, isSecondary ? 2.0 : 4.0, true);
+
+        // Gradient
+        final baseColor = roleColor;
+        final gradient = RadialGradient(
+          center: const Alignment(-0.3, -0.3),
+          colors: [
+            Color.lerp(baseColor, Colors.white, 0.3)!, 
+            baseColor, 
+            Color.lerp(baseColor, Colors.black, 0.2)!,
+          ],
+          stops: const [0.0, 0.5, 1.0],
+        ).createShader(path.getBounds());
+
         final shapePaint = Paint()
-          ..style = PaintingStyle.fill
-          ..color = isSecondary 
-              ? roleColor.withValues(alpha: 0.7) 
-              : roleColor;
+          ..shader = gradient
+          ..style = PaintingStyle.fill;
+          
+        if (isSecondary) {
+           final secondaryGradient = RadialGradient(
+            center: const Alignment(-0.3, -0.3),
+            colors: [
+              Color.lerp(baseColor, Colors.white, 0.3)!.withValues(alpha: 0.7), 
+              baseColor.withValues(alpha: 0.7), 
+              Color.lerp(baseColor, Colors.black, 0.2)!.withValues(alpha: 0.7),
+            ],
+            stops: const [0.0, 0.5, 1.0],
+          ).createShader(path.getBounds());
+          shapePaint.shader = secondaryGradient;
+        }
+
+        canvas.drawPath(path, shapePaint);
         
-        canvas.drawCircle(playerPos, playerRadius, shapePaint);
-        
-        // Draw border for secondary players
+        // Draw border for secondary players or subtle border for others
         if (isSecondary) {
           final borderPaint = Paint()
             ..style = PaintingStyle.stroke
             ..color = roleColor
             ..strokeWidth = 2.0;
-          canvas.drawCircle(playerPos, playerRadius, borderPaint);
+          canvas.drawPath(path, borderPaint);
+        } else {
+           final borderPaint = Paint()
+            ..style = PaintingStyle.stroke
+            ..color = Colors.white.withValues(alpha: 0.5)
+            ..strokeWidth = 1.5;
+          canvas.drawPath(path, borderPaint);
         }
         
         // Draw player role text
@@ -1225,6 +1269,9 @@ class BenchPainter extends CustomPainter {
             color: Colors.white,
             fontSize: playerRadius * 0.9,
             fontWeight: isSecondary ? FontWeight.w600 : FontWeight.bold,
+            shadows: [
+              Shadow(offset: Offset(0, 1), blurRadius: 2, color: Colors.black54),
+            ]
           ),
         );
         final textPainter = TextPainter(

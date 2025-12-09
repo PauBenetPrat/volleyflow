@@ -29,7 +29,7 @@ class FullCourtRotationsPage extends ConsumerStatefulWidget {
   ConsumerState<FullCourtRotationsPage> createState() => _FullCourtRotationsPageState();
 }
 
-class _FullCourtRotationsPageState extends ConsumerState<FullCourtRotationsPage> with WidgetsBindingObserver {
+class _FullCourtRotationsPageState extends ConsumerState<FullCourtRotationsPage> with WidgetsBindingObserver, TickerProviderStateMixin {
   // State
   final Map<String, Offset> _playerPositions = {}; // ID -> Position
   final Map<String, Player> _players = {}; // ID -> Player
@@ -109,6 +109,10 @@ class _FullCourtRotationsPageState extends ConsumerState<FullCourtRotationsPage>
 
   @override
   void dispose() {
+    // Dispose animation controllers
+    _homeScoreAnimationController.dispose();
+    _opponentScoreAnimationController.dispose();
+
     // Restore all orientations when leaving the page
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
@@ -504,10 +508,51 @@ class _FullCourtRotationsPageState extends ConsumerState<FullCourtRotationsPage>
   bool? _firstServerOfSet; // true = Home, false = Opponent
   bool _set5SwitchDone = false; // Track if court switch at 8 points in set 5 has been done
 
+  // Animation controllers for score changes
+  late AnimationController _homeScoreAnimationController;
+  late AnimationController _opponentScoreAnimationController;
+  late Animation<double> _homeScoreAnimation;
+  late Animation<double> _opponentScoreAnimation;
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    
+    // Initialize animation controllers
+    _homeScoreAnimationController = AnimationController(
+      duration: const Duration(milliseconds: 200), // Fast expansion
+      vsync: this,
+    )..addStatusListener((status) {
+      if (status == AnimationStatus.completed) {
+        _homeScoreAnimationController.reverse();
+      }
+    });
+
+    _opponentScoreAnimationController = AnimationController(
+      duration: const Duration(milliseconds: 200), // Fast expansion
+      vsync: this,
+    )..addStatusListener((status) {
+      if (status == AnimationStatus.completed) {
+        _opponentScoreAnimationController.reverse();
+      }
+    });
+    
+    // Create scale animations (1.0 -> 1.5 -> 1.0)
+    _homeScoreAnimation = Tween<double>(begin: 1.0, end: 1.5).animate(
+      CurvedAnimation(
+        parent: _homeScoreAnimationController,
+        curve: Curves.easeOut, // Fast out
+        reverseCurve: Curves.easeIn, // Fast in
+      ),
+    );
+    _opponentScoreAnimation = Tween<double>(begin: 1.0, end: 1.5).animate(
+      CurvedAnimation(
+        parent: _opponentScoreAnimationController,
+        curve: Curves.easeOut,
+        reverseCurve: Curves.easeIn,
+      ),
+    );
     
     // Force landscape orientation for better court visualization
     SystemChrome.setPreferredOrientations([
@@ -594,7 +639,9 @@ class _FullCourtRotationsPageState extends ConsumerState<FullCourtRotationsPage>
   }
 
   void _saveMatchState() {
+    final currentLogs = ref.read(matchStateProvider)?.logs ?? [];
     final currentState = MatchState(
+      logs: currentLogs,
       matchRoster: widget.matchRoster,
       playerPositions: _playerPositions.map((k, v) => MapEntry(k, ui.Offset(v.dx, v.dy))),
       players: _players,
@@ -639,6 +686,13 @@ class _FullCourtRotationsPageState extends ConsumerState<FullCourtRotationsPage>
   }
 
   void _incrementScore(bool isHome, {bool isAce = false}) {
+    // Trigger animation for the scoring team
+    if (isHome) {
+      _homeScoreAnimationController.forward(from: 0.0);
+    } else {
+      _opponentScoreAnimationController.forward(from: 0.0);
+    }
+
     // 1. Record the point log BEFORE updating the score (or after, depending on preference - usually we log the RESULTING score)
     // Let's calculate the resulting score first
     final newHomeScore = isHome ? _homeScore + 1 : _homeScore;
@@ -701,6 +755,81 @@ class _FullCourtRotationsPageState extends ConsumerState<FullCourtRotationsPage>
       
       _checkSetWin();
     });
+    _saveMatchState();
+  }
+
+  void _undoLastPoint() {
+    final state = ref.read(matchStateProvider);
+    if (state == null) return;
+    if (state.logs.isEmpty) return;
+
+    // Remove last log from provider
+    ref.read(matchStateProvider.notifier).removeLastLog();
+    
+    // Get parameters from the NEW last log (or initial state)
+    final updatedLogs = ref.read(matchStateProvider)?.logs ?? [];
+    
+    int targetHomeScore = 0;
+    int targetOpponentScore = 0;
+    int targetHomeRotation = 1;
+    int targetOpponentRotation = 1;
+    int targetSet = 1;
+    
+    if (updatedLogs.isNotEmpty) {
+      final lastLog = updatedLogs.last;
+      targetHomeScore = lastLog.homeScore;
+      targetOpponentScore = lastLog.opponentScore;
+      targetHomeRotation = lastLog.homeRotation;
+      targetOpponentRotation = lastLog.opponentRotation;
+      targetSet = lastLog.setNumber;
+    }
+    
+    // Determine Rotations to Undo
+    // Since _rotateSide is async/setState based, we calculating trigger condition first
+    bool undoHomeRotation = false;
+    bool undoOpponentRotation = false;
+    
+    if (_homeRotation == (targetHomeRotation % 6) + 1) {
+      undoHomeRotation = true;
+    }
+    if (_opponentRotation == (targetOpponentRotation % 6) + 1) {
+      undoOpponentRotation = true;
+    }
+    
+    setState(() {
+      _homeScore = targetHomeScore;
+      _opponentScore = targetOpponentScore;
+      _currentSet = targetSet;
+      
+      // Determine Serve
+      if (updatedLogs.isEmpty) {
+         if (_firstServerOfSet != null) {
+            _isHomeServing = _firstServerOfSet!;
+         }
+      } else {
+         final lastLog = updatedLogs.last;
+         int prevHomeScore = 0;
+         if (updatedLogs.length > 1) {
+             prevHomeScore = updatedLogs[updatedLogs.length - 2].homeScore;
+         }
+         
+         if (lastLog.homeScore > prevHomeScore) {
+             _isHomeServing = true;
+         } else {
+             _isHomeServing = false;
+         }
+      }
+    });
+
+    // Execute rotation undo if needed
+    if (undoHomeRotation) {
+      _rotateSide(true, clockwise: false);
+    }
+    if (undoOpponentRotation) {
+      _rotateSide(false, clockwise: false);
+    }
+    
+    _updateBallPositionForServe();
     _saveMatchState();
   }
 
@@ -997,6 +1126,13 @@ class _FullCourtRotationsPageState extends ConsumerState<FullCourtRotationsPage>
     _showFirstServeDialog();
   }
 
+  String _getInitials(String name) {
+    final parts = name.trim().split(' ');
+    if (parts.isEmpty) return '';
+    if (parts.length == 1) return parts[0][0].toUpperCase();
+    return '${parts[0][0]}${parts[parts.length - 1][0]}'.toUpperCase();
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
@@ -1015,23 +1151,37 @@ class _FullCourtRotationsPageState extends ConsumerState<FullCourtRotationsPage>
 
     final homeName = widget.team.name;
     final oppName = widget.matchRoster?.rivalName ?? 'Opponent';
+    final homeInitials = widget.team.getInitials();
+    final oppInitials = _getInitials(oppName);
 
     return Scaffold(
-      appBar: AppBar(
+        appBar: AppBar(
         title: Column(
           children: [
             Row(
               mainAxisSize: MainAxisSize.min,
-              children: _isHomeOnLeft 
-                ? [
-                    Text('$homeName $_homeScore', style: scoreStyle.copyWith(color: homeColor)),
+              children: [
+                    Text('$homeInitials ', style: scoreStyle.copyWith(color: homeColor)),
+                    AnimatedBuilder(
+                      animation: _homeScoreAnimation,
+                      builder: (context, child) {
+                        return Transform.scale(
+                          scale: _homeScoreAnimation.value,
+                          child: Text('$_homeScore', style: scoreStyle.copyWith(color: homeColor)),
+                        );
+                      },
+                    ),
                     Text(' - ', style: scoreStyle.copyWith(color: isLight ? Colors.black : Colors.white)),
-                    Text('$_opponentScore $oppName', style: scoreStyle.copyWith(color: oppColor)),
-                  ]
-                : [
-                    Text('$oppName $_opponentScore', style: scoreStyle.copyWith(color: oppColor)),
-                    Text(' - ', style: scoreStyle.copyWith(color: isLight ? Colors.black : Colors.white)),
-                    Text('$_homeScore $homeName', style: scoreStyle.copyWith(color: homeColor)),
+                    AnimatedBuilder(
+                      animation: _opponentScoreAnimation,
+                      builder: (context, child) {
+                        return Transform.scale(
+                          scale: _opponentScoreAnimation.value,
+                          child: Text('$_opponentScore', style: scoreStyle.copyWith(color: oppColor)),
+                        );
+                      },
+                    ),
+                    Text(' $oppInitials', style: scoreStyle.copyWith(color: oppColor)),
                   ],
             ),
             Text(
@@ -1044,6 +1194,11 @@ class _FullCourtRotationsPageState extends ConsumerState<FullCourtRotationsPage>
         ),
         centerTitle: true,
         actions: [
+          IconButton(
+            icon: const Icon(Icons.undo),
+            onPressed: _undoLastPoint,
+            tooltip: 'Undo Last Point',
+          ),
           IconButton(
             icon: const Icon(Icons.copy_all),
             onPressed: _exportMatchLog,
@@ -1133,10 +1288,6 @@ class _FullCourtRotationsPageState extends ConsumerState<FullCourtRotationsPage>
                    const SizedBox(width: 56)
                 else ...[
                   Text(
-                    _isHomeOnLeft ? homeName : oppName,
-                    style: const TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  Text(
                     'R${_isHomeOnLeft ? _homeRotation : _opponentRotation}',
                     style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                   ),
@@ -1177,7 +1328,7 @@ class _FullCourtRotationsPageState extends ConsumerState<FullCourtRotationsPage>
                     ),
                   ),
                   const SizedBox(height: 4),
-                  Text(_isHomeOnLeft ? '$homeName Rot' : '$oppName Rot', style: const TextStyle(fontSize: 10)),
+                  // Removed text description
                 ],
               ],
             ),
@@ -1210,6 +1361,8 @@ class _FullCourtRotationsPageState extends ConsumerState<FullCourtRotationsPage>
                 });
                 _saveMatchState();
               },
+              homeTeamName: homeName,
+              opponentTeamName: oppName,
             ),
           ),
           
@@ -1226,10 +1379,6 @@ class _FullCourtRotationsPageState extends ConsumerState<FullCourtRotationsPage>
                      icon: const Icon(Icons.play_arrow),
                    )
                 else ...[
-                  Text(
-                    _isHomeOnLeft ? oppName : homeName,
-                    style: const TextStyle(fontWeight: FontWeight.bold),
-                  ),
                   Text(
                     'R${_isHomeOnLeft ? _opponentRotation : _homeRotation}',
                     style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
@@ -1271,7 +1420,7 @@ class _FullCourtRotationsPageState extends ConsumerState<FullCourtRotationsPage>
                     ),
                   ),
                   const SizedBox(height: 4),
-                  Text(!_isHomeOnLeft ? '$homeName Rot' : '$oppName Rot', style: const TextStyle(fontSize: 10)),
+                  // Removed text description
                 ],
               ],
             ),

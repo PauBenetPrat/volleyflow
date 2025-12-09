@@ -16,30 +16,50 @@ class PlayerPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final center = Offset(size.width / 2, size.height / 2);
-    final playerPaint = Paint()..color = color;
-
+    
+    // Create Path for Shadow and Shape
+    final path = Path();
     if (isFrontRow) {
-      // Draw Triangle
-      final path = Path();
-      
       if (isLeftSide) {
-        // Point right
-        path.moveTo(center.dx + 28, center.dy); // Right point
-        path.lineTo(center.dx - 28, center.dy - 28); // Top left
-        path.lineTo(center.dx - 28, center.dy + 28); // Bottom left
+        path.moveTo(center.dx + 28, center.dy);
+        path.lineTo(center.dx - 28, center.dy - 28);
+        path.lineTo(center.dx - 28, center.dy + 28);
       } else {
-        // Point left
-        path.moveTo(center.dx - 28, center.dy); // Left point
-        path.lineTo(center.dx + 28, center.dy - 28); // Top right
-        path.lineTo(center.dx + 28, center.dy + 28); // Bottom right
+        path.moveTo(center.dx - 28, center.dy);
+        path.lineTo(center.dx + 28, center.dy - 28);
+        path.lineTo(center.dx + 28, center.dy + 28);
       }
-      
       path.close();
-      canvas.drawPath(path, playerPaint);
     } else {
-      // Draw Circle
-      canvas.drawCircle(center, 28, playerPaint);
+      path.addOval(Rect.fromCircle(center: center, radius: 28));
     }
+
+    // Draw Shadow
+    canvas.drawShadow(path, Colors.black, 6.0, true);
+
+    // Draw Gradient Fill (3D Effect)
+    final gradient = RadialGradient(
+      center: const Alignment(-0.3, -0.3), // Top-left light source
+      colors: [
+        Color.lerp(color, Colors.white, 0.3)!, // Highlight
+        color, // Main color
+        Color.lerp(color, Colors.black, 0.2)!, // Shadow side
+      ],
+      stops: const [0.0, 0.5, 1.0],
+    );
+
+    final paint = Paint()
+      ..shader = gradient.createShader(Rect.fromCircle(center: center, radius: 28));
+    
+    canvas.drawPath(path, paint);
+    
+    // Draw Border for contrast
+    final borderPaint = Paint()
+      ..color = Colors.white.withValues(alpha: 0.5)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.5;
+    
+    canvas.drawPath(path, borderPaint);
 
     // Draw Label
     final textSpan = TextSpan(
@@ -48,6 +68,9 @@ class PlayerPainter extends CustomPainter {
         color: Colors.white,
         fontSize: 16,
         fontWeight: FontWeight.bold,
+        shadows: [
+          Shadow(offset: Offset(0, 1), blurRadius: 2, color: Colors.black54),
+        ]
       ),
     );
     final textPainter = TextPainter(

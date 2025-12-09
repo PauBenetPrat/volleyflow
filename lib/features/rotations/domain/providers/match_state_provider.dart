@@ -61,6 +61,18 @@ class MatchStateNotifier extends Notifier<MatchState?> {
     _saveToDatabase();
   }
 
+  void removeLastLog() {
+    if (state == null || state!.logs.isEmpty) return;
+    
+    // Remove from state
+    final updatedLogs = List<PointLog>.from(state!.logs)..removeLast();
+    state = state!.copyWith(logs: updatedLogs);
+    
+    // Remove from DB
+    DatabaseHelper.instance.deleteLastLog(state!.matchRoster?.id);
+    _saveToDatabase();
+  }
+
   void resetMatch() {
     state = null;
     DatabaseHelper.instance.clearMatchState();

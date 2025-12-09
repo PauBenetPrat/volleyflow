@@ -8,8 +8,16 @@ import 'core/theme/app_theme.dart';
 import 'core/providers/locale_provider.dart';
 import 'core/config/supabase_config.dart';
 
+import 'package:flutter/foundation.dart';
+import 'package:sqflite_common_ffi_web/sqflite_ffi_web.dart';
+import 'package:sqflite/sqflite.dart';
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  
+  if (kIsWeb) {
+    databaseFactory = databaseFactoryFfiWeb;
+  }
   
   // Initialize Supabase
   await Supabase.initialize(

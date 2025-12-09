@@ -131,4 +131,22 @@ class DatabaseHelper {
     final db = await database;
     await db.delete('point_logs');
   }
+
+  Future<void> deleteLastLog(String? matchRosterId) async {
+    final db = await database;
+    // Get the last log ID
+    final lastLogList = await db.query(
+      'point_logs',
+      columns: ['id'],
+      where: matchRosterId != null ? 'match_roster_id = ?' : null,
+      whereArgs: matchRosterId != null ? [matchRosterId] : null,
+      orderBy: 'timestamp DESC',
+      limit: 1,
+    );
+    
+    if (lastLogList.isNotEmpty) {
+      final id = lastLogList.first['id'];
+      await db.delete('point_logs', where: 'id = ?', whereArgs: [id]);
+    }
+  }
 }
