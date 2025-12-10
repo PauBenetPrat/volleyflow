@@ -632,7 +632,9 @@ class _RotationsPageState extends ConsumerState<RotationsPage> {
                 ),
               ],
               const SizedBox(height: 4),
-              FloatingActionButton.small(
+              // Copy coordinates button (only in debug mode)
+              if (kDebugMode)
+               FloatingActionButton.small(
                 heroTag: 'copy-landscape',
                 elevation: 0,
                 onPressed: () {
@@ -1126,19 +1128,20 @@ class _RotationsPageState extends ConsumerState<RotationsPage> {
                   Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      // Copy coordinates button
-                      FloatingActionButton.small(
-                        heroTag: 'copy',
-                        elevation: 0,
-                        onPressed: () {
-                          _showPinDialog(context, ref, l10n, theme);
-                        },
-                        backgroundColor: theme.colorScheme.surface,
-                        child: Icon(
-                          Icons.copy,
-                          color: theme.colorScheme.onSurface,
+                      // Copy coordinates button (only in debug mode)
+                      if (kDebugMode)
+                        FloatingActionButton.small(
+                          heroTag: 'copy',
+                          elevation: 0,
+                          onPressed: () {
+                            _showPinDialog(context, ref, l10n, theme);
+                          },
+                          backgroundColor: theme.colorScheme.surface,
+                          child: Icon(
+                            Icons.copy,
+                            color: theme.colorScheme.onSurface,
+                          ),
                         ),
-                      ),
                       // Clear all drawings button (only visible when there are drawings)
                       if (rotationState.drawings.isNotEmpty) ...[
                         const SizedBox(width: 4),

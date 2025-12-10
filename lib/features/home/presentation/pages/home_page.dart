@@ -15,7 +15,7 @@ class HomePage extends ConsumerWidget {
     
     return Scaffold(
       appBar: AppBar(
-        title: Text(l10n.volleyballCoachingApp),
+        title: Text(l10n.appTitle),
       ),
       body: SafeArea(
         child: LayoutBuilder(
