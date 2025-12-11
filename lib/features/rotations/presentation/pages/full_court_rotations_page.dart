@@ -1137,6 +1137,8 @@ class _FullCourtRotationsPageState extends ConsumerState<FullCourtRotationsPage>
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
+    final mediaQuery = MediaQuery.of(context);
+    final safeAreaPadding = mediaQuery.padding;
     final isLight = theme.brightness == Brightness.light;
     
     // Score styling
@@ -1280,7 +1282,12 @@ class _FullCourtRotationsPageState extends ConsumerState<FullCourtRotationsPage>
         children: [
           // Left Controls
           Padding(
-            padding: const EdgeInsets.all(8.0),
+            padding: EdgeInsets.only(
+              top: 8.0 + safeAreaPadding.top,
+              bottom: 8.0 + safeAreaPadding.bottom,
+              left: 8.0 + safeAreaPadding.left,
+              right: 8.0,
+            ),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -1368,7 +1375,12 @@ class _FullCourtRotationsPageState extends ConsumerState<FullCourtRotationsPage>
           
           // Right Controls
           Padding(
-            padding: const EdgeInsets.all(8.0),
+            padding: EdgeInsets.only(
+              top: 8.0 + safeAreaPadding.top,
+              bottom: 8.0 + safeAreaPadding.bottom,
+              left: 8.0,
+              right: 8.0 + safeAreaPadding.right,
+            ),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [

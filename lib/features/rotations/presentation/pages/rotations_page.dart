@@ -107,71 +107,7 @@ class _RotationsPageState extends ConsumerState<RotationsPage> {
     return displayError;
   }
 
-  // Show dialog to select rotation system
-  void _showRotationSystemDialog(BuildContext context, WidgetRef ref, AppLocalizations l10n, ThemeData theme) {
-    showDialog(
-      context: context,
-      barrierDismissible: false, // User must select a system
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text(l10n.selectRotationSystem),
-          content: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                ListTile(
-                  title: Text(l10n.rotationSystem42NoLibero),
-                  onTap: () {
-                    ref.read(rotationProvider.notifier).setRotationSystem('4-2-no-libero');
-                    Navigator.of(context).pop();
-                  },
-                ),
-                ListTile(
-                  title: Text(l10n.rotationSystem42),
-                  onTap: () {
-                    ref.read(rotationProvider.notifier).setRotationSystem('4-2');
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(l10n.featureComingSoon(l10n.rotationSystem42)),
-                        duration: const Duration(seconds: 2),
-                      ),
-                    );
-                    Navigator.of(context).pop();
-                  },
-                ),
-                ListTile(
-                  title: Text(l10n.rotationSystem51),
-                  onTap: () {
-                    ref.read(rotationProvider.notifier).setRotationSystem('5-1');
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(l10n.featureComingSoon(l10n.rotationSystem51)),
-                        duration: const Duration(seconds: 2),
-                      ),
-                    );
-                    Navigator.of(context).pop();
-                  },
-                ),
-                ListTile(
-                  title: Text(l10n.rotationSystemPlayers),
-                  onTap: () {
-                    ref.read(rotationProvider.notifier).setRotationSystem('Players');
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(l10n.featureComingSoon(l10n.rotationSystemPlayers)),
-                        duration: const Duration(seconds: 2),
-                      ),
-                    );
-                    Navigator.of(context).pop();
-                  },
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -303,33 +239,7 @@ class _RotationsPageState extends ConsumerState<RotationsPage> {
       ],
     );
 
-    // Rotation indicator
-    Widget rotationIndicator = Container(
-      width: isSmallScreen ? 50 : 60,
-      height: isSmallScreen ? 50 : 60,
-      margin: EdgeInsets.only(bottom: isSmallScreen ? 16.0 : 24.0),
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: theme.colorScheme.primary,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.2),
-            blurRadius: 4,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Center(
-        child: Text(
-          'R$currentRotation',
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: isSmallScreen ? 16 : 20,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-      ),
-    );
+
 
     // Left side panel (phases buttons for landscape mode)
     Widget leftPanel = Container(
@@ -474,37 +384,16 @@ class _RotationsPageState extends ConsumerState<RotationsPage> {
       );
     }
 
-    // Right side panel (phases and rotation button aligned vertically) - for portrait mode
-    Widget rightPanel = Container(
-      width: isSmallScreen ? (isVerySmallScreen ? 80 : 100) : 120,
-      padding: EdgeInsets.symmetric(
-        vertical: isSmallScreen ? 12.0 : 16.0,
-        horizontal: isSmallScreen ? 4.0 : 8.0,
-      ),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surface,
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          phaseButtons,
-          const SizedBox(height: 16),
-          _RotateButton(
-            currentRotation: currentRotation,
-            isSmallScreen: isSmallScreen,
-            isVerySmallScreen: isVerySmallScreen,
-            isCircular: true,
-          ),
-        ],
-      ),
-    );
+
 
     // Right side panel for landscape mode (action buttons and rotation button)
     Widget rightPanelLandscape = Container(
-      width: isSmallScreen ? (isVerySmallScreen ? 80 : 100) : 120,
-      padding: EdgeInsets.symmetric(
-        vertical: isSmallScreen ? 12.0 : 16.0,
-        horizontal: isSmallScreen ? 4.0 : 8.0,
+      width: (isSmallScreen ? (isVerySmallScreen ? 80 : 100) : 120) + mediaQuery.padding.right,
+      padding: EdgeInsets.only(
+        top: isSmallScreen ? 12.0 : 16.0,
+        bottom: isSmallScreen ? 12.0 : 16.0,
+        left: isSmallScreen ? 4.0 : 8.0,
+        right: (isSmallScreen ? 4.0 : 8.0) + mediaQuery.padding.right,
       ),
       decoration: BoxDecoration(
         color: theme.colorScheme.surface,
@@ -674,21 +563,7 @@ class _RotationsPageState extends ConsumerState<RotationsPage> {
       ),
     );
 
-    // Get display name for current rotation system
-    String getRotationSystemDisplayName() {
-      switch (rotationState.rotationSystem) {
-        case '4-2':
-          return l10n.rotationSystem42;
-        case '4-2-no-libero':
-          return l10n.rotationSystem42NoLibero;
-        case '5-1':
-          return l10n.rotationSystem51;
-        case 'Players':
-          return l10n.rotationSystemPlayers;
-        default:
-          return l10n.rotationTitle;
-      }
-    }
+
 
     return Scaffold(
       body: Stack(
