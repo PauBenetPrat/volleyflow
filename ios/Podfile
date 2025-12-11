@@ -1,5 +1,5 @@
 # Uncomment this line to define a global platform for your project
-# platform :ios, '13.0'
+platform :ios, '15.6'
 
 # CocoaPods analytics sends network stats synchronously affecting flutter build latency.
 ENV['COCOAPODS_DISABLE_STATS'] = 'true'
@@ -40,4 +40,53 @@ post_install do |installer|
   installer.pods_project.targets.each do |target|
     flutter_additional_ios_build_settings(target)
   end
+
+  # --- Prevent embedding simulator-only frameworks into device builds ---
+  require 'fileutils'
+
+  # Find frameworks that look like simulator builds (common pattern: *_sim.framework or names containing 'sim')
+  pod_sandbox_root = installer.sandbox.root
+  sim_frameworks = Dir.glob(File.join(pod_sandbox_root, '**', '*_sim.framework')) + Dir.glob(File.join(pod_sandbox_root, '**', '*sim.framework'))
+  sim_frameworks.uniq.each do |fw_path|
+    # Only act on ones inside the Pods folder to avoid accidental deletions
+    if fw_path.include?(File.join('Pods', ''))
+      UI.message("[post_install] Removing simulator-only framework from Pods sandbox: #{fw_path}")
+      begin
+        FileUtils.rm_rf(fw_path)
+      rescue => e
+        UI.warn("[post_install] Failed to remove simulator framework #{fw_path}: #{e}")
+      end
+    end
+  end
+
+  # Remove any file references to simulator frameworks from Pod targets' embed phases so they don't get packaged
+  installer.pods_project.targets.each do |target|
+    target.build_phases.each do |bp|
+      begin
+        next unless bp.respond_to?(:files)
+        files = bp.files.to_a
+        files.each do |file_ref|
+          begin
+            path = nil
+            # Try a few ways to get the referenced file path
+            if file_ref.respond_to?(:file_ref) && file_ref.file_ref
+              path = file_ref.file_ref.path.to_s
+            elsif file_ref.respond_to?(:display_name)
+              path = file_ref.display_name.to_s
+            end
+
+            if path && path =~ /_sim\.framework|sim\.framework/
+              UI.message("[post_install] Removing reference to simulator framework from #{target.name}: #{path}")
+              file_ref.remove_from_project
+            end
+          rescue => inner_e
+            UI.warn("[post_install] Error inspecting/removing file reference in #{target.name}: #{inner_e}")
+          end
+        end
+      rescue => e
+        UI.warn("[post_install] Error processing build phase for target #{target.name}: #{e}")
+      end
+    end
+  end
+  # --- end simulator-framework removal ---
 end
