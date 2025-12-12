@@ -859,7 +859,7 @@ class _FullCourtRotationsPageState extends ConsumerState<FullCourtRotationsPage>
   void _showFirstServeDialog() {
     final l10n = AppLocalizations.of(context)!;
     final homeName = widget.team.name;
-    final oppName = widget.matchRoster?.rivalName ?? 'Opponent';
+    final oppName = widget.matchRoster?.rivalName ?? l10n.opponent;
     
     showDialog(
       context: context,
@@ -945,7 +945,7 @@ class _FullCourtRotationsPageState extends ConsumerState<FullCourtRotationsPage>
   void _showSetWinDialog(bool homeWon) {
     final l10n = AppLocalizations.of(context)!;
     final homeName = widget.team.name;
-    final oppName = widget.matchRoster?.rivalName ?? 'Opponent';
+    final oppName = widget.matchRoster?.rivalName ?? l10n.opponent;
     final winner = homeWon ? homeName : oppName;
     
     // Check Match Win
@@ -1118,7 +1118,7 @@ class _FullCourtRotationsPageState extends ConsumerState<FullCourtRotationsPage>
         
     if (homePlayersOnCourt < 6) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please place 6 players on the court to start.')),
+        SnackBar(content: Text(l10n.placeSixPlayersToStart)),
       );
       return;
     }
@@ -1152,7 +1152,7 @@ class _FullCourtRotationsPageState extends ConsumerState<FullCourtRotationsPage>
     final setsStyle = TextStyle(fontSize: 14, fontWeight: FontWeight.normal);
 
     final homeName = widget.team.name;
-    final oppName = widget.matchRoster?.rivalName ?? 'Opponent';
+    final oppName = widget.matchRoster?.rivalName ?? l10n.opponent;
     final homeInitials = widget.team.getInitials();
     final oppInitials = _getInitials(oppName);
 
@@ -1199,12 +1199,12 @@ class _FullCourtRotationsPageState extends ConsumerState<FullCourtRotationsPage>
           IconButton(
             icon: const Icon(Icons.undo),
             onPressed: _undoLastPoint,
-            tooltip: 'Undo Last Point',
+            tooltip: l10n.undoLastPointTooltip,
           ),
           IconButton(
             icon: const Icon(Icons.copy_all),
             onPressed: _exportMatchLog,
-            tooltip: 'Export Match Log (CSV)',
+            tooltip: l10n.exportMatchLogTooltip,
           ),
           IconButton(
             icon: const Icon(Icons.refresh),
@@ -1230,12 +1230,12 @@ class _FullCourtRotationsPageState extends ConsumerState<FullCourtRotationsPage>
                 ),
               );
             },
-            tooltip: 'Reset Match',
+            tooltip: l10n.resetMatchTooltip,
           ),
           IconButton(
             icon: const Icon(Icons.swap_horiz),
             onPressed: _rotateField,
-            tooltip: 'Switch Sides',
+            tooltip: l10n.switchSidesTooltip,
           ),
           IconButton(
             icon: Icon(_isZoomed ? Icons.zoom_out : Icons.zoom_in),
@@ -1244,7 +1244,7 @@ class _FullCourtRotationsPageState extends ConsumerState<FullCourtRotationsPage>
                 _isZoomed = !_isZoomed;
               });
             },
-            tooltip: 'Zoom',
+            tooltip: l10n.zoomTooltip,
           ),
           IconButton(
             icon: Icon(_showPlayerNumbers ? Icons.badge : Icons.person),
@@ -1262,18 +1262,18 @@ class _FullCourtRotationsPageState extends ConsumerState<FullCourtRotationsPage>
                 _isDrawingMode = !_isDrawingMode;
               });
             },
-            tooltip: 'Drawing Mode',
+            tooltip: l10n.drawingModeTooltip,
           ),
           if (_isDrawingMode) ...[
             IconButton(
               icon: const Icon(Icons.undo),
               onPressed: () => _controller.undo(),
-              tooltip: 'Undo',
+              tooltip: l10n.undoTooltip,
             ),
             IconButton(
               icon: const Icon(Icons.delete_outline),
               onPressed: () => _controller.clear(),
-              tooltip: 'Clear All',
+              tooltip: l10n.clearAllTooltip,
             ),
           ],
         ],

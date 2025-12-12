@@ -1250,11 +1250,71 @@ abstract class AppLocalizations {
   /// **'Show Initials'**
   String get showInitials;
 
-  /// Tooltip for showing player numbers
+  /// Tooltip to toggle showing player numbers
   ///
   /// In en, this message translates to:
   /// **'Show Numbers'**
   String get showNumbers;
+
+  /// Default opponent team name
+  ///
+  /// In en, this message translates to:
+  /// **'Opponent'**
+  String get opponent;
+
+  /// Validation message when trying to start match without 6 players
+  ///
+  /// In en, this message translates to:
+  /// **'Please place 6 players on the court to start.'**
+  String get placeSixPlayersToStart;
+
+  /// Tooltip for reset match button
+  ///
+  /// In en, this message translates to:
+  /// **'Reset Match'**
+  String get resetMatchTooltip;
+
+  /// Tooltip for switch sides button
+  ///
+  /// In en, this message translates to:
+  /// **'Switch Sides'**
+  String get switchSidesTooltip;
+
+  /// Tooltip for drawing mode button
+  ///
+  /// In en, this message translates to:
+  /// **'Drawing Mode'**
+  String get drawingModeTooltip;
+
+  /// Tooltip for undo last point button
+  ///
+  /// In en, this message translates to:
+  /// **'Undo Last Point'**
+  String get undoLastPointTooltip;
+
+  /// Tooltip for export match log button
+  ///
+  /// In en, this message translates to:
+  /// **'Export Match Log (CSV)'**
+  String get exportMatchLogTooltip;
+
+  /// Tooltip for zoom button
+  ///
+  /// In en, this message translates to:
+  /// **'Zoom'**
+  String get zoomTooltip;
+
+  /// Tooltip for undo drawing button
+  ///
+  /// In en, this message translates to:
+  /// **'Undo'**
+  String get undoTooltip;
+
+  /// Tooltip for clear all drawings button
+  ///
+  /// In en, this message translates to:
+  /// **'Clear All'**
+  String get clearAllTooltip;
 }
 
 class _AppLocalizationsDelegate

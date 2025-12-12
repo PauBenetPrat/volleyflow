@@ -829,7 +829,46 @@
   },
   "showNumbers": "Show Numbers",
   "@showNumbers": {
-    "description": "Tooltip for showing player numbers"
+    "description": "Tooltip to toggle showing player numbers"
+  },
+  "opponent": "Opponent",
+  "@opponent": {
+    "description": "Default opponent team name"
+  },
+  "placeSixPlayersToStart": "Please place 6 players on the court to start.",
+  "@placeSixPlayersToStart": {
+    "description": "Validation message when trying to start match without 6 players"
+  },
+  "resetMatchTooltip": "Reset Match",
+  "@resetMatchTooltip": {
+    "description": "Tooltip for reset match button"
+  },
+  "switchSidesTooltip": "Switch Sides",
+  "@switchSidesTooltip": {
+    "description": "Tooltip for switch sides button"
+  },
+  "drawingModeTooltip": "Drawing Mode",
+  "@drawingModeTooltip": {
+    "description": "Tooltip for drawing mode button"
+  },
+  "undoLastPointTooltip": "Undo Last Point",
+  "@undoLastPointTooltip": {
+    "description": "Tooltip for undo last point button"
+  },
+  "exportMatchLogTooltip": "Export Match Log (CSV)",
+  "@exportMatchLogTooltip": {
+    "description": "Tooltip for export match log button"
+  },
+  "zoomTooltip": "Zoom",
+  "@zoomTooltip": {
+    "description": "Tooltip for zoom button"
+  },
+  "undoTooltip": "Undo",
+  "@undoTooltip": {
+    "description": "Tooltip for undo drawing button"
+  },
+  "clearAllTooltip": "Clear All",
+  "@clearAllTooltip": {
+    "description": "Tooltip for clear all drawings button"
   }
 }
-
