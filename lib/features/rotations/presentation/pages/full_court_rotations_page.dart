@@ -254,24 +254,15 @@ class _FullCourtRotationsPageState extends ConsumerState<FullCourtRotationsPage>
 
   void _updateBallPositionForServe() {
     setState(() {
-      if (_isHomeServing) {
-        // Home is serving
-        if (_isHomeOnLeft) {
-          // Home on left side
-          _ballPosition = const Offset(0.05, 0.9);
-        } else {
-          // Home on right side
-          _ballPosition = const Offset(1.95, 0.1);
-        }
+      // Determine which side is serving
+      final bool servingSideIsLeft = _isHomeServing ? _isHomeOnLeft : !_isHomeOnLeft;
+      
+      if (servingSideIsLeft) {
+        // Serving from left side (X < 1.0)
+        _ballPosition = const Offset(0.05, 0.9);
       } else {
-        // Opponent is serving (opposite side of home)
-        if (_isHomeOnLeft) {
-          // Opponent on right side
-          _ballPosition = const Offset(1.95, 0.1);
-        } else {
-          // Opponent on left side
-          _ballPosition = const Offset(0.05, 0.9);
-        }
+        // Serving from right side (X > 1.0)
+        _ballPosition = const Offset(1.95, 0.1);
       }
     });
   }
