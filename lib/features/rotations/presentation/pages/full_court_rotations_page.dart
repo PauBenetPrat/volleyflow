@@ -1111,6 +1111,7 @@ class _FullCourtRotationsPageState extends ConsumerState<FullCourtRotationsPage>
   }
 
   void _startMatchSetup() {
+    final l10n = AppLocalizations.of(context)!;
     // Validate 6 players
     final homePlayersOnCourt = _playerPositions.keys
         .where((id) => !id.startsWith('ghost_') && !id.startsWith('placeholder_'))
