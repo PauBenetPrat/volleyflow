@@ -60,9 +60,9 @@
   "@rotationSystem51": {
     "description": "5-1 rotation system"
   },
-  "rotationSystemPlayers": "Players",
-  "@rotationSystemPlayers": {
-    "description": "Players rotation system"
+  "rotationSystemMatch": "Match",
+  "@rotationSystemMatch": {
+    "description": "Match rotation system"
   },
   "selectRotationSystem": "Select a rotation system",
   "@selectRotationSystem": {
@@ -80,9 +80,9 @@
   "@rotationSystem51Description": {
     "description": "Description for 5-1 system"
   },
-  "rotationSystemPlayersDescription": "Custom rotation with specific players",
-  "@rotationSystemPlayersDescription": {
-    "description": "Description for Players system"
+  "rotationSystemMatchDescription": "Match rotation system",
+  "@rotationSystemMatchDescription": {
+    "description": "Description for Match system"
   },
   "featureComingSoon": "{displayName} feature coming soon!",
   "@featureComingSoon": {

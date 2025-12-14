@@ -200,11 +200,11 @@ abstract class AppLocalizations {
   /// **'5-1'**
   String get rotationSystem51;
 
-  /// Players rotation system
+  /// Match rotation system
   ///
   /// In en, this message translates to:
-  /// **'Players'**
-  String get rotationSystemPlayers;
+  /// **'Match'**
+  String get rotationSystemMatch;
 
   /// Prompt to select a rotation system
   ///
@@ -230,11 +230,11 @@ abstract class AppLocalizations {
   /// **'5-1 system with one setter'**
   String get rotationSystem51Description;
 
-  /// Description for Players system
+  /// Description for Match system
   ///
   /// In en, this message translates to:
-  /// **'Custom rotation with specific players'**
-  String get rotationSystemPlayersDescription;
+  /// **'Match rotation system'**
+  String get rotationSystemMatchDescription;
 
   /// Feature coming soon message
   ///

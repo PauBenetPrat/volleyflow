@@ -15,12 +15,12 @@
   "rotationSystem42": "4-2",
   "rotationSystem42NoLibero": "4-2 (no libero)",
   "rotationSystem51": "5-1",
-  "rotationSystemPlayers": "Jugadores",
+  "rotationSystemMatch": "Partido",
   "selectRotationSystem": "Selecciona un sistema de rotación",
   "rotationSystem42NoLiberoDescription": "Sistema 4-2 sin libero",
   "rotationSystem42Description": "Sistema 4-2 con libero",
   "rotationSystem51Description": "Sistema 5-1 con un colocador",
-  "rotationSystemPlayersDescription": "Rotación personalizada con jugadores específicos",
+  "rotationSystemMatchDescription": "Sistema de rotación para partido",
   "featureComingSoon": "¡La funcionalidad {displayName} llegará pronto!",
   "activateDrawingMode": "Activar modo dibujo",
   "deactivateDrawingMode": "Desactivar modo dibujo",
@@ -197,6 +197,16 @@
   "errorSavingRoster": "Error al guardar convocatoria: {error}",
   "noPlayersSelected": "Ningún jugador seleccionado",
   "showInitials": "Mostrar Iniciales",
-  "showNumbers": "Mostrar Números"
+  "showNumbers": "Mostrar Números",
+  "opponent": "Oponente",
+  "placeSixPlayersToStart": "Por favor, coloca 6 jugadores en la cancha para empezar.",
+  "resetMatchTooltip": "Reiniciar Partido",
+  "switchSidesTooltip": "Cambiar Lados",
+  "drawingModeTooltip": "Modo Dibujo",
+  "undoLastPointTooltip": "Deshacer Último Punto",
+  "exportMatchLogTooltip": "Exportar Registro del Partido (CSV)",
+  "zoomTooltip": "Zoom",
+  "undoTooltip": "Deshacer",
+  "clearAllTooltip": "Borrar Todo"
 }
 

@@ -79,8 +79,8 @@ class RotationSystemSelectionPage extends ConsumerWidget {
                       ),
                       const SizedBox(height: 16),
                       _RotationSystemCard(
-                        title: l10n.rotationSystemPlayers,
-                        description: l10n.rotationSystemPlayersDescription,
+                        title: l10n.rotationSystemMatch,
+                        description: l10n.rotationSystemMatchDescription,
                         icon: Icons.sports_volleyball,
                         onTap: () async {
                           final teamsState = ref.read(teamsProvider);

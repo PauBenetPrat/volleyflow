@@ -15,7 +15,7 @@ class RotationState {
   final bool isDrawingMode; // Mode de dibuix sobre el camp
   final List<List<Offset>> drawings; // Llista de traços (cada traç és una llista de punts)
   final bool showGrid; // Mostrar/amagar la graella del camp
-  final String? rotationSystem; // Sistema de rotació seleccionat: '4-2', '4-2-no-libero', '5-1', 'Players'
+  final String? rotationSystem; // Sistema de rotació seleccionat: '4-2', '4-2-no-libero', '5-1', 'Match'
 
   RotationState({
     required this.rotation,

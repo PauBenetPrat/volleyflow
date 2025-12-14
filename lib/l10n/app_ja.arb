@@ -60,9 +60,9 @@
   "@rotationSystem51": {
     "description": "5-1 rotation system"
   },
-  "rotationSystemPlayers": "プレイヤー",
-  "@rotationSystemPlayers": {
-    "description": "Players rotation system"
+  "rotationSystemMatch": "試合",
+  "@rotationSystemMatch": {
+    "description": "Match rotation system"
   },
   "selectRotationSystem": "ローテーションシステムを選択",
   "@selectRotationSystem": {
@@ -80,9 +80,9 @@
   "@rotationSystem51Description": {
     "description": "Description for 5-1 system"
   },
-  "rotationSystemPlayersDescription": "特定のプレイヤーによるカスタムローテーション",
-  "@rotationSystemPlayersDescription": {
-    "description": "Description for Players system"
+  "rotationSystemMatchDescription": "試合用ローテーションシステム",
+  "@rotationSystemMatchDescription": {
+    "description": "Description for Match system"
   },
   "featureComingSoon": "{displayName}機能は近日公開予定です！",
   "@featureComingSoon": {
@@ -794,6 +794,46 @@
   "showNumbers": "番号を表示",
   "@showNumbers": {
     "description": "Tooltip for showing player numbers"
+  },
+  "opponent": "対戦相手",
+  "@opponent": {
+    "description": "Default opponent team name"
+  },
+  "placeSixPlayersToStart": "開始するには、6人のプレイヤーをコートに配置してください。",
+  "@placeSixPlayersToStart": {
+    "description": "Validation message when trying to start match without 6 players"
+  },
+  "resetMatchTooltip": "試合リセット",
+  "@resetMatchTooltip": {
+    "description": "Tooltip for reset match button"
+  },
+  "switchSidesTooltip": "サイド切替",
+  "@switchSidesTooltip": {
+    "description": "Tooltip for switch sides button"
+  },
+  "drawingModeTooltip": "描画モード",
+  "@drawingModeTooltip": {
+    "description": "Tooltip for drawing mode button"
+  },
+  "undoLastPointTooltip": "最後のポイントを元に戻す",
+  "@undoLastPointTooltip": {
+    "description": "Tooltip for undo last point button"
+  },
+  "exportMatchLogTooltip": "試合ログをエクスポート (CSV)",
+  "@exportMatchLogTooltip": {
+    "description": "Tooltip for export match log button"
+  },
+  "zoomTooltip": "ズーム",
+  "@zoomTooltip": {
+    "description": "Tooltip for zoom button"
+  },
+  "undoTooltip": "元に戻す",
+  "@undoTooltip": {
+    "description": "Tooltip for undo drawing button"
+  },
+  "clearAllTooltip": "すべてクリア",
+  "@clearAllTooltip": {
+    "description": "Tooltip for clear all drawings button"
   }
 }
 

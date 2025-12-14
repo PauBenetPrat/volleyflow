@@ -60,9 +60,9 @@
   "@rotationSystem51": {
     "description": "5-1 rotation system"
   },
-  "rotationSystemPlayers": "球员",
-  "@rotationSystemPlayers": {
-    "description": "Players rotation system"
+  "rotationSystemMatch": "比赛",
+  "@rotationSystemMatch": {
+    "description": "Match rotation system"
   },
   "selectRotationSystem": "选择轮换系统",
   "@selectRotationSystem": {
@@ -80,9 +80,9 @@
   "@rotationSystem51Description": {
     "description": "Description for 5-1 system"
   },
-  "rotationSystemPlayersDescription": "特定球员的自定义轮换",
-  "@rotationSystemPlayersDescription": {
-    "description": "Description for Players system"
+  "rotationSystemMatchDescription": "比赛轮换系统",
+  "@rotationSystemMatchDescription": {
+    "description": "Description for Match system"
   },
   "featureComingSoon": "{displayName}功能即将推出！",
   "@featureComingSoon": {
@@ -794,6 +794,46 @@
   "showNumbers": "显示号码",
   "@showNumbers": {
     "description": "Tooltip for showing player numbers"
+  },
+  "opponent": "对手",
+  "@opponent": {
+    "description": "Default opponent team name"
+  },
+  "placeSixPlayersToStart": "请在球场上放置6名球员以开始。",
+  "@placeSixPlayersToStart": {
+    "description": "Validation message when trying to start match without 6 players"
+  },
+  "resetMatchTooltip": "重置比赛",
+  "@resetMatchTooltip": {
+    "description": "Tooltip for reset match button"
+  },
+  "switchSidesTooltip": "交换场地",
+  "@switchSidesTooltip": {
+    "description": "Tooltip for switch sides button"
+  },
+  "drawingModeTooltip": "绘图模式",
+  "@drawingModeTooltip": {
+    "description": "Tooltip for drawing mode button"
+  },
+  "undoLastPointTooltip": "撤销上一分",
+  "@undoLastPointTooltip": {
+    "description": "Tooltip for undo last point button"
+  },
+  "exportMatchLogTooltip": "导出比赛记录 (CSV)",
+  "@exportMatchLogTooltip": {
+    "description": "Tooltip for export match log button"
+  },
+  "zoomTooltip": "缩放",
+  "@zoomTooltip": {
+    "description": "Tooltip for zoom button"
+  },
+  "undoTooltip": "撤销",
+  "@undoTooltip": {
+    "description": "Tooltip for undo drawing button"
+  },
+  "clearAllTooltip": "全部清除",
+  "@clearAllTooltip": {
+    "description": "Tooltip for clear all drawings button"
   }
 }
 

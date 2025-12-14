@@ -1157,6 +1157,16 @@ class _FullCourtRotationsPageState extends ConsumerState<FullCourtRotationsPage>
     final homeInitials = widget.team.getInitials();
     final oppInitials = _getInitials(oppName);
 
+    // Determine left and right team based on field orientation
+    final leftInitials = _isHomeOnLeft ? homeInitials : oppInitials;
+    final rightInitials = _isHomeOnLeft ? oppInitials : homeInitials;
+    final leftScore = _isHomeOnLeft ? _homeScore : _opponentScore;
+    final rightScore = _isHomeOnLeft ? _opponentScore : _homeScore;
+    final leftColor = _isHomeOnLeft ? homeColor : oppColor;
+    final rightColor = _isHomeOnLeft ? oppColor : homeColor;
+    final leftAnimation = _isHomeOnLeft ? _homeScoreAnimation : _opponentScoreAnimation;
+    final rightAnimation = _isHomeOnLeft ? _opponentScoreAnimation : _homeScoreAnimation;
+
     return Scaffold(
         appBar: AppBar(
         title: Column(
@@ -1164,27 +1174,27 @@ class _FullCourtRotationsPageState extends ConsumerState<FullCourtRotationsPage>
             Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                    Text('$homeInitials ', style: scoreStyle.copyWith(color: homeColor)),
+                    Text('$leftInitials ', style: scoreStyle.copyWith(color: leftColor)),
                     AnimatedBuilder(
-                      animation: _homeScoreAnimation,
+                      animation: leftAnimation,
                       builder: (context, child) {
                         return Transform.scale(
-                          scale: _homeScoreAnimation.value,
-                          child: Text('$_homeScore', style: scoreStyle.copyWith(color: homeColor)),
+                          scale: leftAnimation.value,
+                          child: Text('$leftScore', style: scoreStyle.copyWith(color: leftColor)),
                         );
                       },
                     ),
                     Text(' - ', style: scoreStyle.copyWith(color: isLight ? Colors.black : Colors.white)),
                     AnimatedBuilder(
-                      animation: _opponentScoreAnimation,
+                      animation: rightAnimation,
                       builder: (context, child) {
                         return Transform.scale(
-                          scale: _opponentScoreAnimation.value,
-                          child: Text('$_opponentScore', style: scoreStyle.copyWith(color: oppColor)),
+                          scale: rightAnimation.value,
+                          child: Text('$rightScore', style: scoreStyle.copyWith(color: rightColor)),
                         );
                       },
                     ),
-                    Text(' $oppInitials', style: scoreStyle.copyWith(color: oppColor)),
+                    Text(' $rightInitials', style: scoreStyle.copyWith(color: rightColor)),
                   ],
             ),
             Text(

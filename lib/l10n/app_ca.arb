@@ -15,12 +15,12 @@
   "rotationSystem42": "4-2",
   "rotationSystem42NoLibero": "4-2 (no libero)",
   "rotationSystem51": "5-1",
-  "rotationSystemPlayers": "Jugadors",
+  "rotationSystemMatch": "Partit",
   "selectRotationSystem": "Selecciona un sistema de rotació",
   "rotationSystem42NoLiberoDescription": "Sistema 4-2 sense libero",
   "rotationSystem42Description": "Sistema 4-2 amb libero",
   "rotationSystem51Description": "Sistema 5-1 amb un col·locador",
-  "rotationSystemPlayersDescription": "Rotació personalitzada amb jugadors específics",
+  "rotationSystemMatchDescription": "Sistema de rotació per partit",
   "featureComingSoon": "La funcionalitat {displayName} arribarà aviat!",
   "activateDrawingMode": "Activar mode dibuix",
   "deactivateDrawingMode": "Desactivar mode dibuix",
@@ -199,6 +199,16 @@
   "errorSavingRoster": "Error al guardar convocatòria: {error}",
   "noPlayersSelected": "Cap jugador seleccionat",
   "showInitials": "Mostrar Inicials",
-  "showNumbers": "Mostrar Números"
+  "showNumbers": "Mostrar Números",
+  "opponent": "Oponent",
+  "placeSixPlayersToStart": "Si us plau, col·loca 6 jugadors a la pista per començar.",
+  "resetMatchTooltip": "Reiniciar Partit",
+  "switchSidesTooltip": "Canviar Costats",
+  "drawingModeTooltip": "Mode Dibuix",
+  "undoLastPointTooltip": "Desfer Últim Punt",
+  "exportMatchLogTooltip": "Exportar Registre del Partit (CSV)",
+  "zoomTooltip": "Zoom",
+  "undoTooltip": "Desfer",
+  "clearAllTooltip": "Esborrar Tot"
 }
 
