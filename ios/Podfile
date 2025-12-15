@@ -39,6 +39,24 @@ end
 post_install do |installer|
   installer.pods_project.targets.each do |target|
     flutter_additional_ios_build_settings(target)
+    
+    # Comprehensive build settings for App Store submission
+    target.build_configurations.each do |config|
+      # Ensure dSYM files are generated for all configurations
+      config.build_settings['DEBUG_INFORMATION_FORMAT'] = 'dwarf-with-dsym'
+      
+      # Strip bitcode from copied files (required for dSYM generation)
+      config.build_settings['STRIP_BITCODE_FROM_COPIED_FILES'] = 'NO'
+      config.build_settings['ENABLE_BITCODE'] = 'NO'
+      
+      # Ensure proper code signing for frameworks
+      config.build_settings['CODE_SIGN_IDENTITY'] = ''
+      config.build_settings['CODE_SIGNING_REQUIRED'] = 'NO'
+      config.build_settings['CODE_SIGNING_ALLOWED'] = 'NO'
+      
+      # Support for vendored frameworks (like SQLite)
+      config.build_settings['GCC_GENERATE_DEBUGGING_SYMBOLS'] = 'YES'
+    end
   end
 
   # --- Prevent embedding simulator-only frameworks into device builds ---
