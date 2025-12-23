@@ -870,5 +870,33 @@
   "clearAllTooltip": "Clear All",
   "@clearAllTooltip": {
     "description": "Tooltip for clear all drawings button"
+  },
+  "deleteAccount": "Delete Account",
+  "@deleteAccount": {
+    "description": "Delete account button label"
+  },
+  "deleteAccountConfirmation": "Are you sure you want to delete your account? This action cannot be undone and all your data will be permanently deleted.",
+  "@deleteAccountConfirmation": {
+    "description": "First confirmation dialog message for account deletion"
+  },
+  "deleteAccountConfirmTitle": "Confirm Deletion",
+  "@deleteAccountConfirmTitle": {
+    "description": "Second confirmation dialog title"
+  },
+  "deleteAccountFinalWarning": "This will permanently delete your account and all associated data. Type \"DELETE\" to confirm.",
+  "@deleteAccountFinalWarning": {
+    "description": "Second confirmation dialog message"
+  },
+  "typeDeleteToConfirm": "Type DELETE to confirm",
+  "@typeDeleteToConfirm": {
+    "description": "Label for text field in deletion confirmation"
+  },
+  "accountDeletedSuccess": "Account deleted successfully",
+  "@accountDeletedSuccess": {
+    "description": "Success message after account deletion"
+  },
+  "errorDeletingAccount": "Error deleting account",
+  "@errorDeletingAccount": {
+    "description": "Error message when account deletion fails"
   }
 }

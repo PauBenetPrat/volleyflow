@@ -1315,6 +1315,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Clear All'**
   String get clearAllTooltip;
+
+  /// Delete account button label
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Account'**
+  String get deleteAccount;
+
+  /// First confirmation dialog message for account deletion
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to delete your account? This action cannot be undone and all your data will be permanently deleted.'**
+  String get deleteAccountConfirmation;
+
+  /// Second confirmation dialog title
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm Deletion'**
+  String get deleteAccountConfirmTitle;
+
+  /// Second confirmation dialog message
+  ///
+  /// In en, this message translates to:
+  /// **'This will permanently delete your account and all associated data. Type \"DELETE\" to confirm.'**
+  String get deleteAccountFinalWarning;
+
+  /// Label for text field in deletion confirmation
+  ///
+  /// In en, this message translates to:
+  /// **'Type DELETE to confirm'**
+  String get typeDeleteToConfirm;
+
+  /// Success message after account deletion
+  ///
+  /// In en, this message translates to:
+  /// **'Account deleted successfully'**
+  String get accountDeletedSuccess;
+
+  /// Error message when account deletion fails
+  ///
+  /// In en, this message translates to:
+  /// **'Error deleting account'**
+  String get errorDeletingAccount;
 }
 
 class _AppLocalizationsDelegate

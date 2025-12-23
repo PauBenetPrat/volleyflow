@@ -209,6 +209,13 @@
   "exportMatchLogTooltip": "Exportar Registre del Partit (CSV)",
   "zoomTooltip": "Zoom",
   "undoTooltip": "Desfer",
-  "clearAllTooltip": "Esborrar Tot"
+  "clearAllTooltip": "Esborrar Tot",
+  "deleteAccount": "Eliminar Compte",
+  "deleteAccountConfirmation": "Estàs segur que vols eliminar el teu compte? Aquesta acció no es pot desfer i totes les teves dades s'eliminaran permanentment.",
+  "deleteAccountConfirmTitle": "Confirmar Eliminació",
+  "deleteAccountFinalWarning": "Això eliminarà permanentment el teu compte i totes les dades associades. Escriu \"DELETE\" per confirmar.",
+  "typeDeleteToConfirm": "Escriu DELETE per confirmar",
+  "accountDeletedSuccess": "Compte eliminat correctament",
+  "errorDeletingAccount": "Error en eliminar el compte"
 }
 

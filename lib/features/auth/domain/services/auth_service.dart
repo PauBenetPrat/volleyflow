@@ -58,4 +58,26 @@ class AuthService {
       UserAttributes(data: updates),
     );
   }
+
+  // Delete account
+  // This calls a Supabase Edge Function that handles the deletion
+  Future<void> deleteAccount() async {
+    final user = _supabase.auth.currentUser;
+    if (user == null) {
+      throw Exception('No user is currently signed in');
+    }
+
+    // Call the Edge Function to delete the user account
+    final response = await _supabase.functions.invoke(
+      'clever-handler',
+      body: {'userId': user.id},
+    );
+
+    if (response.status != 200) {
+      throw Exception('Failed to delete account: ${response.data}');
+    }
+
+    // Sign out after successful deletion
+    await _supabase.auth.signOut();
+  }
 }

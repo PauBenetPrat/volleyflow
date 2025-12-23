@@ -5,11 +5,126 @@ import 'package:volleyball_coaching_app/l10n/app_localizations.dart';
 import '../../domain/providers/auth_provider.dart';
 import '../../domain/services/auth_service.dart';
 
-class ProfilePage extends ConsumerWidget {
+class ProfilePage extends ConsumerStatefulWidget {
   const ProfilePage({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ProfilePage> createState() => _ProfilePageState();
+}
+
+class _ProfilePageState extends ConsumerState<ProfilePage> {
+  bool _isDeleting = false;
+
+  Future<void> _showDeleteAccountDialog(BuildContext context, WidgetRef ref) async {
+    final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
+    
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(l10n.deleteAccount),
+        content: Text(l10n.deleteAccountConfirmation),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: Text(l10n.cancel),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            style: TextButton.styleFrom(
+              foregroundColor: theme.colorScheme.error,
+            ),
+            child: Text(l10n.delete),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true) return;
+
+    // Second confirmation with type to confirm
+    final textController = TextEditingController();
+    bool canDelete = false;
+    
+    final confirmedAgain = await showDialog<bool>(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setDialogState) => AlertDialog(
+          title: Text(l10n.deleteAccountConfirmTitle),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(l10n.deleteAccountFinalWarning),
+              const SizedBox(height: 16),
+              TextField(
+                controller: textController,
+                decoration: InputDecoration(
+                  labelText: l10n.typeDeleteToConfirm,
+                  hintText: 'DELETE',
+                ),
+                onChanged: (value) {
+                  setDialogState(() {
+                    canDelete = value.trim().toUpperCase() == 'DELETE';
+                  });
+                },
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: Text(l10n.cancel),
+            ),
+            TextButton(
+              onPressed: canDelete
+                  ? () => Navigator.of(context).pop(true)
+                  : null,
+              style: TextButton.styleFrom(
+                foregroundColor: theme.colorScheme.error,
+              ),
+              child: Text(l10n.delete),
+            ),
+          ],
+        ),
+      ),
+    );
+
+    if (confirmedAgain != true) return;
+
+    setState(() => _isDeleting = true);
+
+    try {
+      final authService = ref.read(authServiceProvider);
+      await authService.deleteAccount();
+      
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(l10n.accountDeletedSuccess),
+            backgroundColor: Colors.green,
+          ),
+        );
+        context.go('/');
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('${l10n.errorDeletingAccount}: ${e.toString()}'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isDeleting = false);
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context)!;
     final userAsync = ref.watch(currentUserProvider);
@@ -158,9 +273,21 @@ class ProfilePage extends ConsumerWidget {
                 ),
                 const SizedBox(height: 32),
 
+                // Danger Zone Section
+                const Divider(),
+                const SizedBox(height: 16),
+                Text(
+                  'Danger Zone',
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    color: theme.colorScheme.error,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 16),
+
                 // Sign Out Button
                 OutlinedButton.icon(
-                  onPressed: () async {
+                  onPressed: _isDeleting ? null : () async {
                     final authService = ref.read(authServiceProvider);
                     await authService.signOut();
                     if (context.mounted) {
@@ -174,6 +301,25 @@ class ProfilePage extends ConsumerWidget {
                     padding: const EdgeInsets.symmetric(vertical: 16),
                   ),
                 ),
+                const SizedBox(height: 16),
+
+                // Delete Account Button
+                TextButton.icon(
+                  onPressed: _isDeleting ? null : () => _showDeleteAccountDialog(context, ref),
+                  icon: const Icon(Icons.delete_forever),
+                  label: _isDeleting 
+                    ? const SizedBox(
+                        height: 20,
+                        width: 20,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : Text(l10n.deleteAccount),
+                  style: TextButton.styleFrom(
+                    foregroundColor: theme.colorScheme.error,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                  ),
+                ),
+                const SizedBox(height: 32),
               ],
             ),
           );
