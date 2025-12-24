@@ -52,3 +52,12 @@ lib/l10n/app_localizations_*.dart
 untranslated.json
 .env
 *.code-workspace
+
+# Fastlane
+ios/fastlane/report.xml
+ios/fastlane/Preview.html
+ios/fastlane/screenshots
+ios/fastlane/test_output
+ios/fastlane/.env
+*.ipa
+*.dSYM.zip

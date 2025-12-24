@@ -1,0 +1,20 @@
+# Appfile - Configuració bàsica de Fastlane
+# Aquest fitxer conté la configuració bàsica de l'app
+
+# Bundle Identifier de l'app
+app_identifier("com.paubenetprat.volleyflow")
+
+# Apple ID (descomenta si vols pujar directament a TestFlight)
+# apple_id("your-email@example.com")
+
+# Team ID (descomenta si vols signar/pujar directament)
+# team_id("YOUR_TEAM_ID")
+
+# App Store Connect API Key (recomanat per CI/CD)
+# Descomenta i configura si utilitzes API Key en lloc d'Apple ID
+# app_store_connect_api_key(
+#   key_id: "YOUR_KEY_ID",
+#   issuer_id: "YOUR_ISSUER_ID",
+#   key_filepath: "./AuthKey.p8"
+# )
+

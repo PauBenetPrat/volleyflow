@@ -1,0 +1,198 @@
+# Fastfile per a VolleyFlow iOS
+# Aquest Fastfile compila l'app Flutter i genera un .xcarchive sense signar
+# que l'admin pot signar després amb Xcode
+
+default_platform(:ios)
+
+platform :ios do
+  desc "Compila Flutter i genera .xcarchive sense signar per a l'admin"
+  lane :build_unsigned do
+    # Netejar builds anteriors
+    sh("cd .. && flutter clean")
+    
+    # Obtenir dependències
+    sh("cd .. && flutter pub get")
+    
+    # Compilar Flutter per iOS (sense signar)
+    sh("cd .. && flutter build ios --release --no-codesign")
+    
+    # Generar l'archive sense signar
+    # Fastlane s'executa des de ios/fastlane/, hem d'anar al directori pare (ios/)
+    ios_dir = File.expand_path("..", __dir__)
+    archive_path = File.join(ios_dir, "build", "Runner.xcarchive")
+    workspace_path = File.join(ios_dir, "Runner.xcworkspace")
+    
+    # Verificar que el workspace existeix
+    unless File.exist?(workspace_path)
+      UI.user_error!("❌ No s'ha trobat Runner.xcworkspace a #{workspace_path}")
+    end
+    
+    # Construir archive sense signar
+    # Executar xcodebuild des del directori ios/
+    Dir.chdir(ios_dir) do
+      xcodebuild_command = "xcodebuild clean archive " \
+        "-workspace Runner.xcworkspace " \
+        "-scheme Runner " \
+        "-configuration Release " \
+        "-archivePath #{archive_path} " \
+        "CODE_SIGN_IDENTITY=\"\" " \
+        "CODE_SIGNING_REQUIRED=NO " \
+        "CODE_SIGNING_ALLOWED=NO " \
+        "PROVISIONING_PROFILE_SPECIFIER=\"\""
+      
+      # Afegir xcpretty si està disponible
+      if system("which xcpretty > /dev/null 2>&1")
+        sh("#{xcodebuild_command} | xcpretty")
+      else
+        sh(xcodebuild_command)
+      end
+    end
+    
+    UI.success("✅ Archive generat correctament a: #{archive_path}")
+    UI.important("📦 L'admin pot signar aquest archive amb Xcode")
+    UI.important("📁 Ubicació: ios/build/Runner.xcarchive")
+  end
+
+  desc "Compila Flutter i genera .xcarchive (versió alternativa)"
+  lane :build_unsigned_alt do
+    # Netejar
+    sh("cd .. && flutter clean")
+    sh("cd .. && flutter pub get")
+    
+    # Compilar Flutter
+    sh("cd .. && flutter build ios --release --no-codesign")
+    
+    # Construir archive amb build_app però sense signar
+    build_app(
+      workspace: "Runner.xcworkspace",
+      scheme: "Runner",
+      configuration: "Release",
+      export_method: "development", # Temporal, l'admin canviarà a app-store
+      skip_codesigning: true,
+      skip_package_ipa: true,
+      output_directory: "./build",
+      archive_path: "./build/Runner.xcarchive"
+    )
+    
+    UI.success("✅ Archive generat correctament")
+  end
+
+  desc "Mostra informació sobre com signar l'archive"
+  lane :signing_info do
+    UI.header("📋 Informació per a l'Admin")
+    UI.important("1. Obre Xcode")
+    UI.important("2. Vés a Window > Organizer (Cmd+Shift+O)")
+    UI.important("3. Importa l'archive: ios/build/Runner.xcarchive")
+    UI.important("4. Fes clic a 'Distribute App'")
+    UI.important("5. Selecciona 'App Store Connect'")
+    UI.important("6. Segueix el wizard per signar i pujar")
+    UI.important("")
+    UI.important("O utilitza aquest comandament:")
+    UI.command("xcodebuild -exportArchive " \
+               "-archivePath ios/build/Runner.xcarchive " \
+               "-exportPath ios/build/export " \
+               "-exportOptionsPlist ios/fastlane/ExportOptions.plist")
+  end
+
+  desc "Genera ExportOptions.plist per a l'admin"
+  lane :generate_export_options do
+    # Crear ExportOptions.plist per a App Store
+    export_options = {
+      method: "app-store",
+      teamID: ENV["TEAM_ID"] || "YOUR_TEAM_ID",
+      uploadBitcode: false,
+      uploadSymbols: true,
+      compileBitcode: false
+    }
+    
+    File.write("./fastlane/ExportOptions.plist", export_options.to_plist)
+    UI.success("✅ ExportOptions.plist generat")
+  end
+
+  desc "Compila, signa i puja directament a TestFlight"
+  lane :beta do
+    # Netejar builds anteriors
+    sh("cd .. && flutter clean")
+    
+    # Obtenir dependències
+    sh("cd .. && flutter pub get")
+    
+    # Compilar Flutter per iOS (sense signar, Fastlane signarà)
+    sh("cd .. && flutter build ios --release --no-codesign")
+    
+    # Incrementar build number (opcional, comentat per defecte)
+    # increment_build_number(
+    #   xcodeproj: "Runner.xcodeproj"
+    # )
+    
+    # Construir i signar l'archive
+    ios_dir = File.expand_path("..", __dir__)
+    workspace_path = File.join(ios_dir, "Runner.xcworkspace")
+    
+    build_app(
+      workspace: workspace_path,
+      scheme: "Runner",
+      configuration: "Release",
+      export_method: "app-store",
+      output_directory: File.join(ios_dir, "build"),
+      output_name: "VolleyFlow.ipa",
+      skip_waiting_for_build_processing: true,
+      skip_submission: true,
+      distribute_external: false
+    )
+    
+    # Pujar a TestFlight
+    upload_to_testflight(
+      skip_waiting_for_build_processing: true,
+      skip_submission: true,
+      distribute_external: false
+    )
+    
+    UI.success("✅ App pujada correctament a TestFlight!")
+  end
+
+  desc "Compila i genera IPA signat (sense pujar)"
+  lane :build_signed do
+    # Netejar
+    sh("cd .. && flutter clean")
+    sh("cd .. && flutter pub get")
+    
+    # Compilar Flutter
+    sh("cd .. && flutter build ios --release --no-codesign")
+    
+    # Construir i signar
+    ios_dir = File.expand_path("..", __dir__)
+    workspace_path = File.join(ios_dir, "Runner.xcworkspace")
+    
+    build_app(
+      workspace: workspace_path,
+      scheme: "Runner",
+      configuration: "Release",
+      export_method: "app-store",
+      output_directory: File.join(ios_dir, "build"),
+      output_name: "VolleyFlow.ipa"
+    )
+    
+    UI.success("✅ IPA signat generat a: #{File.join(ios_dir, 'build', 'VolleyFlow.ipa')}")
+  end
+
+  desc "Puja un IPA ja generat a TestFlight"
+  lane :upload_existing do
+    ios_dir = File.expand_path("..", __dir__)
+    ipa_path = File.join(ios_dir, "build", "VolleyFlow.ipa")
+    
+    unless File.exist?(ipa_path)
+      UI.user_error!("❌ No s'ha trobat l'IPA a #{ipa_path}")
+    end
+    
+    upload_to_testflight(
+      ipa: ipa_path,
+      skip_waiting_for_build_processing: true,
+      skip_submission: true,
+      distribute_external: false
+    )
+    
+    UI.success("✅ IPA pujat correctament a TestFlight!")
+  end
+end
+
