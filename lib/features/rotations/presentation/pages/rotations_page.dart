@@ -7,7 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:volleyball_coaching_app/l10n/app_localizations.dart';
 import '../../../../shared/widgets/volleyball_court_widget.dart';
 import '../../domain/providers/rotation_provider.dart';
-import '../../../../core/constants/rotation_positions_4_2_no_libero.dart';
+import '../../../../core/constants/rotation_positions_5_1_no_libero.dart';
 import '../../../../core/constants/player_roles.dart';
 
 class RotationsPage extends ConsumerStatefulWidget {

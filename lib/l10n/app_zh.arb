@@ -60,6 +60,10 @@
   "@rotationSystem51": {
     "description": "5-1 rotation system"
   },
+  "rotationSystem51NoLibero": "5-1（无自由人）",
+  "@rotationSystem51NoLibero": {
+    "description": "5-1 no libero rotation system"
+  },
   "rotationSystemMatch": "比赛",
   "@rotationSystemMatch": {
     "description": "Match rotation system"
@@ -79,6 +83,10 @@
   "rotationSystem51Description": "一名二传的5-1系统",
   "@rotationSystem51Description": {
     "description": "Description for 5-1 system"
+  },
+  "rotationSystem51NoLiberoDescription": "无自由人的5-1系统",
+  "@rotationSystem51NoLiberoDescription": {
+    "description": "Description for 5-1 no libero system"
   },
   "rotationSystemMatchDescription": "比赛轮换系统",
   "@rotationSystemMatchDescription": {

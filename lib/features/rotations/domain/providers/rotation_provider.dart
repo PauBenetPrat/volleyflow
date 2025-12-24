@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../../core/constants/rotation_positions_4_2_no_libero.dart';
-import '../../../../core/constants/rotation_positions_4_2.dart' as rotation_42;
+import '../../../../core/constants/rotation_positions_5_1_no_libero.dart';
+import '../../../../core/constants/rotation_positions_5_1.dart' as rotation_51;
 import '../../../../core/constants/rotation_validator.dart';
 
 class RotationState {
@@ -15,7 +15,7 @@ class RotationState {
   final bool isDrawingMode; // Mode de dibuix sobre el camp
   final List<List<Offset>> drawings; // Llista de traços (cada traç és una llista de punts)
   final bool showGrid; // Mostrar/amagar la graella del camp
-  final String? rotationSystem; // Sistema de rotació seleccionat: '4-2', '4-2-no-libero', '5-1', 'Match'
+  final String? rotationSystem; // Sistema de rotació seleccionat: '5-1', '5-1-no-libero', 'Match'
 
   RotationState({
     required this.rotation,
@@ -76,31 +76,31 @@ class RotationNotifier extends Notifier<RotationState> {
   List<String> _getPositions(int rotation, Phase phase, [String? rotationSystem]) {
     // Use state.rotationSystem if rotationSystem parameter is null
     final system = rotationSystem ?? state.rotationSystem;
-    if (system == '4-2') {
-      return rotation_42.RotationPositions42.getPositions(rotation, phase);
+    if (system == '5-1') {
+      return rotation_51.RotationPositions51.getPositions(rotation, phase);
     }
-    // Default to RotationPositions42NoLibero (4-2-no-libero)
-    return RotationPositions42NoLibero.getPositions(rotation, phase);
+    // Default to RotationPositions51NoLibero (5-1-no-libero)
+    return RotationPositions51NoLibero.getPositions(rotation, phase);
   }
 
   // Helper function to get position coordinates
   Map<String, PositionCoord> _getPositionCoords(int rotation, Phase phase, [String? rotationSystem]) {
     // Use state.rotationSystem if rotationSystem parameter is null
     final system = rotationSystem ?? state.rotationSystem;
-    if (system == '4-2') {
-      return rotation_42.RotationPositions42.getPositionCoords(rotation, phase);
+    if (system == '5-1') {
+      return rotation_51.RotationPositions51.getPositionCoords(rotation, phase);
     }
-    // Default to RotationPositions42NoLibero (4-2-no-libero)
-    return RotationPositions42NoLibero.getPositionCoords(rotation, phase);
+    // Default to RotationPositions51NoLibero (5-1-no-libero)
+    return RotationPositions51NoLibero.getPositionCoords(rotation, phase);
   }
 
   @override
   RotationState build() {
-    // Use default rotation system (4-2-no-libero) for initial build
+    // Use default rotation system (5-1-no-libero) for initial build
     return RotationState(
       rotation: CourtPosition.position1,
       phase: Phase.base,
-      positions: _getPositions(CourtPosition.position1, Phase.base, '4-2-no-libero'),
+      positions: _getPositions(CourtPosition.position1, Phase.base, '5-1-no-libero'),
       isEditMode: false,
       isPhaseLocked: false,
       isDrawingMode: false,
@@ -172,7 +172,7 @@ class RotationNotifier extends Notifier<RotationState> {
     
     // Si maintainPhase és true, mantenir la fase; si no, tornar a BASE
     final newPhase = maintainPhase ? state.phase : Phase.base;
-    final newPositions = _getPositions(newRotation, newPhase, state.rotationSystem ?? '4-2-no-libero');
+    final newPositions = _getPositions(newRotation, newPhase, state.rotationSystem ?? '5-1-no-libero');
     
     // Carregar modificacions guardades per la nova rotació/fase
     final savedMods = _loadModifications(newRotation, newPhase);
@@ -181,7 +181,7 @@ class RotationNotifier extends Notifier<RotationState> {
     // Si no és base ni recepció, netejar els errors de validació
     RotationValidationResult? validationResult;
     if (newPhase == Phase.base || newPhase == Phase.recepcio) {
-      final basePositions = _getPositionCoords(newRotation, newPhase, state.rotationSystem ?? '4-2-no-libero');
+      final basePositions = _getPositionCoords(newRotation, newPhase, state.rotationSystem ?? '5-1-no-libero');
       final allPositions = Map<String, PositionCoord>.from(basePositions);
       if (savedMods != null) {
         allPositions.addAll(savedMods);
@@ -218,7 +218,7 @@ class RotationNotifier extends Notifier<RotationState> {
     
     // Si maintainPhase és true, mantenir la fase; si no, tornar a BASE
     final newPhase = maintainPhase ? state.phase : Phase.base;
-    final newPositions = _getPositions(newRotation, newPhase, state.rotationSystem ?? '4-2-no-libero');
+    final newPositions = _getPositions(newRotation, newPhase, state.rotationSystem ?? '5-1-no-libero');
     
     // Carregar modificacions guardades per la nova rotació/fase
     final savedMods = _loadModifications(newRotation, newPhase);
@@ -227,7 +227,7 @@ class RotationNotifier extends Notifier<RotationState> {
     // Si no és base ni recepció, netejar els errors de validació
     RotationValidationResult? validationResult;
     if (newPhase == Phase.base || newPhase == Phase.recepcio) {
-      final basePositions = _getPositionCoords(newRotation, newPhase, state.rotationSystem ?? '4-2-no-libero');
+      final basePositions = _getPositionCoords(newRotation, newPhase, state.rotationSystem ?? '5-1-no-libero');
       final allPositions = Map<String, PositionCoord>.from(basePositions);
       if (savedMods != null) {
         allPositions.addAll(savedMods);
@@ -260,7 +260,7 @@ class RotationNotifier extends Notifier<RotationState> {
     // Toggle: si cliques la mateixa fase, torna a base
     final newPhase = (state.phase == phase) ? Phase.base : phase;
     
-    final newPositions = _getPositions(state.rotation, newPhase, state.rotationSystem ?? '4-2-no-libero');
+    final newPositions = _getPositions(state.rotation, newPhase, state.rotationSystem ?? '5-1-no-libero');
     
     // Carregar modificacions guardades per la nova fase
     final savedMods = _loadModifications(state.rotation, newPhase);
@@ -269,7 +269,7 @@ class RotationNotifier extends Notifier<RotationState> {
     // Si no és base ni recepció, netejar els errors de validació
     RotationValidationResult? validationResult;
     if (newPhase == Phase.base || newPhase == Phase.recepcio) {
-      final basePositions = _getPositionCoords(state.rotation, newPhase, state.rotationSystem ?? '4-2-no-libero');
+      final basePositions = _getPositionCoords(state.rotation, newPhase, state.rotationSystem ?? '5-1-no-libero');
       final allPositions = Map<String, PositionCoord>.from(basePositions);
       if (savedMods != null) {
         allPositions.addAll(savedMods);
@@ -301,7 +301,7 @@ class RotationNotifier extends Notifier<RotationState> {
     state = RotationState(
       rotation: CourtPosition.position1,
       phase: Phase.base,
-      positions: _getPositions(CourtPosition.position1, Phase.base, state.rotationSystem ?? '4-2-no-libero'),
+      positions: _getPositions(CourtPosition.position1, Phase.base, state.rotationSystem ?? '5-1-no-libero'),
       customPositions: null,
       validationResult: null,
       isEditMode: false,
@@ -317,7 +317,7 @@ class RotationNotifier extends Notifier<RotationState> {
     final basePositions = _getPositionCoords(
       state.rotation,
       state.phase,
-      state.rotationSystem ?? '4-2-no-libero',
+      state.rotationSystem ?? '5-1-no-libero',
     );
     
     // Crear map de custom positions només amb jugadors que han estat modificats
@@ -386,7 +386,7 @@ class RotationNotifier extends Notifier<RotationState> {
     final basePositions = _getPositionCoords(
       state.rotation,
       state.phase,
-      state.rotationSystem ?? '4-2-no-libero',
+      state.rotationSystem ?? '5-1-no-libero',
     );
     
     // Crear map de custom positions només amb jugadors que han estat modificats
@@ -595,7 +595,7 @@ class RotationNotifier extends Notifier<RotationState> {
     final basePositions = _getPositionCoords(
       state.rotation,
       state.phase,
-      state.rotationSystem ?? '4-2-no-libero',
+      state.rotationSystem ?? '5-1-no-libero',
     );
     
     // Merge base positions with custom positions

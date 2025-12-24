@@ -1,5 +1,5 @@
-import 'rotation_positions_4_2_no_libero.dart';
-import 'rotation_positions_4_2.dart' as rotation_42;
+import 'rotation_positions_5_1_no_libero.dart';
+import 'rotation_positions_5_1.dart' as rotation_51;
 
 /// Resultat de la validació de les regles de rotació
 class RotationValidationResult {
@@ -46,17 +46,17 @@ class RotationValidator {
     // IMPORTANT: Utilitzar les posicions BASE (no recepció) per determinar 
     // quins jugadors són davanters/posteriors segons la rotació real
     // Utilitzar el sistema de rotació correcte
-    final basePhasePositions = (rotationSystem == '4-2')
-        ? rotation_42.RotationPositions42.getPositionCoords(rotation, Phase.base)
-        : RotationPositions42NoLibero.getPositionCoords(rotation, Phase.base);
+    final basePhasePositions = (rotationSystem == '5-1')
+        ? rotation_51.RotationPositions51.getPositionCoords(rotation, Phase.base)
+        : RotationPositions51NoLibero.getPositionCoords(rotation, Phase.base);
     
     // Obtenir les posicions base del sistema sense libero per determinar quin central ha estat substituït
-    final basePhasePositionsNoLibero = RotationPositions42NoLibero.getPositionCoords(rotation, Phase.base);
+    final basePhasePositionsNoLibero = RotationPositions51NoLibero.getPositionCoords(rotation, Phase.base);
     
     // Determinar quin central (C1 o C2) ha estat substituït pel libero
     // El libero substitueix un central quan aquest està a les posicions 5 o 6 (fila posterior)
     String? substitutedMB;
-    if (rotationSystem == '4-2' && basePhasePositions.containsKey('L')) {
+    if (rotationSystem == '5-1' && basePhasePositions.containsKey('L')) {
       // Trobar la posició base del libero al sistema amb libero
       final liberoCoord = basePhasePositions['L']!;
       int liberoClosestPos = CourtPosition.position1;

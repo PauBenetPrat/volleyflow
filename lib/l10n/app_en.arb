@@ -60,6 +60,10 @@
   "@rotationSystem51": {
     "description": "5-1 rotation system"
   },
+  "rotationSystem51NoLibero": "5-1 (no libero)",
+  "@rotationSystem51NoLibero": {
+    "description": "5-1 no libero rotation system"
+  },
   "rotationSystemMatch": "Match",
   "@rotationSystemMatch": {
     "description": "Match rotation system"
@@ -79,6 +83,10 @@
   "rotationSystem51Description": "5-1 system with one setter",
   "@rotationSystem51Description": {
     "description": "Description for 5-1 system"
+  },
+  "rotationSystem51NoLiberoDescription": "5-1 system without libero",
+  "@rotationSystem51NoLiberoDescription": {
+    "description": "Description for 5-1 no libero system"
   },
   "rotationSystemMatchDescription": "Match rotation system",
   "@rotationSystemMatchDescription": {

@@ -45,36 +45,22 @@ class RotationSystemSelectionPage extends ConsumerWidget {
                   child: Column(
                     children: [
                       _RotationSystemCard(
-                        title: l10n.rotationSystem42,
-                        description: l10n.rotationSystem42Description,
+                        title: l10n.rotationSystem51,
+                        description: l10n.rotationSystem51Description,
                         icon: Icons.group,
                         onTap: () {
-                          ref.read(rotationProvider.notifier).setRotationSystem('4-2');
-                          context.push('/rotations/court/4-2');
+                          ref.read(rotationProvider.notifier).setRotationSystem('5-1');
+                          context.push('/rotations/court/5-1');
                         },
                       ),
                       const SizedBox(height: 16),
                       _RotationSystemCard(
-                        title: l10n.rotationSystem42NoLibero,
-                        description: l10n.rotationSystem42NoLiberoDescription,
+                        title: l10n.rotationSystem51NoLibero,
+                        description: l10n.rotationSystem51NoLiberoDescription,
                         icon: Icons.people,
                         onTap: () {
                           // Navigate with rotation system as parameter
-                          context.push('/rotations/court/4-2-no-libero');
-                        },
-                      ),
-                      const SizedBox(height: 16),
-                      _RotationSystemCard(
-                        title: l10n.rotationSystem51,
-                        description: l10n.rotationSystem51Description,
-                        icon: Icons.person,
-                        onTap: () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(l10n.featureComingSoon(l10n.rotationSystem51)),
-                              duration: const Duration(seconds: 2),
-                            ),
-                          );
+                          context.push('/rotations/court/5-1-no-libero');
                         },
                       ),
                       const SizedBox(height: 16),

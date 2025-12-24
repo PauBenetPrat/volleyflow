@@ -1,8 +1,8 @@
 import '../../features/teams/domain/models/player.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../core/constants/rotation_positions_4_2_no_libero.dart';
-import '../../core/constants/rotation_positions_4_2.dart' as rotation_42;
+import '../../core/constants/rotation_positions_5_1_no_libero.dart';
+import '../../core/constants/rotation_positions_5_1.dart' as rotation_51;
 import '../../core/constants/rotation_validator.dart';
 import '../../core/constants/player_roles.dart';
 import '../../features/rotations/domain/providers/rotation_provider.dart';
@@ -12,7 +12,7 @@ class VolleyballCourtWidget extends ConsumerStatefulWidget {
   final List<String> playerPositions;
   final int? rotation; // If provided, use specific coordinates
   final Phase? phase; // If provided, use specific coordinates
-  final String? rotationSystem; // Rotation system: '4-2', '4-2-no-libero', etc.
+  final String? rotationSystem; // Rotation system: '5-1', '5-1-no-libero', etc.
   final Color? courtColor;
   final Color? lineColor;
   final Color? playerCircleColor;
@@ -77,9 +77,9 @@ class _VolleyballCourtWidgetState extends ConsumerState<VolleyballCourtWidget>
         (ref.read(rotationProvider).rotationSystem);
     
     // Get base coordinates based on rotation system
-    final baseCoords = rotationSystem == '4-2'
-        ? rotation_42.RotationPositions42.getPositionCoords(widget.rotation!, widget.phase!)
-        : RotationPositions42NoLibero.getPositionCoords(widget.rotation!, widget.phase!);
+    final baseCoords = rotationSystem == '5-1'
+        ? rotation_51.RotationPositions51.getPositionCoords(widget.rotation!, widget.phase!)
+        : RotationPositions51NoLibero.getPositionCoords(widget.rotation!, widget.phase!);
     
     // Merge custom positions with base positions
     final coords = Map<String, PositionCoord>.from(baseCoords);
@@ -531,7 +531,7 @@ class VolleyballCourtPainter extends CustomPainter {
   final double animationValue;
   final int? rotation; // If provided, use specific coordinates
   final Phase? phase; // If provided, use specific coordinates
-  final String? rotationSystem; // Rotation system: '4-2', '4-2-no-libero', etc.
+  final String? rotationSystem; // Rotation system: '5-1', '5-1-no-libero', etc.
   final int? previousRotation; // Previous rotation for animation
   final Phase? previousPhase; // Previous phase for animation
   final Map<String, PositionCoord>? customPositions; // Override positions for drag & drop
@@ -564,11 +564,11 @@ class VolleyballCourtPainter extends CustomPainter {
 
   // Helper function to get position coordinates based on rotation system
   Map<String, PositionCoord> _getPositionCoords(int rotation, Phase phase) {
-    if (rotationSystem == '4-2') {
-      return rotation_42.RotationPositions42.getPositionCoords(rotation, phase);
+    if (rotationSystem == '5-1') {
+      return rotation_51.RotationPositions51.getPositionCoords(rotation, phase);
     }
-    // Default to RotationPositions42NoLibero (4-2-no-libero)
-    return RotationPositions42NoLibero.getPositionCoords(rotation, phase);
+    // Default to RotationPositions51NoLibero (5-1-no-libero)
+    return RotationPositions51NoLibero.getPositionCoords(rotation, phase);
   }
   
   // Extreu els noms dels jugadors que estan en falta dels errors

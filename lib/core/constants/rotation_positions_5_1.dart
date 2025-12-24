@@ -1,4 +1,4 @@
-// Rotation positions data structure for 4-2 system (with libero)
+// Rotation positions data structure for 5-1 system (with libero)
 // Each rotation (R1-R6) has 4 phases: BASE, SAC, RECEPCIÓ, DEFENSA
 // Each phase defines where each player role (Co, C1, C2, R1, R2, O, L) is positioned
 // Positions can be either:
@@ -7,9 +7,9 @@
 //     where x=0.0 is back (left), x=1.0 is front (right/near net)
 //     and y=0.0 is top, y=1.0 is bottom
 
-import 'rotation_positions_4_2_no_libero.dart';
+import 'rotation_positions_5_1_no_libero.dart';
 
-class RotationPositions42 {
+class RotationPositions51 {
   // Map: Rotation (1-6) -> Phase -> Player Role -> Position (int 1-6 or Map with x,y)
   // Format: [Rotation][Phase][PlayerRole] = Position (int or Map with 'x' and 'y' keys)
   static final Map<int, Map<Phase, Map<String, dynamic>>> positions = {

@@ -200,6 +200,12 @@ abstract class AppLocalizations {
   /// **'5-1'**
   String get rotationSystem51;
 
+  /// 5-1 no libero rotation system
+  ///
+  /// In en, this message translates to:
+  /// **'5-1 (no libero)'**
+  String get rotationSystem51NoLibero;
+
   /// Match rotation system
   ///
   /// In en, this message translates to:
@@ -229,6 +235,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'5-1 system with one setter'**
   String get rotationSystem51Description;
+
+  /// Description for 5-1 no libero system
+  ///
+  /// In en, this message translates to:
+  /// **'5-1 system without libero'**
+  String get rotationSystem51NoLiberoDescription;
 
   /// Description for Match system
   ///

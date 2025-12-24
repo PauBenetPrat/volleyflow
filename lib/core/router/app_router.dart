@@ -36,7 +36,7 @@ final routerProvider = Provider<GoRouter>((ref) {
             path: 'court/:system',
             name: 'rotations-court',
             builder: (context, state) {
-              final system = state.pathParameters['system'] ?? '4-2-no-libero';
+              final system = state.pathParameters['system'] ?? '5-1-no-libero';
               return RotationsPage(rotationSystem: system);
             },
           ),

@@ -60,6 +60,10 @@
   "@rotationSystem51": {
     "description": "5-1 rotation system"
   },
+  "rotationSystem51NoLibero": "5-1（リベロなし）",
+  "@rotationSystem51NoLibero": {
+    "description": "5-1 no libero rotation system"
+  },
   "rotationSystemMatch": "試合",
   "@rotationSystemMatch": {
     "description": "Match rotation system"
@@ -79,6 +83,10 @@
   "rotationSystem51Description": "セッター1人の5-1システム",
   "@rotationSystem51Description": {
     "description": "Description for 5-1 system"
+  },
+  "rotationSystem51NoLiberoDescription": "リベロなしの5-1システム",
+  "@rotationSystem51NoLiberoDescription": {
+    "description": "Description for 5-1 no libero system"
   },
   "rotationSystemMatchDescription": "試合用ローテーションシステム",
   "@rotationSystemMatchDescription": {
