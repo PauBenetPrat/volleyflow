@@ -469,6 +469,34 @@
   "@cancel": {
     "description": "Cancel button"
   },
+  "matchSettings": "Match Settings",
+  "@matchSettings": {
+    "description": "Match settings dialog title"
+  },
+  "maxPoints": "Max Points",
+  "@maxPoints": {
+    "description": "Maximum points for regular sets"
+  },
+  "lastSetMaxPoints": "Last Set Max Points",
+  "@lastSetMaxPoints": {
+    "description": "Maximum points for the last/deciding set"
+  },
+  "totalSets": "Total Sets",
+  "@totalSets": {
+    "description": "Total number of sets in the match"
+  },
+  "winByTwo": "Win by 2 Points",
+  "@winByTwo": {
+    "description": "Requirement to win by at least 2 points"
+  },
+  "cannotChangeSettings": "Cannot change settings during active match",
+  "@cannotChangeSettings": {
+    "description": "Warning when trying to change settings during match"
+  },
+  "saveSettings": "Save Settings",
+  "@saveSettings": {
+    "description": "Save settings button"
+  },
   "teamSaved": "Team saved",
   "@teamSaved": {
     "description": "Team saved success message"

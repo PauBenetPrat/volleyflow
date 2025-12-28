@@ -794,6 +794,48 @@ abstract class AppLocalizations {
   /// **'Cancel'**
   String get cancel;
 
+  /// Match settings dialog title
+  ///
+  /// In en, this message translates to:
+  /// **'Match Settings'**
+  String get matchSettings;
+
+  /// Maximum points for regular sets
+  ///
+  /// In en, this message translates to:
+  /// **'Max Points'**
+  String get maxPoints;
+
+  /// Maximum points for the last/deciding set
+  ///
+  /// In en, this message translates to:
+  /// **'Last Set Max Points'**
+  String get lastSetMaxPoints;
+
+  /// Total number of sets in the match
+  ///
+  /// In en, this message translates to:
+  /// **'Total Sets'**
+  String get totalSets;
+
+  /// Requirement to win by at least 2 points
+  ///
+  /// In en, this message translates to:
+  /// **'Win by 2 Points'**
+  String get winByTwo;
+
+  /// Warning when trying to change settings during match
+  ///
+  /// In en, this message translates to:
+  /// **'Cannot change settings during active match'**
+  String get cannotChangeSettings;
+
+  /// Save settings button
+  ///
+  /// In en, this message translates to:
+  /// **'Save Settings'**
+  String get saveSettings;
+
   /// Team saved success message
   ///
   /// In en, this message translates to:

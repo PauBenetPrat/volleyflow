@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:volleyball_coaching_app/features/match/data/match_preferences_service.dart';
+import 'package:volleyball_coaching_app/features/match/domain/models/match_configuration.dart';
+import 'package:volleyball_coaching_app/features/match/presentation/widgets/match_settings_dialog.dart';
 import 'package:volleyball_coaching_app/l10n/app_localizations.dart';
 
 class MatchPage extends StatefulWidget {
@@ -15,6 +18,21 @@ class _MatchPageState extends State<MatchPage> {
   int _teamASets = 0;
   int _teamBSets = 0;
   bool _isMatchActive = false;
+  MatchConfiguration _matchConfig = MatchConfiguration.defaultConfig;
+  final _prefsService = MatchPreferencesService();
+
+  @override
+  void initState() {
+    super.initState();
+    _loadMatchConfiguration();
+  }
+
+  Future<void> _loadMatchConfiguration() async {
+    final config = await _prefsService.loadMatchConfiguration();
+    setState(() {
+      _matchConfig = config;
+    });
+  }
 
   void _startMatch() {
     setState(() {
@@ -48,12 +66,18 @@ class _MatchPageState extends State<MatchPage> {
         _teamBScore++;
       }
 
-      // Check if set is won (first to 25, win by 2, or 15 in 5th set)
-      final winningScore = _setNumber == 5 ? 15 : 25;
+      // Get winning score from configuration
+      final winningScore = _matchConfig.getMaxPointsForSet(_teamASets, _teamBSets);
       final scoreDiff = (isTeamA ? _teamAScore : _teamBScore) - 
                         (isTeamA ? _teamBScore : _teamAScore);
 
-      if ((isTeamA ? _teamAScore : _teamBScore) >= winningScore && scoreDiff >= 2) {
+      // Check if set is won
+      bool setWon = (isTeamA ? _teamAScore : _teamBScore) >= winningScore;
+      if (_matchConfig.winByTwo) {
+        setWon = setWon && scoreDiff >= 2;
+      }
+
+      if (setWon) {
         // Set won
         if (isTeamA) {
           _teamASets++;
@@ -61,8 +85,8 @@ class _MatchPageState extends State<MatchPage> {
           _teamBSets++;
         }
 
-        // Check if match is won (best of 5 sets)
-        if (_teamASets >= 3 || _teamBSets >= 3) {
+        // Check if match is won
+        if (_teamASets >= _matchConfig.setsToWin || _teamBSets >= _matchConfig.setsToWin) {
           final l10n = AppLocalizations.of(context)!;
           _showMatchWinnerDialog(isTeamA ? l10n.teamA : l10n.teamB);
         } else {
@@ -107,6 +131,43 @@ class _MatchPageState extends State<MatchPage> {
     );
   }
 
+  Future<void> _showMatchSettings() async {
+    final l10n = AppLocalizations.of(context)!;
+    
+    // Prevent changing settings during active match
+    if (_isMatchActive) {
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text(l10n.matchSettings),
+          content: Text(l10n.cannotChangeSettings),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: Text(l10n.ok),
+            ),
+          ],
+        ),
+      );
+      return;
+    }
+
+    final newConfig = await showDialog<MatchConfiguration>(
+      context: context,
+      builder: (context) => MatchSettingsDialog(
+        currentConfig: _matchConfig,
+      ),
+    );
+
+    if (newConfig != null) {
+      setState(() {
+        _matchConfig = newConfig;
+      });
+      // Save configuration to preferences
+      await _prefsService.saveMatchConfiguration(newConfig);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -117,6 +178,13 @@ class _MatchPageState extends State<MatchPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(l10n.matchControl),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.settings),
+            onPressed: _showMatchSettings,
+            tooltip: l10n.matchSettings,
+          ),
+        ],
       ),
       body: SafeArea(
         child: Padding(
