@@ -19,6 +19,7 @@ class MatchConfiguration {
     lastSetMaxPoints: 15,
     totalSets: 5,
     winByTwo: true,
+    highContrastColors: true,
   );
 
   /// Calculate how many sets a team needs to win the match

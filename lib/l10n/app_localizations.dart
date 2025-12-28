@@ -1459,6 +1459,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Error deleting account'**
   String get errorDeletingAccount;
+
+  /// Switch sides button tooltip
+  ///
+  /// In en, this message translates to:
+  /// **'Switch Sides'**
+  String get switchSides;
 }
 
 class _AppLocalizationsDelegate

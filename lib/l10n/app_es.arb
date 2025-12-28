@@ -129,6 +129,7 @@
   "leaveMatchMessage": "¿Estás seguro de que quieres salir del partido actual? Se perderá todo el progreso.",
   "leave": "Salir",
   "stay": "Quedarse",
+  "switchSides": "Cambiar de Lado",
   "teamSaved": "Equipo guardado",
   "premiumFeature": "Funcionalidad Premium",
   "premiumFeatureMessage": "Crear múltiples equipos es una funcionalidad premium. Para desbloquear esta funcionalidad, por favor contáctanos.",

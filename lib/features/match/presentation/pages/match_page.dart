@@ -19,6 +19,7 @@ class _MatchPageState extends State<MatchPage> {
   int _teamASets = 0;
   int _teamBSets = 0;
   bool? _isTeamAServing; // null = unknown, true = Team A, false = Team B
+  bool _areSidesSwitched = false;
 
   // Removed _isMatchActive as requested - match is always 'active' for interaction
   MatchConfiguration _matchConfig = MatchConfiguration.defaultConfig;
@@ -115,6 +116,9 @@ class _MatchPageState extends State<MatchPage> {
           _teamAScore = 0;
           _teamBScore = 0;
           _isTeamAServing = null; // New set, serve is reset (usually loser serves or coin toss, keep simpler for now)
+          
+          // Switch sides automatically after each set
+          _areSidesSwitched = !_areSidesSwitched;
         }
       }
     });
@@ -127,6 +131,12 @@ class _MatchPageState extends State<MatchPage> {
       } else if (!isTeamA && _teamBScore > 0) {
         _teamBScore--;
       }
+    });
+  }
+
+  void _switchSides() {
+    setState(() {
+      _areSidesSwitched = !_areSidesSwitched;
     });
   }
 
@@ -246,6 +256,11 @@ class _MatchPageState extends State<MatchPage> {
           centerTitle: true,
           actions: [
             IconButton(
+              icon: const Icon(Icons.swap_horiz),
+              onPressed: _switchSides,
+              tooltip: l10n.switchSides,
+            ),
+            IconButton(
               icon: const Icon(Icons.settings),
               onPressed: _showMatchSettings,
               tooltip: l10n.matchSettings,
@@ -256,211 +271,156 @@ class _MatchPageState extends State<MatchPage> {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // Team A (Left Half)
+              // Left Side
               Expanded(
                 child: Padding(
                   padding: const EdgeInsets.only(left: 16.0, top: 16.0, bottom: 16.0, right: 8.0),
-                  child: Material(
-                    color: _teamAColor,
-                    borderRadius: BorderRadius.circular(24.0),
-                    child: InkWell(
-                      onTap: () => _incrementScore(true),
-                      borderRadius: BorderRadius.circular(24.0),
-                      child: Stack(
-                        children: [
-                          // Serve Indicator for Team A
-                          if (_isTeamAServing == true)
-                            Positioned(
-                              top: 16,
-                              right: 16,
-                              child: GestureDetector(
-                                onTap: _toggleServe, // Allow manual toggle
-                                child: const Icon(
-                                  Icons.sports_volleyball,
-                                  color: Colors.white,
-                                  size: 40,
-                                ),
-                              ),
-                            )
-                          else if (_isTeamAServing == null)
-                            // Allow setting initial serve
-                            Positioned(
-                              top: 16,
-                              right: 16,
-                              child: GestureDetector(
-                                onTap: () => setState(() => _isTeamAServing = true),
-                                child: Icon(
-                                  Icons.sports_volleyball,
-                                  color: Colors.white.withValues(alpha: 0.3),
-                                  size: 40,
-                                ),
-                              ),
-                            ),
-                          
-                          Center(
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Text(
-                                  l10n.teamA,
-                                  style: theme.textTheme.headlineMedium?.copyWith(
-                                    fontWeight: FontWeight.bold,
-                                    color: _getTextColor(_teamAColor),
-                                  ),
-                                ),
-                                const SizedBox(height: 16),
-                                Text(
-                                  '$_teamAScore',
-                                  style: theme.textTheme.displayLarge?.copyWith(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 120, // Very large score
-                                    color: _getTextColor(_teamAColor),
-                                  ),
-                                ),
-                                const SizedBox(height: 16),
-                                Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                                  decoration: BoxDecoration(
-                                    color: Colors.black26,
-                                    borderRadius: BorderRadius.circular(16),
-                                  ),
-                                  child: Text(
-                                    l10n.sets(_teamASets),
-                                    style: theme.textTheme.titleLarge?.copyWith(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          // Decrement button at bottom center
-                          Positioned(
-                            bottom: 24,
-                            left: 0,
-                            right: 0,
-                            child: Center(
-                              child: IconButton.filled(
-                                onPressed: () => _decrementScore(true),
-                                icon: const Icon(Icons.remove),
-                                style: IconButton.styleFrom(
-                                  backgroundColor: Colors.white,
-                                  foregroundColor: Colors.black,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
+                  child: _areSidesSwitched 
+                    ? _buildTeamCard(
+                        isTeamA: false,
+                        name: l10n.teamB,
+                        score: _teamBScore,
+                        sets: _teamBSets,
+                        color: _teamBColor,
+                        isServing: _isTeamAServing == false,
+                        canSetServe: _isTeamAServing == null,
+                      )
+                    : _buildTeamCard(
+                        isTeamA: true,
+                        name: l10n.teamA,
+                        score: _teamAScore,
+                        sets: _teamASets,
+                        color: _teamAColor,
+                        isServing: _isTeamAServing == true,
+                        canSetServe: _isTeamAServing == null,
                       ),
-                    ),
-                  ),
                 ),
               ),
               
-              // Team B (Right Half)
+              // Right Side
               Expanded(
                 child: Padding(
                   padding: const EdgeInsets.only(left: 8.0, top: 16.0, bottom: 16.0, right: 16.0),
-                  child: Material(
-                    color: _teamBColor,
-                    borderRadius: BorderRadius.circular(24.0),
-                    child: InkWell(
-                      onTap: () => _incrementScore(false),
-                      borderRadius: BorderRadius.circular(24.0),
-                      child: Stack(
-                        children: [
-                          // Serve Indicator for Team B
-                          if (_isTeamAServing == false)
-                            Positioned(
-                              top: 16,
-                              left: 16,
-                              child: GestureDetector(
-                                onTap: _toggleServe, // Allow manual toggle
-                                child: const Icon(
-                                  Icons.sports_volleyball,
-                                  color: Colors.white,
-                                  size: 40,
-                                ),
-                              ),
-                            )
-                          else if (_isTeamAServing == null)
-                            // Allow setting initial serve
-                            Positioned(
-                              top: 16,
-                              left: 16,
-                              child: GestureDetector(
-                                onTap: () => setState(() => _isTeamAServing = false),
-                                child: Icon(
-                                  Icons.sports_volleyball,
-                                  color: Colors.white.withValues(alpha: 0.3),
-                                  size: 40,
-                                ),
-                              ),
-                            ),
-
-                          Center(
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Text(
-                                  l10n.teamB,
-                                  style: theme.textTheme.headlineMedium?.copyWith(
-                                    fontWeight: FontWeight.bold,
-                                    color: _getTextColor(_teamBColor),
-                                  ),
-                                ),
-                                const SizedBox(height: 16),
-                                Text(
-                                  '$_teamBScore',
-                                  style: theme.textTheme.displayLarge?.copyWith(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 120, // Very large score
-                                    color: _getTextColor(_teamBColor),
-                                  ),
-                                ),
-                                const SizedBox(height: 16),
-                                Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                                  decoration: BoxDecoration(
-                                    color: Colors.black26,
-                                    borderRadius: BorderRadius.circular(16),
-                                  ),
-                                  child: Text(
-                                    l10n.sets(_teamBSets),
-                                    style: theme.textTheme.titleLarge?.copyWith(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          // Decrement button at bottom center
-                          Positioned(
-                            bottom: 24,
-                            left: 0,
-                            right: 0,
-                            child: Center(
-                              child: IconButton.filled(
-                                onPressed: () => _decrementScore(false),
-                                icon: const Icon(Icons.remove),
-                                style: IconButton.styleFrom(
-                                  backgroundColor: Colors.white,
-                                  foregroundColor: Colors.black,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
+                  child: _areSidesSwitched 
+                    ? _buildTeamCard(
+                        isTeamA: true,
+                        name: l10n.teamA,
+                        score: _teamAScore,
+                        sets: _teamASets,
+                        color: _teamAColor,
+                        isServing: _isTeamAServing == true,
+                        canSetServe: _isTeamAServing == null,
+                      )
+                    : _buildTeamCard(
+                        isTeamA: false,
+                        name: l10n.teamB,
+                        score: _teamBScore,
+                        sets: _teamBSets,
+                        color: _teamBColor,
+                        isServing: _isTeamAServing == false,
+                        canSetServe: _isTeamAServing == null,
                       ),
-                    ),
-                  ),
                 ),
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTeamCard({
+    required bool isTeamA,
+    required String name,
+    required int score,
+    required int sets,
+    required Color color,
+    required bool isServing,
+    required bool canSetServe,
+  }) {
+    final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
+    final textColor = _getTextColor(color);
+
+    return Material(
+      color: color,
+      borderRadius: BorderRadius.circular(24.0),
+      child: InkWell(
+        onTap: () => _incrementScore(isTeamA),
+        borderRadius: BorderRadius.circular(24.0),
+        child: Stack(
+          children: [
+            // Serve Indicator
+            if (isServing)
+              Positioned(
+                top: 16,
+                right: isTeamA && !_areSidesSwitched || !isTeamA && _areSidesSwitched ? 16 : null,
+                left: !isTeamA && !_areSidesSwitched || isTeamA && _areSidesSwitched ? 16 : null,
+                child: GestureDetector(
+                  onTap: _toggleServe,
+                  child: const Icon(
+                    Icons.sports_volleyball,
+                    color: Colors.white,
+                    size: 40,
+                  ),
+                ),
+              )
+            else if (canSetServe)
+              Positioned(
+                top: 16,
+                right: isTeamA && !_areSidesSwitched || !isTeamA && _areSidesSwitched ? 16 : null,
+                left: !isTeamA && !_areSidesSwitched || isTeamA && _areSidesSwitched ? 16 : null,
+                child: GestureDetector(
+                  onTap: () => setState(() => _isTeamAServing = isTeamA),
+                  child: Icon(
+                    Icons.sports_volleyball,
+                    color: Colors.white.withValues(alpha: 0.3),
+                    size: 40,
+                  ),
+                ),
+              ),
+            
+            Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                   // Team Name and Sets display
+                  Text(
+                    '$name (${l10n.sets(sets)})',
+                    style: theme.textTheme.headlineMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: textColor,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    '$score',
+                    style: theme.textTheme.displayLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 120, // Very large score
+                      color: textColor,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            // Decrement button at bottom center
+            Positioned(
+              bottom: 24,
+              left: 0,
+              right: 0,
+              child: Center(
+                child: IconButton.filled(
+                  onPressed: () => _decrementScore(isTeamA),
+                  icon: const Icon(Icons.remove),
+                  style: IconButton.styleFrom(
+                    backgroundColor: Colors.white,
+                    foregroundColor: Colors.black,
+                  ),
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );

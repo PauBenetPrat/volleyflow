@@ -129,6 +129,7 @@
   "leaveMatchMessage": "Estàs segur que vols sortir del partit actual? Es perdrà tot el progrés.",
   "leave": "Sortir",
   "stay": "Quedar-se",
+  "switchSides": "Canviar de Costat",
   "teamSaved": "Equip desat",
   "premiumFeature": "Funcionalitat Premium",
   "premiumFeatureMessage": "Crear múltiples equips és una funcionalitat premium. Per desbloquejar aquesta funcionalitat, si us plau, contacta amb nosaltres.",

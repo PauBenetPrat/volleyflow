@@ -966,5 +966,9 @@
   "errorDeletingAccount": "Error deleting account",
   "@errorDeletingAccount": {
     "description": "Error message when account deletion fails"
+  },
+  "switchSides": "Switch Sides",
+  "@switchSides": {
+    "description": "Switch sides button tooltip"
   }
 }
