@@ -18,6 +18,8 @@ class _MatchPageState extends State<MatchPage> {
   int _setNumber = 1;
   int _teamASets = 0;
   int _teamBSets = 0;
+  bool? _isTeamAServing; // null = unknown, true = Team A, false = Team B
+
   // Removed _isMatchActive as requested - match is always 'active' for interaction
   MatchConfiguration _matchConfig = MatchConfiguration.defaultConfig;
   final _prefsService = MatchPreferencesService();
@@ -59,6 +61,17 @@ class _MatchPageState extends State<MatchPage> {
       _setNumber = 1;
       _teamASets = 0;
       _teamBSets = 0;
+      _isTeamAServing = null;
+    });
+  }
+
+  void _toggleServe() {
+    setState(() {
+      if (_isTeamAServing == null) {
+        _isTeamAServing = true;
+      } else {
+        _isTeamAServing = !_isTeamAServing!;
+      }
     });
   }
 
@@ -69,6 +82,9 @@ class _MatchPageState extends State<MatchPage> {
       } else {
         _teamBScore++;
       }
+      
+      // Update serving team - the team that scored gets the serve
+      _isTeamAServing = isTeamA;
 
       // Get winning score from configuration
       final winningScore = _matchConfig.getMaxPointsForSet(_teamASets, _teamBSets);
@@ -98,6 +114,7 @@ class _MatchPageState extends State<MatchPage> {
           _setNumber++;
           _teamAScore = 0;
           _teamBScore = 0;
+          _isTeamAServing = null; // New set, serve is reset (usually loser serves or coin toss, keep simpler for now)
         }
       }
     });
@@ -251,6 +268,35 @@ class _MatchPageState extends State<MatchPage> {
                       borderRadius: BorderRadius.circular(24.0),
                       child: Stack(
                         children: [
+                          // Serve Indicator for Team A
+                          if (_isTeamAServing == true)
+                            Positioned(
+                              top: 16,
+                              right: 16,
+                              child: GestureDetector(
+                                onTap: _toggleServe, // Allow manual toggle
+                                child: const Icon(
+                                  Icons.sports_volleyball,
+                                  color: Colors.white,
+                                  size: 40,
+                                ),
+                              ),
+                            )
+                          else if (_isTeamAServing == null)
+                            // Allow setting initial serve
+                            Positioned(
+                              top: 16,
+                              right: 16,
+                              child: GestureDetector(
+                                onTap: () => setState(() => _isTeamAServing = true),
+                                child: Icon(
+                                  Icons.sports_volleyball,
+                                  color: Colors.white.withValues(alpha: 0.3),
+                                  size: 40,
+                                ),
+                              ),
+                            ),
+                          
                           Center(
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
@@ -324,6 +370,35 @@ class _MatchPageState extends State<MatchPage> {
                       borderRadius: BorderRadius.circular(24.0),
                       child: Stack(
                         children: [
+                          // Serve Indicator for Team B
+                          if (_isTeamAServing == false)
+                            Positioned(
+                              top: 16,
+                              left: 16,
+                              child: GestureDetector(
+                                onTap: _toggleServe, // Allow manual toggle
+                                child: const Icon(
+                                  Icons.sports_volleyball,
+                                  color: Colors.white,
+                                  size: 40,
+                                ),
+                              ),
+                            )
+                          else if (_isTeamAServing == null)
+                            // Allow setting initial serve
+                            Positioned(
+                              top: 16,
+                              left: 16,
+                              child: GestureDetector(
+                                onTap: () => setState(() => _isTeamAServing = false),
+                                child: Icon(
+                                  Icons.sports_volleyball,
+                                  color: Colors.white.withValues(alpha: 0.3),
+                                  size: 40,
+                                ),
+                              ),
+                            ),
+
                           Center(
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
