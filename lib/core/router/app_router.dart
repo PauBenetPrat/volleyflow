@@ -13,6 +13,7 @@ import '../../features/auth/presentation/pages/signup_page.dart';
 import '../../features/auth/presentation/pages/profile_page.dart';
 import '../../features/rotations/presentation/pages/full_court_rotations_page.dart';
 import '../../features/rotations/presentation/pages/free_rotations_page.dart';
+import '../../features/rotations/presentation/pages/modern_rotations_page.dart';
 import '../../features/rotations/presentation/pages/match_rosters_list_page.dart';
 import '../../features/teams/domain/models/team.dart';
 
@@ -39,6 +40,14 @@ final routerProvider = Provider<GoRouter>((ref) {
             builder: (context, state) {
               final system = state.pathParameters['system'] ?? '5-1-no-libero';
               return RotationsPage(rotationSystem: system);
+            },
+          ),
+          GoRoute(
+            path: 'modern/:system',
+            name: 'rotations-modern',
+            builder: (context, state) {
+              final system = state.pathParameters['system'] ?? '5-1-no-libero';
+              return ModernRotationsPage(rotationSystem: system);
             },
           ),
           GoRoute(

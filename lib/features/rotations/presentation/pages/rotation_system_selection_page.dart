@@ -50,7 +50,7 @@ class RotationSystemSelectionPage extends ConsumerWidget {
                         icon: Icons.group,
                         onTap: () {
                           ref.read(rotationProvider.notifier).setRotationSystem('5-1');
-                          context.push('/rotations/court/5-1');
+                          context.push('/rotations/modern/5-1');
                         },
                       ),
                       const SizedBox(height: 16),
@@ -60,7 +60,7 @@ class RotationSystemSelectionPage extends ConsumerWidget {
                         icon: Icons.people,
                         onTap: () {
                           // Navigate with rotation system as parameter
-                          context.push('/rotations/court/5-1-no-libero');
+                          context.push('/rotations/modern/5-1-no-libero');
                         },
                       ),
                       const SizedBox(height: 16),

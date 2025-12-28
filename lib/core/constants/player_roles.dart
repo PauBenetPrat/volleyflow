@@ -87,7 +87,7 @@ class PlayerRole {
     }
   }
   
-  // All internal roles
-  static const List<String> allRoles = [setter, middleBlocker1, middleBlocker2, opposite, outsideHitter1, outsideHitter2];
+  // All internal roles (including libero for 5-1 system)
+  static const List<String> allRoles = [setter, middleBlocker1, middleBlocker2, opposite, outsideHitter1, outsideHitter2, libero];
 }
 

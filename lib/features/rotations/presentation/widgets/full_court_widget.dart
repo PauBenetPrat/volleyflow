@@ -23,6 +23,8 @@ class FullCourtWidget extends StatefulWidget {
   final String? homeTeamName;
   final String? opponentTeamName;
   final bool showBench;
+  final bool showGrid;
+  final Map<String, Color>? roleColors; // Role ID -> Color (for role-based coloring)
 
   const FullCourtWidget({
     super.key,
@@ -45,6 +47,8 @@ class FullCourtWidget extends StatefulWidget {
     this.homeTeamName,
     this.opponentTeamName,
     this.showBench = true,
+    this.showGrid = false,
+    this.roleColors,
   });
 
   @override
@@ -62,6 +66,7 @@ class _FullCourtWidgetState extends State<FullCourtWidget> {
   static const Duration _animationDuration = Duration(milliseconds: 300);
 
   String? _draggedPlayerId;
+  Offset _dragOffset = Offset.zero;
   bool _isDraggingBall = false;
   final List<List<Offset>> _drawingStrokes = [];
   List<Offset>? _currentStroke;
@@ -156,6 +161,14 @@ class _FullCourtWidgetState extends State<FullCourtWidget> {
                         if (playerId != null) {
                           setState(() {
                             _draggedPlayerId = playerId;
+                            // Store the initial touch position relative to the player
+                            final playerPos = widget.playerPositions[playerId]!;
+                            final scaleX = courtWidth / (widget.isZoomed ? 1.0 : 2.0);
+                            final scaleY = courtHeight;
+                            final offsetX = widget.isZoomed && widget.isZoomedOnRight ? -1.0 * scaleX : 0.0;
+                            final playerDrawX = playerPos.dx * scaleX + offsetX;
+                            final playerDrawY = playerPos.dy * scaleY;
+                            _dragOffset = Offset(localPos.dx - playerDrawX, localPos.dy - playerDrawY);
                           });
                         }
                       }
@@ -169,9 +182,14 @@ class _FullCourtWidgetState extends State<FullCourtWidget> {
                         });
                       } else if (_draggedPlayerId != null) {
                         final localPos = details.localPosition;
+                        // Calculate new position by subtracting the initial offset
+                        final adjustedPos = Offset(
+                          localPos.dx - _dragOffset.dx,
+                          localPos.dy - _dragOffset.dy,
+                        );
                         // Clamp to court boundaries
-                        final clampedX = localPos.dx.clamp(0.0, courtWidth);
-                        final clampedY = localPos.dy.clamp(0.0, courtHeight);
+                        final clampedX = adjustedPos.dx.clamp(0.0, courtWidth);
+                        final clampedY = adjustedPos.dy.clamp(0.0, courtHeight);
                         
                         final normalizedPos = _getNormalizedPosition(Offset(clampedX, clampedY), courtWidth, courtHeight);
                         widget.onPlayerMoved(_draggedPlayerId!, normalizedPos);
@@ -189,6 +207,7 @@ class _FullCourtWidgetState extends State<FullCourtWidget> {
                       } else {
                         setState(() {
                           _draggedPlayerId = null;
+                          _dragOffset = Offset.zero;
                           _isDraggingBall = false; // Reset ball dragging state even if not used
                         });
                       }
@@ -218,6 +237,8 @@ class _FullCourtWidgetState extends State<FullCourtWidget> {
                             drawingStrokes: _drawingStrokes,
                             currentStroke: _currentStroke,
                             drawPlayers: false, // Don't draw players in painter
+                            showGrid: widget.showGrid,
+                            roleColors: widget.roleColors,
                           ),
                           size: Size(courtWidth, courtHeight), // Ensure CustomPaint takes full size
                         ),
@@ -293,13 +314,20 @@ class _FullCourtWidgetState extends State<FullCourtWidget> {
                           final drawY = pos.dy * scaleY;
                           
                           final player = widget.players[id];
-                          final label = widget.showPlayerNumbers
-                              ? (player?.number?.toString() ?? player?.getInitials() ?? '?')
-                              : (player?.getInitials() ?? player?.number?.toString() ?? '?');
+                          // For match mode (full_court_rotations_page), show initials/number based on showPlayerNumbers
+                          // For rotation mode (modern_rotations_page), always show role abbreviation
+                          final label = widget.roleColors != null 
+                              ? (player?.name ?? '?') // Rotation mode: show role abbreviation
+                              : (widget.showPlayerNumbers
+                                  ? (player?.number?.toString() ?? player?.getInitials() ?? '?')
+                                  : (player?.getInitials() ?? '?'));
                           
                           final isLeft = pos.dx <= 1.0;
                           final isHomeTeam = (widget.isHomeOnLeft && isLeft) || (!widget.isHomeOnLeft && !isLeft);
-                          final color = isHomeTeam ? Colors.blue : Colors.red;
+                          // Use role color if available, otherwise use team color
+                          final color = widget.roleColors != null && widget.roleColors!.containsKey(id)
+                              ? widget.roleColors![id]!
+                              : (isHomeTeam ? Colors.blue : Colors.red);
                           
                           final isFrontRow = widget.frontRowPlayerIds.contains(id);
                           
@@ -503,6 +531,8 @@ class FullCourtPainter extends CustomPainter {
   final List<List<Offset>> drawingStrokes;
   final List<Offset>? currentStroke;
   final bool drawPlayers;
+  final bool showGrid;
+  final Map<String, Color>? roleColors;
 
   FullCourtPainter({
     required this.playerPositions,
@@ -515,7 +545,33 @@ class FullCourtPainter extends CustomPainter {
     this.drawingStrokes = const [],
     this.currentStroke,
     this.drawPlayers = true,
+    this.showGrid = false,
+    this.roleColors,
   });
+  
+  // Helper function to get color for each player role
+  Color _getRoleColor(String roleId) {
+    if (roleColors != null && roleColors!.containsKey(roleId)) {
+      return roleColors![roleId]!;
+    }
+    // Default colors by role
+    switch (roleId) {
+      case 'Co':
+        return Colors.blue; // Setter (Colocador) - Blue
+      case 'C1':
+      case 'C2':
+        return Colors.green; // Middle Blocker (Central) - Green
+      case 'O':
+        return Colors.purple; // Opposite (Opuesto) - Purple
+      case 'R1':
+      case 'R2':
+        return Colors.orange; // Outside Hitter (Receptor) - Orange
+      case 'L':
+        return Colors.red; // Libero - Red
+      default:
+        return Colors.grey;
+    }
+  }
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -563,6 +619,121 @@ class FullCourtPainter extends CustomPainter {
     drawLine(0.66, 0, 0.66, 1); // Left side attack line
     drawLine(1.33, 0, 1.33, 1); // Right side attack line
 
+    // Draw grid if enabled - divide court into 6 positions (2 columns x 3 rows)
+    if (showGrid) {
+      // Positions layout (looking at net):
+      // Front row: 4 (left), 3 (center), 2 (right)
+      // Back row:  5 (left), 6 (center), 1 (right)
+      //
+      //   4    3    2
+      //   5    6    1
+      //
+      // In normalized coordinates for one side (0.0-1.0):
+      // X: 0.0 = back (left), 1.0 = front (right/near net)
+      // Y: 0.0 = top, 0.33 = middle-top, 0.66 = middle-bottom, 1.0 = bottom
+      
+      final gridLinePaint = Paint()
+        ..color = lineColor.withValues(alpha: 0.5)
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 2.0;
+      
+      void drawGridLine(double x1, double y1, double x2, double y2) {
+        canvas.drawLine(
+          Offset(x1 * scaleX + offsetX, y1 * scaleY),
+          Offset(x2 * scaleX + offsetX, y2 * scaleY),
+          gridLinePaint,
+        );
+      }
+      
+      // Vertical line to divide into 2 columns (back, front)
+      drawGridLine(0.5, 0, 0.5, 1); // Back/Front divider
+      
+      // Horizontal lines to divide into 3 rows (top, middle, bottom)
+      drawGridLine(0, 0.33, 1, 0.33); // Top/Middle divider
+      drawGridLine(0, 0.66, 1, 0.66); // Middle/Bottom divider
+      
+      // Draw position numbers (1-6)
+      final textStyle = TextStyle(
+        color: lineColor.withValues(alpha: 0.7),
+        fontSize: size.height * 0.08,
+        fontWeight: FontWeight.bold,
+      );
+      
+      void drawPositionNumber(String number, double x, double y, {bool isRightSide = false}) {
+        final textSpan = TextSpan(text: number, style: textStyle);
+        final textPainter = TextPainter(
+          text: textSpan,
+          textAlign: isRightSide ? TextAlign.right : TextAlign.left,
+          textDirection: TextDirection.ltr,
+        );
+        textPainter.layout();
+        // Position numbers on the right side of the zone for left side, left side for right side
+        // Calculate zone boundaries - each zone is half the court width (0.0-1.0 for one side)
+        // x is the center of the zone (0.25 for left column, 0.75 for right column)
+        // zoneWidth is half of one side = 0.5 in normalized coordinates
+        final zoneWidth = 0.5 * scaleX; // Half of one side in pixels
+        final padding = size.width * 0.08; // Padding from the edge
+        // Position at right edge of zone for left side, left edge for right side
+        // For left column (x=0.25): right edge is at 0.25 + 0.25 = 0.5
+        // For right column (x=0.75): right edge is at 0.75 + 0.25 = 1.0
+        final zoneEdge = x * scaleX + offsetX + (isRightSide ? -zoneWidth / 2 : zoneWidth / 2);
+        final paintX = isRightSide 
+            ? zoneEdge + padding // Left side of zone for right side
+            : zoneEdge - padding; // Right side of zone for left side
+        textPainter.paint(
+          canvas,
+          Offset(paintX - (isRightSide ? textPainter.width : 0), y * scaleY - textPainter.height / 2),
+        );
+      }
+      
+      // Layout with 2 columns (back/front) and 3 rows (top/middle/bottom):
+      // Top:     [5] [4]
+      // Middle:  [6] [3]
+      // Bottom:  [1] [2]
+      //
+      // Column left (back): 5 (top), 6 (middle), 1 (bottom)
+      // Column right (front): 4 (top), 3 (middle), 2 (bottom)
+      //
+      // With 2 columns: left (back) at x=0.25, right (front) at x=0.75
+      // With 3 rows: top at y=0.17, middle at y=0.5, bottom at y=0.83
+      
+      // Position 1: Back right (bottom, left column)
+      drawPositionNumber('1', 0.25, 0.83);
+      // Position 2: Front right (bottom, right column)
+      drawPositionNumber('2', 0.75, 0.83);
+      // Position 3: Front center (middle, right column)
+      drawPositionNumber('3', 0.75, 0.5);
+      // Position 4: Front left (top, right column)
+      drawPositionNumber('4', 0.75, 0.17);
+      // Position 5: Back left (top, left column)
+      drawPositionNumber('5', 0.25, 0.17);
+      // Position 6: Back center (middle, left column)
+      drawPositionNumber('6', 0.25, 0.5);
+      
+      // Also draw for right side if showing full court
+      if (!isZoomed || isZoomedOnRight) {
+        drawGridLine(1.5, 0, 1.5, 1); // Back/Front divider (right side)
+        drawGridLine(1, 0.33, 2, 0.33); // Top/Middle divider (right side)
+        drawGridLine(1, 0.66, 2, 0.66); // Middle/Bottom divider (right side)
+        
+        // Position numbers for right side (inverted layout - viewing from other side)
+        // Layout inverted:
+        // Top:     [2] [1]
+        // Middle:  [3] [6]
+        // Bottom:  [4] [5]
+        //
+        // Column left (front for them): 2 (top), 3 (middle), 4 (bottom)
+        // Column right (back for them): 1 (top), 6 (middle), 5 (bottom)
+        // Numbers should be on the LEFT side of zones for right side
+        drawPositionNumber('1', 1.75, 0.17, isRightSide: true); // Top right (back for them)
+        drawPositionNumber('2', 1.25, 0.17, isRightSide: true); // Top left (front for them)
+        drawPositionNumber('3', 1.25, 0.5, isRightSide: true);  // Middle left (front for them)
+        drawPositionNumber('4', 1.25, 0.83, isRightSide: true); // Bottom left (front for them)
+        drawPositionNumber('5', 1.75, 0.83, isRightSide: true); // Bottom right (back for them)
+        drawPositionNumber('6', 1.75, 0.5, isRightSide: true);  // Middle right (back for them)
+      }
+    }
+
     // Net (at Center line)
     final netPaint = Paint()
       ..color = Colors.red.withOpacity(0.5)
@@ -584,13 +755,17 @@ class FullCourtPainter extends CustomPainter {
       final drawX = pos.dx * scaleX + offsetX;
       final drawY = pos.dy * scaleY;
       
-      // Determine color based on side
+      // Determine color - use role color if available, otherwise use team color
       final isLeft = pos.dx <= 1.0;
       final isHomeTeam = (isHomeOnLeft && isLeft) || (!isHomeOnLeft && !isLeft);
-      final color = isHomeTeam ? Colors.blue : Colors.red;
+      final color = roleColors != null ? _getRoleColor(id) : (isHomeTeam ? Colors.blue : Colors.red);
       
       final player = players[id];
-      final label = player?.number?.toString() ?? player?.getInitials() ?? '?';
+      // For match mode (full_court_rotations_page), show initials/number based on showPlayerNumbers
+      // For rotation mode (modern_rotations_page), always show role abbreviation
+      final label = roleColors != null 
+          ? (player?.name ?? '?') // Rotation mode: show role abbreviation
+          : (player?.number?.toString() ?? player?.getInitials() ?? '?');
       
       // Draw Player Shape (With Volume)
       final center = Offset(drawX, drawY);
