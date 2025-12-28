@@ -20,9 +20,9 @@
   "@rotations": {
     "description": "Rotations menu item"
   },
-  "refereeMatch": "審判 / 試合",
+  "refereeMatch": "スコアキーパー",
   "@refereeMatch": {
-    "description": "Referee/Match menu item"
+    "description": "Scorekeeper menu item"
   },
   "about": "について",
   "@about": {
@@ -68,6 +68,10 @@
   "@rotationSystemMatch": {
     "description": "Match rotation system"
   },
+  "rotationSystemFree": "フリー",
+  "@rotationSystemFree": {
+    "description": "Free rotation system"
+  },
   "selectRotationSystem": "ローテーションシステムを選択",
   "@selectRotationSystem": {
     "description": "Prompt to select a rotation system"
@@ -91,6 +95,10 @@
   "rotationSystemMatchDescription": "試合用ローテーションシステム",
   "@rotationSystemMatchDescription": {
     "description": "Description for Match system"
+  },
+  "rotationSystemFreeDescription": "ドラッグ可能なプレイヤーを持つフリーローテーションシステム",
+  "@rotationSystemFreeDescription": {
+    "description": "Description for Free system"
   },
   "featureComingSoon": "{displayName}機能は近日公開予定です！",
   "@featureComingSoon": {

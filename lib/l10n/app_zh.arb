@@ -20,9 +20,9 @@
   "@rotations": {
     "description": "Rotations menu item"
   },
-  "refereeMatch": "裁判 / 比赛",
+  "refereeMatch": "记分员",
   "@refereeMatch": {
-    "description": "Referee/Match menu item"
+    "description": "Scorekeeper menu item"
   },
   "about": "关于",
   "@about": {
@@ -68,6 +68,10 @@
   "@rotationSystemMatch": {
     "description": "Match rotation system"
   },
+  "rotationSystemFree": "自由",
+  "@rotationSystemFree": {
+    "description": "Free rotation system"
+  },
   "selectRotationSystem": "选择轮换系统",
   "@selectRotationSystem": {
     "description": "Prompt to select a rotation system"
@@ -91,6 +95,10 @@
   "rotationSystemMatchDescription": "比赛轮换系统",
   "@rotationSystemMatchDescription": {
     "description": "Description for Match system"
+  },
+  "rotationSystemFreeDescription": "可拖拽球员的自由轮换系统",
+  "@rotationSystemFreeDescription": {
+    "description": "Description for Free system"
   },
   "featureComingSoon": "{displayName}功能即将推出！",
   "@featureComingSoon": {

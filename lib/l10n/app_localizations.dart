@@ -140,10 +140,10 @@ abstract class AppLocalizations {
   /// **'Rotations'**
   String get rotations;
 
-  /// Referee/Match menu item
+  /// Scorekeeper menu item
   ///
   /// In en, this message translates to:
-  /// **'Referee / Match'**
+  /// **'Scorekeeper'**
   String get refereeMatch;
 
   /// About menu item
@@ -212,6 +212,12 @@ abstract class AppLocalizations {
   /// **'Match'**
   String get rotationSystemMatch;
 
+  /// Free rotation system
+  ///
+  /// In en, this message translates to:
+  /// **'FREE'**
+  String get rotationSystemFree;
+
   /// Prompt to select a rotation system
   ///
   /// In en, this message translates to:
@@ -247,6 +253,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Match rotation system'**
   String get rotationSystemMatchDescription;
+
+  /// Description for Free system
+  ///
+  /// In en, this message translates to:
+  /// **'Free rotation system with draggable players'**
+  String get rotationSystemFreeDescription;
 
   /// Feature coming soon message
   ///
@@ -835,6 +847,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Save Settings'**
   String get saveSettings;
+
+  /// High contrast colors setting
+  ///
+  /// In en, this message translates to:
+  /// **'High Contrast Colors'**
+  String get highContrastColors;
+
+  /// High contrast colors setting description
+  ///
+  /// In en, this message translates to:
+  /// **'Use red and green colors for better visibility'**
+  String get highContrastColorsDescription;
+
+  /// Leave match dialog title
+  ///
+  /// In en, this message translates to:
+  /// **'Leave Match?'**
+  String get leaveMatchTitle;
+
+  /// Leave match dialog message
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to leave the current match? All progress will be lost.'**
+  String get leaveMatchMessage;
+
+  /// Leave button
+  ///
+  /// In en, this message translates to:
+  /// **'Leave'**
+  String get leave;
+
+  /// Stay button
+  ///
+  /// In en, this message translates to:
+  /// **'Stay'**
+  String get stay;
 
   /// Team saved success message
   ///

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:volleyball_coaching_app/features/match/data/match_preferences_service.dart';
 import 'package:volleyball_coaching_app/features/match/domain/models/match_configuration.dart';
 import 'package:volleyball_coaching_app/features/match/presentation/widgets/match_settings_dialog.dart';
@@ -17,14 +18,31 @@ class _MatchPageState extends State<MatchPage> {
   int _setNumber = 1;
   int _teamASets = 0;
   int _teamBSets = 0;
-  bool _isMatchActive = false;
+  // Removed _isMatchActive as requested - match is always 'active' for interaction
   MatchConfiguration _matchConfig = MatchConfiguration.defaultConfig;
   final _prefsService = MatchPreferencesService();
 
   @override
   void initState() {
     super.initState();
+    // Force landscape orientation
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.landscapeLeft,
+      DeviceOrientation.landscapeRight,
+    ]);
     _loadMatchConfiguration();
+  }
+
+  @override
+  void dispose() {
+    // Reset orientation preference when leaving screen
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+      DeviceOrientation.landscapeLeft,
+      DeviceOrientation.landscapeRight,
+    ]);
+    super.dispose();
   }
 
   Future<void> _loadMatchConfiguration() async {
@@ -34,20 +52,8 @@ class _MatchPageState extends State<MatchPage> {
     });
   }
 
-  void _startMatch() {
-    setState(() {
-      _isMatchActive = true;
-      _teamAScore = 0;
-      _teamBScore = 0;
-      _setNumber = 1;
-      _teamASets = 0;
-      _teamBSets = 0;
-    });
-  }
-
   void _resetMatch() {
     setState(() {
-      _isMatchActive = false;
       _teamAScore = 0;
       _teamBScore = 0;
       _setNumber = 1;
@@ -57,8 +63,6 @@ class _MatchPageState extends State<MatchPage> {
   }
 
   void _incrementScore(bool isTeamA) {
-    if (!_isMatchActive) return;
-
     setState(() {
       if (isTeamA) {
         _teamAScore++;
@@ -100,8 +104,6 @@ class _MatchPageState extends State<MatchPage> {
   }
 
   void _decrementScore(bool isTeamA) {
-    if (!_isMatchActive) return;
-
     setState(() {
       if (isTeamA && _teamAScore > 0) {
         _teamAScore--;
@@ -115,6 +117,7 @@ class _MatchPageState extends State<MatchPage> {
     final l10n = AppLocalizations.of(context)!;
     showDialog(
       context: context,
+      barrierDismissible: false,
       builder: (context) => AlertDialog(
         title: Text(l10n.matchWon),
         content: Text(l10n.matchWonMessage(winner)),
@@ -132,25 +135,13 @@ class _MatchPageState extends State<MatchPage> {
   }
 
   Future<void> _showMatchSettings() async {
-    final l10n = AppLocalizations.of(context)!;
+    // Settings can be changed anytime now since we handle match state differently
+    // However, if we want to prevent mid-game changes we could check score
+    final scoreInProgress = _teamAScore > 0 || _teamBScore > 0 || _teamASets > 0 || _teamBSets > 0;
     
-    // Prevent changing settings during active match
-    if (_isMatchActive) {
-      showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: Text(l10n.matchSettings),
-          content: Text(l10n.cannotChangeSettings),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: Text(l10n.ok),
-            ),
-          ],
-        ),
-      );
-      return;
-    }
+    // We can allow changing display storage (high contrast) anytime
+    // But changing rules might be tricky. Let's allow it but warn if needed, 
+    // or simplicity: just open dialog. The user requested specifically 'high contrast' setting.
 
     final newConfig = await showDialog<MatchConfiguration>(
       context: context,
@@ -168,224 +159,231 @@ class _MatchPageState extends State<MatchPage> {
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final mediaQuery = MediaQuery.of(context);
-    final isSmallScreen = mediaQuery.size.width < 600;
+  Future<bool> _onWillPop() async {
     final l10n = AppLocalizations.of(context)!;
+    
+    // If no match in progress (no scores), just leave
+    if (_teamAScore == 0 && _teamBScore == 0 && _teamASets == 0 && _teamBSets == 0) {
+      return true;
+    }
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(l10n.matchControl),
+    final shouldLeave = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(l10n.leaveMatchTitle),
+        content: Text(l10n.leaveMatchMessage),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.settings),
-            onPressed: _showMatchSettings,
-            tooltip: l10n.matchSettings,
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: Text(l10n.stay),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: Text(l10n.leave),
           ),
         ],
       ),
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(24.0),
-          child: Column(
+    );
+
+    return shouldLeave ?? false;
+  }
+
+  Color get _teamAColor {
+    if (_matchConfig.highContrastColors) {
+      return Colors.red;
+    }
+    return Theme.of(context).colorScheme.primaryContainer;
+  }
+
+  Color get _teamBColor {
+    if (_matchConfig.highContrastColors) {
+      return Colors.green;
+    }
+    return Theme.of(context).colorScheme.secondaryContainer; 
+  }
+
+  Color _getTextColor(Color backgroundColor) {
+    if (_matchConfig.highContrastColors) {
+      return Colors.white;
+    }
+    return Theme.of(context).colorScheme.onPrimaryContainer;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
+
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) async {
+        if (didPop) return;
+        final shouldPop = await _onWillPop();
+        if (shouldPop && context.mounted) {
+          Navigator.of(context).pop();
+        }
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(l10n.set(_setNumber)), // Header shows current set
+          centerTitle: true,
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.settings),
+              onPressed: _showMatchSettings,
+              tooltip: l10n.matchSettings,
+            ),
+          ],
+        ),
+        body: SafeArea(
+          child: Row(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // Match status
-              Card(
+              // Team A (Left Half)
+              Expanded(
                 child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    children: [
-                      Text(
-                        _isMatchActive ? l10n.matchInProgress : l10n.matchNotStarted,
-                        style: theme.textTheme.titleLarge?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: _isMatchActive 
-                              ? theme.colorScheme.primary 
-                              : theme.colorScheme.onSurface.withValues(alpha: 0.6),
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        l10n.set(_setNumber),
-                        style: theme.textTheme.titleMedium,
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(height: 24),
-
-              // Score display
-              Row(
-                children: [
-                  // Team A
-                  Expanded(
-                    child: Card(
-                      color: theme.colorScheme.primaryContainer,
-                      child: Padding(
-                        padding: const EdgeInsets.all(24.0),
-                        child: Column(
-                          children: [
-                            Text(
-                              l10n.teamA,
-                              style: theme.textTheme.titleLarge?.copyWith(
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            const SizedBox(height: 16),
-                            Text(
-                              '$_teamAScore',
-                              style: theme.textTheme.displayLarge?.copyWith(
-                                fontWeight: FontWeight.bold,
-                                color: theme.colorScheme.onPrimaryContainer,
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              l10n.sets(_teamASets),
-                              style: theme.textTheme.bodyLarge,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  // Team B
-                  Expanded(
-                    child: Card(
-                      color: theme.colorScheme.secondaryContainer,
-                      child: Padding(
-                        padding: const EdgeInsets.all(24.0),
-                        child: Column(
-                          children: [
-                            Text(
-                              l10n.teamB,
-                              style: theme.textTheme.titleLarge?.copyWith(
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            const SizedBox(height: 16),
-                            Text(
-                              '$_teamBScore',
-                              style: theme.textTheme.displayLarge?.copyWith(
-                                fontWeight: FontWeight.bold,
-                                color: theme.colorScheme.onSecondaryContainer,
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              l10n.sets(_teamBSets),
-                              style: theme.textTheme.bodyLarge,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 32),
-
-              // Score controls
-              if (_isMatchActive) ...[
-                Row(
-                  children: [
-                    // Team A controls (left side)
-                    Expanded(
-                      child: Column(
+                  padding: const EdgeInsets.only(left: 16.0, top: 16.0, bottom: 16.0, right: 8.0),
+                  child: Material(
+                    color: _teamAColor,
+                    borderRadius: BorderRadius.circular(24.0),
+                    child: InkWell(
+                      onTap: () => _incrementScore(true),
+                      borderRadius: BorderRadius.circular(24.0),
+                      child: Stack(
                         children: [
-                          OutlinedButton.icon(
-                            onPressed: () => _incrementScore(true),
-                            icon: const Icon(Icons.add),
-                            label: Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 12.0),
-                              child: Text(l10n.teamA),
-                            ),
-                            style: OutlinedButton.styleFrom(
-                              minimumSize: const Size(double.infinity, 50),
+                          Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  l10n.teamA,
+                                  style: theme.textTheme.headlineMedium?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                    color: _getTextColor(_teamAColor),
+                                  ),
+                                ),
+                                const SizedBox(height: 16),
+                                Text(
+                                  '$_teamAScore',
+                                  style: theme.textTheme.displayLarge?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 120, // Very large score
+                                    color: _getTextColor(_teamAColor),
+                                  ),
+                                ),
+                                const SizedBox(height: 16),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                  decoration: BoxDecoration(
+                                    color: Colors.black26,
+                                    borderRadius: BorderRadius.circular(16),
+                                  ),
+                                  child: Text(
+                                    l10n.sets(_teamASets),
+                                    style: theme.textTheme.titleLarge?.copyWith(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
-                          const SizedBox(height: 16),
-                          ElevatedButton.icon(
-                            onPressed: () => _decrementScore(true),
-                            icon: const Icon(Icons.remove),
-                            label: Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 12.0),
-                              child: Text(l10n.teamA),
-                            ),
-                            style: ElevatedButton.styleFrom(
-                              minimumSize: const Size(double.infinity, 50),
+                          // Decrement button at bottom center
+                          Positioned(
+                            bottom: 24,
+                            left: 0,
+                            right: 0,
+                            child: Center(
+                              child: IconButton.filled(
+                                onPressed: () => _decrementScore(true),
+                                icon: const Icon(Icons.remove),
+                                style: IconButton.styleFrom(
+                                  backgroundColor: Colors.white,
+                                  foregroundColor: Colors.black,
+                                ),
+                              ),
                             ),
                           ),
                         ],
                       ),
                     ),
-                    const SizedBox(width: 16),
-                    // Team B controls (right side)
-                    Expanded(
-                      child: Column(
+                  ),
+                ),
+              ),
+              
+              // Team B (Right Half)
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 8.0, top: 16.0, bottom: 16.0, right: 16.0),
+                  child: Material(
+                    color: _teamBColor,
+                    borderRadius: BorderRadius.circular(24.0),
+                    child: InkWell(
+                      onTap: () => _incrementScore(false),
+                      borderRadius: BorderRadius.circular(24.0),
+                      child: Stack(
                         children: [
-                          OutlinedButton.icon(
-                            onPressed: () => _incrementScore(false),
-                            icon: const Icon(Icons.add),
-                            label: Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 12.0),
-                              child: Text(l10n.teamB),
-                            ),
-                            style: OutlinedButton.styleFrom(
-                              minimumSize: const Size(double.infinity, 50),
+                          Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  l10n.teamB,
+                                  style: theme.textTheme.headlineMedium?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                    color: _getTextColor(_teamBColor),
+                                  ),
+                                ),
+                                const SizedBox(height: 16),
+                                Text(
+                                  '$_teamBScore',
+                                  style: theme.textTheme.displayLarge?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 120, // Very large score
+                                    color: _getTextColor(_teamBColor),
+                                  ),
+                                ),
+                                const SizedBox(height: 16),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                  decoration: BoxDecoration(
+                                    color: Colors.black26,
+                                    borderRadius: BorderRadius.circular(16),
+                                  ),
+                                  child: Text(
+                                    l10n.sets(_teamBSets),
+                                    style: theme.textTheme.titleLarge?.copyWith(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
-                          const SizedBox(height: 16),
-                          ElevatedButton.icon(
-                            onPressed: () => _decrementScore(false),
-                            icon: const Icon(Icons.remove),
-                            label: Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 12.0),
-                              child: Text(l10n.teamB),
-                            ),
-                            style: ElevatedButton.styleFrom(
-                              minimumSize: const Size(double.infinity, 50),
+                          // Decrement button at bottom center
+                          Positioned(
+                            bottom: 24,
+                            left: 0,
+                            right: 0,
+                            child: Center(
+                              child: IconButton.filled(
+                                onPressed: () => _decrementScore(false),
+                                icon: const Icon(Icons.remove),
+                                style: IconButton.styleFrom(
+                                  backgroundColor: Colors.white,
+                                  foregroundColor: Colors.black,
+                                ),
+                              ),
                             ),
                           ),
                         ],
                       ),
                     ),
-                  ],
-                ),
-              ],
-
-              const Spacer(),
-
-              // Match controls
-              if (!_isMatchActive)
-                ElevatedButton.icon(
-                  onPressed: _startMatch,
-                  icon: const Icon(Icons.play_arrow),
-                  label: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 16.0),
-                    child: Text(l10n.startMatch),
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    minimumSize: const Size(double.infinity, 60),
-                  ),
-                )
-              else
-                OutlinedButton.icon(
-                  onPressed: _resetMatch,
-                  icon: const Icon(Icons.stop),
-                  label: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 16.0),
-                    child: Text(l10n.resetMatch),
-                  ),
-                  style: OutlinedButton.styleFrom(
-                    minimumSize: const Size(double.infinity, 60),
                   ),
                 ),
+              ),
             ],
           ),
         ),
@@ -393,4 +391,3 @@ class _MatchPageState extends State<MatchPage> {
     );
   }
 }
-

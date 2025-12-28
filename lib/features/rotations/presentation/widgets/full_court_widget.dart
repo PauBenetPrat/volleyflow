@@ -22,6 +22,7 @@ class FullCourtWidget extends StatefulWidget {
   final Function(Offset newPosition)? onBallMoved;
   final String? homeTeamName;
   final String? opponentTeamName;
+  final bool showBench;
 
   const FullCourtWidget({
     super.key,
@@ -43,6 +44,7 @@ class FullCourtWidget extends StatefulWidget {
     this.onBallMoved,
     this.homeTeamName,
     this.opponentTeamName,
+    this.showBench = true,
   });
 
   @override
@@ -107,8 +109,8 @@ class _FullCourtWidgetState extends State<FullCourtWidget> {
         final availableHeight = constraints.maxHeight;
 
         // Calculate layout
-        // Bench height: 15% of total height
-        final benchHeight = availableHeight * 0.15;
+        // Bench height: 15% of total height (only if showing bench)
+        final benchHeight = widget.showBench ? availableHeight * 0.15 : 0.0;
         final courtAreaHeight = availableHeight - benchHeight;
         
         // Court aspect ratio: 
@@ -335,85 +337,86 @@ class _FullCourtWidgetState extends State<FullCourtWidget> {
             ),
             
             // Benches Area
-            SizedBox(
-              height: benchHeight,
-              child: Row(
-                children: [
-                  // Left Bench (Home)
-                  if (!widget.isZoomed || !widget.isZoomedOnRight)
-                    Expanded(
-                      child: Container(
-                        color: widget.isHomeOnLeft ? Colors.blue.shade50 : Colors.red.shade50,
-                        padding: const EdgeInsets.all(4),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              widget.isHomeOnLeft 
-                                ? (widget.homeTeamName ?? 'Home Bench') 
-                                : (widget.opponentTeamName ?? 'Opponent Bench'), 
-                              style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.black)
-                            ),
-                            Expanded(
-                              child: ListView.builder(
-                                scrollDirection: Axis.horizontal,
-                                itemCount: widget.leftBench.length,
-                                itemBuilder: (context, index) {
-                                  final player = widget.leftBench[index];
-                                  return GestureDetector(
-                                    onTap: () => widget.onBenchPlayerTap(player, true),
-                                    child: Padding(
-                                      padding: const EdgeInsets.symmetric(horizontal: 4),
-                                      child: _buildBenchPlayerToken(player, widget.isHomeOnLeft ? Colors.blue : Colors.red),
-                                    ),
-                                  );
-                                },
+            if (widget.showBench)
+              SizedBox(
+                height: benchHeight,
+                child: Row(
+                  children: [
+                    // Left Bench (Home)
+                    if (!widget.isZoomed || !widget.isZoomedOnRight)
+                      Expanded(
+                        child: Container(
+                          color: widget.isHomeOnLeft ? Colors.blue.shade50 : Colors.red.shade50,
+                          padding: const EdgeInsets.all(4),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                widget.isHomeOnLeft 
+                                  ? (widget.homeTeamName ?? 'Home Bench') 
+                                  : (widget.opponentTeamName ?? 'Opponent Bench'), 
+                                style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.black)
                               ),
-                            ),
-                          ],
+                              Expanded(
+                                child: ListView.builder(
+                                  scrollDirection: Axis.horizontal,
+                                  itemCount: widget.leftBench.length,
+                                  itemBuilder: (context, index) {
+                                    final player = widget.leftBench[index];
+                                    return GestureDetector(
+                                      onTap: () => widget.onBenchPlayerTap(player, true),
+                                      child: Padding(
+                                        padding: const EdgeInsets.symmetric(horizontal: 4),
+                                        child: _buildBenchPlayerToken(player, widget.isHomeOnLeft ? Colors.blue : Colors.red),
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
-                    ),
-                  
-                  // Right Bench (Opponent)
-                  if (!widget.isZoomed || widget.isZoomedOnRight)
-                    Expanded(
-                      child: Container(
-                        color: widget.isHomeOnLeft ? Colors.red.shade50 : Colors.blue.shade50,
-                        padding: const EdgeInsets.all(4),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: [
-                            Text(
-                              widget.isHomeOnLeft 
-                                ? (widget.opponentTeamName ?? 'Opponent Bench') 
-                                : (widget.homeTeamName ?? 'Home Bench'), 
-                              style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.black)
-                            ),
-                            Expanded(
-                              child: ListView.builder(
-                                scrollDirection: Axis.horizontal,
-                                reverse: true,
-                                itemCount: widget.rightBench.length,
-                                itemBuilder: (context, index) {
-                                  final player = widget.rightBench[index];
-                                  return GestureDetector(
-                                    onTap: () => widget.onBenchPlayerTap(player, false),
-                                    child: Padding(
-                                      padding: const EdgeInsets.symmetric(horizontal: 4),
-                                      child: _buildBenchPlayerToken(player, widget.isHomeOnLeft ? Colors.red : Colors.blue),
-                                    ),
-                                  );
-                                },
+                    
+                    // Right Bench (Opponent)
+                    if (!widget.isZoomed || widget.isZoomedOnRight)
+                      Expanded(
+                        child: Container(
+                          color: widget.isHomeOnLeft ? Colors.red.shade50 : Colors.blue.shade50,
+                          padding: const EdgeInsets.all(4),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              Text(
+                                widget.isHomeOnLeft 
+                                  ? (widget.opponentTeamName ?? 'Opponent Bench') 
+                                  : (widget.homeTeamName ?? 'Home Bench'), 
+                                style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.black)
                               ),
-                            ),
-                          ],
+                              Expanded(
+                                child: ListView.builder(
+                                  scrollDirection: Axis.horizontal,
+                                  reverse: true,
+                                  itemCount: widget.rightBench.length,
+                                  itemBuilder: (context, index) {
+                                    final player = widget.rightBench[index];
+                                    return GestureDetector(
+                                      onTap: () => widget.onBenchPlayerTap(player, false),
+                                      child: Padding(
+                                        padding: const EdgeInsets.symmetric(horizontal: 4),
+                                        child: _buildBenchPlayerToken(player, widget.isHomeOnLeft ? Colors.red : Colors.blue),
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
-                    ),
-                ],
+                  ],
+                ),
               ),
-            ),
           ],
         );
       },

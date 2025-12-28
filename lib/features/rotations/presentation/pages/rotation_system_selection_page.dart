@@ -101,6 +101,44 @@ class RotationSystemSelectionPage extends ConsumerWidget {
                           }
                         },
                       ),
+                      const SizedBox(height: 16),
+                      _RotationSystemCard(
+                        title: l10n.rotationSystemFree,
+                        description: l10n.rotationSystemFreeDescription,
+                        icon: Icons.edit_location_alt,
+                        onTap: () async {
+                          final teamsState = ref.read(teamsProvider);
+                          
+                          if (teamsState.isLoading) {
+                             ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('Loading teams...')),
+                            );
+                            return;
+                          }
+
+                          final teams = teamsState.teams;
+
+                          if (teams.isEmpty) {
+                             await showDialog<Team>(
+                              context: context,
+                              builder: (context) => const TeamSelectionDialog(),
+                            );
+                          } else if (teams.length == 1) {
+                            final team = teams.first;
+                            if (context.mounted) {
+                              context.pushNamed('rotations-free', extra: team);
+                            }
+                          } else {
+                            final team = await showDialog<Team>(
+                              context: context,
+                              builder: (context) => const TeamSelectionDialog(),
+                            );
+                            if (team != null && context.mounted) {
+                              context.pushNamed('rotations-free', extra: team);
+                            }
+                          }
+                        },
+                      ),
                     ],
                   ),
                 ),

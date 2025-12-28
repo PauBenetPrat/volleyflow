@@ -60,15 +60,15 @@ class HomePage extends ConsumerWidget {
               // Menu Buttons
               // Menu Buttons
               _MenuButton(
-                icon: Icons.rotate_right,
-                label: l10n.rotations,
-                onPressed: () => context.push('/rotations'),
-              ),
-              const SizedBox(height: 16),
-              _MenuButton(
                 icon: Icons.gavel,
                 label: l10n.refereeMatch,
                 onPressed: () => context.push('/match'),
+              ),
+              const SizedBox(height: 16),
+              _MenuButton(
+                icon: Icons.rotate_right,
+                label: l10n.rotations,
+                onPressed: () => context.push('/rotations'),
               ),
               const SizedBox(height: 16),
               _MenuButton(

@@ -20,9 +20,9 @@
   "@rotations": {
     "description": "Rotations menu item"
   },
-  "refereeMatch": "Referee / Match",
+  "refereeMatch": "Scorekeeper",
   "@refereeMatch": {
-    "description": "Referee/Match menu item"
+    "description": "Scorekeeper menu item"
   },
   "about": "About",
   "@about": {
@@ -68,6 +68,10 @@
   "@rotationSystemMatch": {
     "description": "Match rotation system"
   },
+  "rotationSystemFree": "FREE",
+  "@rotationSystemFree": {
+    "description": "Free rotation system"
+  },
   "selectRotationSystem": "Select a rotation system",
   "@selectRotationSystem": {
     "description": "Prompt to select a rotation system"
@@ -91,6 +95,10 @@
   "rotationSystemMatchDescription": "Match rotation system",
   "@rotationSystemMatchDescription": {
     "description": "Description for Match system"
+  },
+  "rotationSystemFreeDescription": "Free rotation system with draggable players",
+  "@rotationSystemFreeDescription": {
+    "description": "Description for Free system"
   },
   "featureComingSoon": "{displayName} feature coming soon!",
   "@featureComingSoon": {
@@ -496,6 +504,30 @@
   "saveSettings": "Save Settings",
   "@saveSettings": {
     "description": "Save settings button"
+  },
+  "highContrastColors": "High Contrast Colors",
+  "@highContrastColors": {
+    "description": "High contrast colors setting"
+  },
+  "highContrastColorsDescription": "Use red and green colors for better visibility",
+  "@highContrastColorsDescription": {
+    "description": "High contrast colors setting description"
+  },
+  "leaveMatchTitle": "Leave Match?",
+  "@leaveMatchTitle": {
+    "description": "Leave match dialog title"
+  },
+  "leaveMatchMessage": "Are you sure you want to leave the current match? All progress will be lost.",
+  "@leaveMatchMessage": {
+    "description": "Leave match dialog message"
+  },
+  "leave": "Leave",
+  "@leave": {
+    "description": "Leave button"
+  },
+  "stay": "Stay",
+  "@stay": {
+    "description": "Stay button"
   },
   "teamSaved": "Team saved",
   "@teamSaved": {

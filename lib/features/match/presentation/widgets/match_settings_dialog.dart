@@ -19,6 +19,7 @@ class _MatchSettingsDialogState extends State<MatchSettingsDialog> {
   late int _lastSetMaxPoints;
   late int _totalSets;
   late bool _winByTwo;
+  late bool _highContrastColors;
 
   @override
   void initState() {
@@ -27,6 +28,7 @@ class _MatchSettingsDialogState extends State<MatchSettingsDialog> {
     _lastSetMaxPoints = widget.currentConfig.lastSetMaxPoints;
     _totalSets = widget.currentConfig.totalSets;
     _winByTwo = widget.currentConfig.winByTwo;
+    _highContrastColors = widget.currentConfig.highContrastColors;
   }
 
   @override
@@ -72,37 +74,6 @@ class _MatchSettingsDialogState extends State<MatchSettingsDialog> {
             ),
             const SizedBox(height: 16),
 
-            // Last Set Max Points
-            Text(
-              l10n.lastSetMaxPoints,
-              style: theme.textTheme.titleSmall,
-            ),
-            const SizedBox(height: 8),
-            Row(
-              children: [
-                IconButton(
-                  onPressed: _lastSetMaxPoints > 10
-                      ? () => setState(() => _lastSetMaxPoints--)
-                      : null,
-                  icon: const Icon(Icons.remove),
-                ),
-                Expanded(
-                  child: Text(
-                    '$_lastSetMaxPoints',
-                    textAlign: TextAlign.center,
-                    style: theme.textTheme.titleLarge,
-                  ),
-                ),
-                IconButton(
-                  onPressed: _lastSetMaxPoints < 30
-                      ? () => setState(() => _lastSetMaxPoints++)
-                      : null,
-                  icon: const Icon(Icons.add),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-
             // Total Sets
             Text(
               l10n.totalSets,
@@ -125,11 +96,53 @@ class _MatchSettingsDialogState extends State<MatchSettingsDialog> {
             ),
             const SizedBox(height: 16),
 
+            // Last Set Max Points - Hide if total sets is 1
+            if (_totalSets > 1) ...[
+              Text(
+                l10n.lastSetMaxPoints,
+                style: theme.textTheme.titleSmall,
+              ),
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  IconButton(
+                    onPressed: _lastSetMaxPoints > 10
+                        ? () => setState(() => _lastSetMaxPoints--)
+                        : null,
+                    icon: const Icon(Icons.remove),
+                  ),
+                  Expanded(
+                    child: Text(
+                      '$_lastSetMaxPoints',
+                      textAlign: TextAlign.center,
+                      style: theme.textTheme.titleLarge,
+                    ),
+                  ),
+                  IconButton(
+                    onPressed: _lastSetMaxPoints < 30
+                        ? () => setState(() => _lastSetMaxPoints++)
+                        : null,
+                    icon: const Icon(Icons.add),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+            ],
+
             // Win by Two
             SwitchListTile(
               title: Text(l10n.winByTwo),
               value: _winByTwo,
               onChanged: (value) => setState(() => _winByTwo = value),
+              contentPadding: EdgeInsets.zero,
+            ),
+
+            // High Contrast Colors
+            SwitchListTile(
+              title: Text(l10n.highContrastColors),
+              subtitle: Text(l10n.highContrastColorsDescription),
+              value: _highContrastColors,
+              onChanged: (value) => setState(() => _highContrastColors = value),
               contentPadding: EdgeInsets.zero,
             ),
           ],
@@ -147,6 +160,7 @@ class _MatchSettingsDialogState extends State<MatchSettingsDialog> {
               lastSetMaxPoints: _lastSetMaxPoints,
               totalSets: _totalSets,
               winByTwo: _winByTwo,
+              highContrastColors: _highContrastColors,
             );
             Navigator.of(context).pop(newConfig);
           },
