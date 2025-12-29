@@ -58,14 +58,15 @@ final routerProvider = Provider<GoRouter>((ref) {
               return FullCourtRotationsPage(team: team);
             },
           ),
-          GoRoute(
-            path: 'free',
-            name: 'rotations-free',
-            builder: (context, state) {
-              final team = state.extra as Team;
-              return FreeRotationsPage(team: team);
-            },
-          ),
+            GoRoute(
+              path: 'free',
+              name: 'rotations-free',
+              builder: (context, state) {
+                // FREE system doesn't require a team - it uses generic numbered players
+                final team = state.extra as Team?;
+                return FreeRotationsPage(team: team);
+              },
+            ),
         ],
       ),
       GoRoute(

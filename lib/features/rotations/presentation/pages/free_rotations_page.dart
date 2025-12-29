@@ -8,11 +8,11 @@ import '../widgets/full_court_controller.dart';
 import 'package:volleyball_coaching_app/l10n/app_localizations.dart';
 
 class FreeRotationsPage extends ConsumerStatefulWidget {
-  final Team team;
+  final Team? team;
 
   const FreeRotationsPage({
     super.key,
-    required this.team,
+    this.team,
   });
 
   @override
@@ -80,6 +80,7 @@ class _FreeRotationsPageState extends ConsumerState<FreeRotationsPage> with Widg
     final orientation = MediaQuery.of(context).orientation;
     final isPortrait = orientation == Orientation.portrait;
     
+    // In portrait, enable zoom by default (though we force landscape)
     if (isPortrait && !_isZoomed) {
       setState(() {
         _isZoomed = true;
@@ -380,7 +381,7 @@ class _FreeRotationsPageState extends ConsumerState<FreeRotationsPage> with Widg
               onPlayerMoved: _handlePlayerMoved,
               onPlayerTap: _handlePlayerTap,
               onBenchPlayerTap: _handleBenchPlayerTap,
-              homeTeamName: widget.team.name,
+              homeTeamName: widget.team?.name ?? 'Team 1',
               opponentTeamName: 'Opponent',
               showBench: false,
             ),

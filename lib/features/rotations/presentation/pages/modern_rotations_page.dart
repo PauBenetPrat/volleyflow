@@ -51,11 +51,7 @@ class _ModernRotationsPageState extends ConsumerState<ModernRotationsPage>
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     
-    // Force landscape orientation
-    SystemChrome.setPreferredOrientations([
-      DeviceOrientation.landscapeLeft,
-      DeviceOrientation.landscapeRight,
-    ]);
+    // Allow all orientations (not forcing landscape like MATCH system)
     
     // Initialize rotation system
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -64,17 +60,24 @@ class _ModernRotationsPageState extends ConsumerState<ModernRotationsPage>
       _initializePlayers();
       _validatePositions();
       _checkFirstTime();
+      _checkOrientation();
     });
+  }
+  
+  void _checkOrientation() {
+    final orientation = MediaQuery.of(context).orientation;
+    final isPortrait = orientation == Orientation.portrait;
+    
+    // In portrait, enable zoom by default
+    if (isPortrait && !_isZoomed) {
+      setState(() {
+        _isZoomed = true;
+      });
+    }
   }
   
   @override
   void dispose() {
-    SystemChrome.setPreferredOrientations([
-      DeviceOrientation.portraitUp,
-      DeviceOrientation.portraitDown,
-      DeviceOrientation.landscapeLeft,
-      DeviceOrientation.landscapeRight,
-    ]);
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
@@ -324,8 +327,8 @@ class _ModernRotationsPageState extends ConsumerState<ModernRotationsPage>
   
   void _setPhase(Phase phase) {
     setState(() {
-      // Toggle: if clicking same phase, go back to base
-      _currentPhase = (_currentPhase == phase) ? Phase.base : phase;
+      // Set the phase directly (no toggle behavior)
+      _currentPhase = phase;
       _customPositions.clear(); // Reset custom positions on phase change
     });
     _validatePositions();
@@ -337,9 +340,12 @@ class _ModernRotationsPageState extends ConsumerState<ModernRotationsPage>
     final theme = Theme.of(context);
     final mediaQuery = MediaQuery.of(context);
     final safeAreaPadding = mediaQuery.padding;
-    
-    final playerPositions = _getPlayerPositionsForCourt();
-    final players = _getPlayersForCourt();
+    final isLandscape = mediaQuery.orientation == Orientation.landscape;
+    // In landscape, always use icons for phase buttons to save space
+    // In portrait, use icons only on very small screens
+    final useIconsForPhases = isLandscape || mediaQuery.size.width < 500;
+    final isSmallScreen = mediaQuery.size.width < 600;
+    final isVerySmallScreen = mediaQuery.size.width < 400;
     
     return Scaffold(
       appBar: AppBar(
@@ -403,189 +409,436 @@ class _ModernRotationsPageState extends ConsumerState<ModernRotationsPage>
           ),
         ],
       ),
-      body: Row(
-        children: [
-          // Left panel - Phase buttons and rotation
-          Container(
-            width: 120,
-            padding: EdgeInsets.only(
-              top: 8.0 + safeAreaPadding.top,
-              bottom: 8.0 + safeAreaPadding.bottom,
-              left: 8.0 + safeAreaPadding.left,
-              right: 8.0,
-            ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
+      body: isLandscape
+          ? Row(
               children: [
-                // Phase buttons
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: () => _setPhase(Phase.sac),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: _currentPhase == Phase.sac
-                          ? theme.colorScheme.primary
-                          : null,
-                    ),
-                    child: Text(
-                      l10n.sac,
-                      style: TextStyle(
-                        color: _currentPhase == Phase.sac
-                            ? Colors.white
-                            : null,
-                      ),
-                    ),
+          // Left panel - Phase buttons and rotation (landscape)
+          Container(
+            width: useIconsForPhases 
+                ? (isVerySmallScreen ? 90 : 100)
+                : (isSmallScreen ? 100 : 120),
+                  padding: EdgeInsets.only(
+                    top: 8.0 + safeAreaPadding.top,
+                    bottom: 8.0 + safeAreaPadding.bottom,
+                    left: 8.0 + safeAreaPadding.left,
+                    right: 8.0,
                   ),
-                ),
-                const SizedBox(height: 8),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: () => _setPhase(Phase.recepcio),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: _currentPhase == Phase.recepcio
-                          ? theme.colorScheme.primary
-                          : null,
-                    ),
-                    child: Text(
-                      l10n.recepcio,
-                      style: TextStyle(
-                        color: _currentPhase == Phase.recepcio
-                            ? Colors.white
-                            : null,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                // Phase buttons - use icons in landscape or on small screens
+                // BASE button
+                useIconsForPhases
+                    ? Center(
+                        child: FloatingActionButton(
+                          heroTag: 'phase-base-landscape',
+                          onPressed: () => _setPhase(Phase.base),
+                          backgroundColor: _currentPhase == Phase.base
+                              ? theme.colorScheme.primary
+                              : theme.colorScheme.surface,
+                          elevation: 2,
+                          mini: true,
+                          child: Icon(
+                            Icons.home,
+                            color: _currentPhase == Phase.base
+                                ? Colors.white
+                                : theme.colorScheme.onSurface,
+                          ),
+                          tooltip: l10n.base,
+                        ),
+                      )
+                    : SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          onPressed: () => _setPhase(Phase.base),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: _currentPhase == Phase.base
+                                ? theme.colorScheme.primary
+                                : null,
+                          ),
+                          child: Text(
+                            l10n.base,
+                            style: TextStyle(
+                              color: _currentPhase == Phase.base
+                                  ? Colors.white
+                                  : null,
+                            ),
+                          ),
+                        ),
                       ),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 8),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: () => _setPhase(Phase.defensa),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: _currentPhase == Phase.defensa
-                          ? theme.colorScheme.primary
-                          : null,
-                    ),
-                    child: Text(
-                      l10n.defensa,
-                      style: TextStyle(
-                        color: _currentPhase == Phase.defensa
-                            ? Colors.white
-                            : null,
+                SizedBox(height: useIconsForPhases ? 8 : 8),
+                // SAC button
+                useIconsForPhases
+                    ? Center(
+                        child: FloatingActionButton(
+                          heroTag: 'phase-sac-landscape',
+                          onPressed: () => _setPhase(Phase.sac),
+                          backgroundColor: _currentPhase == Phase.sac
+                              ? theme.colorScheme.primary
+                              : theme.colorScheme.surface,
+                          elevation: 2,
+                          mini: true,
+                          child: Icon(
+                            Icons.sports_volleyball,
+                            color: _currentPhase == Phase.sac
+                                ? Colors.white
+                                : theme.colorScheme.onSurface,
+                          ),
+                          tooltip: l10n.sac,
+                        ),
+                      )
+                    : SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          onPressed: () => _setPhase(Phase.sac),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: _currentPhase == Phase.sac
+                                ? theme.colorScheme.primary
+                                : null,
+                          ),
+                          child: Text(
+                            l10n.sac,
+                            style: TextStyle(
+                              color: _currentPhase == Phase.sac
+                                  ? Colors.white
+                                  : null,
+                            ),
+                          ),
+                        ),
                       ),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 24),
+                SizedBox(height: useIconsForPhases ? 8 : 8),
+                // RECEPCIO button
+                useIconsForPhases
+                    ? Center(
+                        child: FloatingActionButton(
+                          heroTag: 'phase-recepcio-landscape',
+                          onPressed: () => _setPhase(Phase.recepcio),
+                          backgroundColor: _currentPhase == Phase.recepcio
+                              ? theme.colorScheme.primary
+                              : theme.colorScheme.surface,
+                          elevation: 2,
+                          mini: true,
+                          child: Icon(
+                            Icons.arrow_downward,
+                            color: _currentPhase == Phase.recepcio
+                                ? Colors.white
+                                : theme.colorScheme.onSurface,
+                          ),
+                          tooltip: l10n.recepcio,
+                        ),
+                      )
+                    : SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          onPressed: () => _setPhase(Phase.recepcio),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: _currentPhase == Phase.recepcio
+                                ? theme.colorScheme.primary
+                                : null,
+                          ),
+                          child: Text(
+                            l10n.recepcio,
+                            style: TextStyle(
+                              color: _currentPhase == Phase.recepcio
+                                  ? Colors.white
+                                  : null,
+                            ),
+                          ),
+                        ),
+                      ),
+                SizedBox(height: useIconsForPhases ? 8 : 8),
+                // DEFENSA button
+                useIconsForPhases
+                    ? Center(
+                        child: FloatingActionButton(
+                          heroTag: 'phase-defensa-landscape',
+                          onPressed: () => _setPhase(Phase.defensa),
+                          backgroundColor: _currentPhase == Phase.defensa
+                              ? theme.colorScheme.primary
+                              : theme.colorScheme.surface,
+                          elevation: 2,
+                          mini: true,
+                          child: Icon(
+                            Icons.shield,
+                            color: _currentPhase == Phase.defensa
+                                ? Colors.white
+                                : theme.colorScheme.onSurface,
+                          ),
+                          tooltip: l10n.defensa,
+                        ),
+                      )
+                    : SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          onPressed: () => _setPhase(Phase.defensa),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: _currentPhase == Phase.defensa
+                                ? theme.colorScheme.primary
+                                : null,
+                          ),
+                          child: Text(
+                            l10n.defensa,
+                            style: TextStyle(
+                              color: _currentPhase == Phase.defensa
+                                  ? Colors.white
+                                  : null,
+                            ),
+                          ),
+                        ),
+                      ),
+                SizedBox(height: isSmallScreen ? 16 : 24),
                 // Rotation button
-                GestureDetector(
-                  onDoubleTap: _rotateCounterClockwise,
-                  child: OutlinedButton(
-                    onPressed: _rotateClockwise,
-                    style: OutlinedButton.styleFrom(
-                      shape: const CircleBorder(),
-                      padding: const EdgeInsets.all(12),
+                Center(
+                  child: GestureDetector(
+                    onDoubleTap: _rotateCounterClockwise,
+                    child: SizedBox(
+                      width: 56,
+                      height: 56,
+                      child: OutlinedButton(
+                        onPressed: _rotateClockwise,
+                        style: OutlinedButton.styleFrom(
+                          shape: const CircleBorder(),
+                          padding: EdgeInsets.zero,
+                          minimumSize: const Size(56, 56),
+                          fixedSize: const Size(56, 56),
+                        ),
+                        child: Icon(
+                          Icons.rotate_right,
+                          size: 24,
+                        ),
+                      ),
                     ),
-                    child: const Icon(Icons.rotate_right),
                   ),
                 ),
               ],
             ),
           ),
           
-          // Court area
+          // Court area (landscape)
           Expanded(
-            child: Stack(
-              children: [
-                FullCourtWidget(
-                  playerPositions: playerPositions,
-                  players: players,
-                  leftBench: const [],
-                  rightBench: const [],
-                  isZoomed: _isZoomed,
-                  isZoomedOnRight: false,
-                  isHomeOnLeft: true,
-                  isDrawingMode: _isDrawingMode,
-                  showPlayerNumbers: _showPlayerNumbers,
-                  controller: _controller,
-                  frontRowPlayerIds: _getFrontRowPlayerIds(),
-                  onPlayerMoved: _handlePlayerMoved,
-                  onPlayerTap: _handlePlayerTap,
-                  onBenchPlayerTap: (player, isLeft) {},
-                  showBench: false,
-                  showGrid: _showGrid,
-                  roleColors: _getRoleColors(),
+            child: _buildCourtStack(l10n),
+          ),
+        ],
+      )
+      : Column(
+          children: [
+            // Court area (portrait)
+            Expanded(
+              child: _buildCourtStack(l10n),
+            ),
+            
+            // Bottom panel - Phase buttons and rotation (portrait)
+            SafeArea(
+              top: false,
+              child: Container(
+                padding: EdgeInsets.symmetric(
+                  vertical: 12.0,
+                  horizontal: 8.0,
                 ),
-                
-                // Validation errors overlay
-                if (_validationResult != null && !_validationResult!.isValid)
-                  Positioned(
-                    bottom: 16,
-                    left: 16,
-                    right: 16,
-                    child: Material(
-                      elevation: 8,
-                      borderRadius: BorderRadius.circular(8),
-                      child: Container(
-                        padding: const EdgeInsets.all(12.0),
-                        decoration: BoxDecoration(
-                          color: Colors.red.withValues(alpha: 0.95),
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: Colors.red, width: 2),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Row(
-                              children: [
-                                const Icon(Icons.error_outline, color: Colors.white, size: 20),
-                                const SizedBox(width: 8),
-                                Expanded(
-                                  child: Text(
-                                    l10n.rotationValidationError,
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 14,
-                                    ),
-                                  ),
-                                ),
-                                IconButton(
-                                  icon: const Icon(Icons.close, color: Colors.white, size: 20),
-                                  onPressed: () {
-                                    setState(() {
-                                      _validationResult = null;
-                                    });
-                                  },
-                                  tooltip: l10n.close,
-                                  padding: EdgeInsets.zero,
-                                  constraints: const BoxConstraints(),
-                                ),
-                              ],
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.surface,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.1),
+                      blurRadius: 4,
+                      offset: const Offset(0, -2),
+                    ),
+                  ],
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    // Phase buttons - horizontal layout in portrait
+                    Expanded(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          // BASE button
+                          FloatingActionButton.small(
+                            heroTag: 'phase-base-portrait',
+                            onPressed: () => _setPhase(Phase.base),
+                            backgroundColor: _currentPhase == Phase.base
+                                ? theme.colorScheme.primary
+                                : theme.colorScheme.surface,
+                            elevation: 2,
+                            child: Icon(
+                              Icons.home,
+                              color: _currentPhase == Phase.base
+                                  ? Colors.white
+                                  : theme.colorScheme.onSurface,
                             ),
-                            const SizedBox(height: 8),
-                            ..._validationResult!.errors.map((error) => Padding(
-                              padding: const EdgeInsets.only(bottom: 4),
-                              child: Text(
-                                '• $error',
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 12,
-                                ),
-                              ),
-                            )),
-                          ],
+                            tooltip: l10n.base,
+                          ),
+                          // SAC button
+                          FloatingActionButton.small(
+                            heroTag: 'phase-sac-portrait',
+                            onPressed: () => _setPhase(Phase.sac),
+                            backgroundColor: _currentPhase == Phase.sac
+                                ? theme.colorScheme.primary
+                                : theme.colorScheme.surface,
+                            elevation: 2,
+                            child: Icon(
+                              Icons.sports_volleyball,
+                              color: _currentPhase == Phase.sac
+                                  ? Colors.white
+                                  : theme.colorScheme.onSurface,
+                            ),
+                            tooltip: l10n.sac,
+                          ),
+                          // RECEPCIO button
+                          FloatingActionButton.small(
+                            heroTag: 'phase-recepcio-portrait',
+                            onPressed: () => _setPhase(Phase.recepcio),
+                            backgroundColor: _currentPhase == Phase.recepcio
+                                ? theme.colorScheme.primary
+                                : theme.colorScheme.surface,
+                            elevation: 2,
+                            child: Icon(
+                              Icons.arrow_downward,
+                              color: _currentPhase == Phase.recepcio
+                                  ? Colors.white
+                                  : theme.colorScheme.onSurface,
+                            ),
+                            tooltip: l10n.recepcio,
+                          ),
+                          // DEFENSA button
+                          FloatingActionButton.small(
+                            heroTag: 'phase-defensa-portrait',
+                            onPressed: () => _setPhase(Phase.defensa),
+                            backgroundColor: _currentPhase == Phase.defensa
+                                ? theme.colorScheme.primary
+                                : theme.colorScheme.surface,
+                            elevation: 2,
+                            child: Icon(
+                              Icons.shield,
+                              color: _currentPhase == Phase.defensa
+                                  ? Colors.white
+                                  : theme.colorScheme.onSurface,
+                            ),
+                            tooltip: l10n.defensa,
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    // Rotation button
+                    GestureDetector(
+                      onDoubleTap: _rotateCounterClockwise,
+                      child: OutlinedButton(
+                        onPressed: _rotateClockwise,
+                        style: OutlinedButton.styleFrom(
+                          shape: const CircleBorder(),
+                          padding: const EdgeInsets.all(12),
+                          minimumSize: const Size(48, 48),
+                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        ),
+                        child: const Icon(
+                          Icons.rotate_right,
+                          size: 24,
                         ),
                       ),
                     ),
-                  ),
-              ],
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+    );
+  }
+  
+  Widget _buildCourtStack(AppLocalizations l10n) {
+    final playerPositions = _getPlayerPositionsForCourt();
+    final players = _getPlayersForCourt();
+    
+    return Stack(
+      children: [
+        FullCourtWidget(
+          playerPositions: playerPositions,
+          players: players,
+          leftBench: const [],
+          rightBench: const [],
+          isZoomed: _isZoomed,
+          isZoomedOnRight: false,
+          isHomeOnLeft: true,
+          isDrawingMode: _isDrawingMode,
+          showPlayerNumbers: _showPlayerNumbers,
+          controller: _controller,
+          frontRowPlayerIds: _getFrontRowPlayerIds(),
+          onPlayerMoved: _handlePlayerMoved,
+          onPlayerTap: _handlePlayerTap,
+          onBenchPlayerTap: (player, isLeft) {},
+          showBench: false,
+          showGrid: _showGrid,
+          roleColors: _getRoleColors(),
+        ),
+        
+        // Validation errors overlay
+        if (_validationResult != null && !_validationResult!.isValid)
+          Positioned(
+            bottom: 16,
+            left: 16,
+            right: 16,
+            child: Material(
+              elevation: 8,
+              borderRadius: BorderRadius.circular(8),
+              child: Container(
+                padding: const EdgeInsets.all(12.0),
+                decoration: BoxDecoration(
+                  color: Colors.red.withValues(alpha: 0.95),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.red, width: 2),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Row(
+                      children: [
+                        const Icon(Icons.error_outline, color: Colors.white, size: 20),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            l10n.rotationValidationError,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 14,
+                            ),
+                          ),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.close, color: Colors.white, size: 20),
+                          onPressed: () {
+                            setState(() {
+                              _validationResult = null;
+                            });
+                          },
+                          tooltip: l10n.close,
+                          padding: EdgeInsets.zero,
+                          constraints: const BoxConstraints(),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    ..._validationResult!.errors.map((error) => Padding(
+                      padding: const EdgeInsets.only(bottom: 4),
+                      child: Text(
+                        '• $error',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 12,
+                        ),
+                      ),
+                    )),
+                  ],
+                ),
+              ),
             ),
           ),
-        ],
-      ),
+      ],
     );
   }
   
