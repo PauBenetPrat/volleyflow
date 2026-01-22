@@ -1318,7 +1318,7 @@ class _FullCourtRotationsPageState extends ConsumerState<FullCourtRotationsPage>
                     child: FloatingActionButton(
                       heroTag: 'score_left',
                       onPressed: () => _incrementScore(_isHomeOnLeft),
-                      backgroundColor: _isHomeOnLeft ? Colors.blue : Colors.red,
+                      backgroundColor: _isHomeOnLeft ? const Color(0xFF0891B2) : const Color(0xFFEF4444), // Deep Teal : Coral Red
                       child: const Icon(Icons.plus_one),
                     ),
                   ),
@@ -1415,7 +1415,7 @@ class _FullCourtRotationsPageState extends ConsumerState<FullCourtRotationsPage>
                     child: FloatingActionButton(
                       heroTag: 'score_right',
                       onPressed: () => _incrementScore(!_isHomeOnLeft),
-                      backgroundColor: !_isHomeOnLeft ? Colors.blue : Colors.red,
+                      backgroundColor: !_isHomeOnLeft ? const Color(0xFF0891B2) : const Color(0xFFEF4444), // Deep Teal : Coral Red
                       child: const Icon(Icons.plus_one),
                     ),
                   ),

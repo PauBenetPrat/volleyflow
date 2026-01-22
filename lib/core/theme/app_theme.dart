@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class AppTheme {
   static ThemeData get lightTheme {
     final colorScheme = ColorScheme.fromSeed(
-      seedColor: Colors.orange,
+      seedColor: const Color(0xFF0891B2), // Deep Teal - modern, matches rotation colors
       brightness: Brightness.light,
     );
     
@@ -34,7 +34,7 @@ class AppTheme {
 
   static ThemeData get darkTheme {
     final colorScheme = ColorScheme.fromSeed(
-      seedColor: Colors.orange,
+      seedColor: const Color(0xFF0891B2), // Deep Teal - modern, matches rotation colors
       brightness: Brightness.dark,
     );
     

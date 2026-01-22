@@ -232,7 +232,7 @@ class _FullCourtWidgetState extends State<FullCourtWidget> {
                             isZoomed: widget.isZoomed,
                             isZoomedOnRight: widget.isZoomedOnRight,
                             isHomeOnLeft: widget.isHomeOnLeft,
-                            courtColor: Colors.orange.shade100,
+                            courtColor: const Color(0xFFFED7AA), // Warm Sand
                             lineColor: Colors.white,
                             drawingStrokes: _drawingStrokes,
                             currentStroke: _currentStroke,
@@ -285,7 +285,7 @@ class _FullCourtWidgetState extends State<FullCourtWidget> {
                                 child: Icon(
                                   Icons.sports_volleyball,
                                   size: _ballSize * 0.8,
-                                  color: Colors.orange.shade700,
+                                  color: const Color(0xFFEA580C), // Burnt Orange
                                 ),
                               ),
                             );
@@ -327,7 +327,7 @@ class _FullCourtWidgetState extends State<FullCourtWidget> {
                           // Use role color if available, otherwise use team color
                           final color = widget.roleColors != null && widget.roleColors!.containsKey(id)
                               ? widget.roleColors![id]!
-                              : (isHomeTeam ? Colors.blue : Colors.red);
+                              : (isHomeTeam ? const Color(0xFF0891B2) : const Color(0xFFEF4444)); // Deep Teal : Coral Red
                           
                           final isFrontRow = widget.frontRowPlayerIds.contains(id);
                           
@@ -374,7 +374,7 @@ class _FullCourtWidgetState extends State<FullCourtWidget> {
                     if (!widget.isZoomed || !widget.isZoomedOnRight)
                       Expanded(
                         child: Container(
-                          color: widget.isHomeOnLeft ? Colors.blue.shade50 : Colors.red.shade50,
+                          color: widget.isHomeOnLeft ? const Color(0xFFCFFAFE) : const Color(0xFFFEE2E2), // Light Teal : Light Coral
                           padding: const EdgeInsets.all(4),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -395,7 +395,7 @@ class _FullCourtWidgetState extends State<FullCourtWidget> {
                                       onTap: () => widget.onBenchPlayerTap(player, true),
                                       child: Padding(
                                         padding: const EdgeInsets.symmetric(horizontal: 4),
-                                        child: _buildBenchPlayerToken(player, widget.isHomeOnLeft ? Colors.blue : Colors.red),
+                                        child: _buildBenchPlayerToken(player, widget.isHomeOnLeft ? const Color(0xFF0891B2) : const Color(0xFFEF4444)),
                                       ),
                                     );
                                   },
@@ -410,7 +410,7 @@ class _FullCourtWidgetState extends State<FullCourtWidget> {
                     if (!widget.isZoomed || widget.isZoomedOnRight)
                       Expanded(
                         child: Container(
-                          color: widget.isHomeOnLeft ? Colors.red.shade50 : Colors.blue.shade50,
+                          color: widget.isHomeOnLeft ? const Color(0xFFFEE2E2) : const Color(0xFFCFFAFE), // Light Coral : Light Teal
                           padding: const EdgeInsets.all(4),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.end,
@@ -432,7 +432,7 @@ class _FullCourtWidgetState extends State<FullCourtWidget> {
                                       onTap: () => widget.onBenchPlayerTap(player, false),
                                       child: Padding(
                                         padding: const EdgeInsets.symmetric(horizontal: 4),
-                                        child: _buildBenchPlayerToken(player, widget.isHomeOnLeft ? Colors.red : Colors.blue),
+                                        child: _buildBenchPlayerToken(player, widget.isHomeOnLeft ? const Color(0xFFEF4444) : const Color(0xFF0891B2)),
                                       ),
                                     );
                                   },
@@ -557,17 +557,17 @@ class FullCourtPainter extends CustomPainter {
     // Default colors by role
     switch (roleId) {
       case 'Co':
-        return Colors.blue; // Setter (Colocador) - Blue
+        return const Color(0xFF6366F1); // Setter (Colocador) - Indigo
       case 'C1':
       case 'C2':
-        return Colors.green; // Middle Blocker (Central) - Green
+        return const Color(0xFF10B981); // Middle Blocker (Central) - Emerald
       case 'O':
-        return Colors.purple; // Opposite (Opuesto) - Purple
+        return const Color(0xFF8B5CF6); // Opposite (Opuesto) - Violet
       case 'R1':
       case 'R2':
-        return Colors.orange; // Outside Hitter (Receptor) - Orange
+        return const Color(0xFFF59E0B); // Outside Hitter (Receptor) - Amber
       case 'L':
-        return Colors.red; // Libero - Red
+        return const Color(0xFFF43F5E); // Libero - Rose
       default:
         return Colors.grey;
     }
@@ -758,7 +758,7 @@ class FullCourtPainter extends CustomPainter {
       // Determine color - use role color if available, otherwise use team color
       final isLeft = pos.dx <= 1.0;
       final isHomeTeam = (isHomeOnLeft && isLeft) || (!isHomeOnLeft && !isLeft);
-      final color = roleColors != null ? _getRoleColor(id) : (isHomeTeam ? Colors.blue : Colors.red);
+      final color = roleColors != null ? _getRoleColor(id) : (isHomeTeam ? const Color(0xFF0891B2) : const Color(0xFFEF4444));
       
       final player = players[id];
       // For match mode (full_court_rotations_page), show initials/number based on showPlayerNumbers

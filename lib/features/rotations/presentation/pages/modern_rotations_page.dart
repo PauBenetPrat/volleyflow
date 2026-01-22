@@ -239,13 +239,13 @@ class _ModernRotationsPageState extends ConsumerState<ModernRotationsPage>
   // Get role colors map
   Map<String, Color> _getRoleColors() {
     return {
-      'Co': Colors.blue,   // Setter (Colocador) - Blue
-      'C1': Colors.green,   // Middle Blocker 1 (Central) - Green
-      'C2': Colors.green,   // Middle Blocker 2 (Central) - Green
-      'O': Colors.purple,   // Opposite (Opuesto) - Purple
-      'R1': Colors.orange,  // Outside Hitter 1 (Receptor) - Orange
-      'R2': Colors.orange,  // Outside Hitter 2 (Receptor) - Orange
-      'L': Colors.red,      // Libero - Red
+      'Co': const Color(0xFF6366F1),   // Setter (Colocador) - Indigo
+      'C1': const Color(0xFF10B981),   // Middle Blocker 1 (Central) - Emerald
+      'C2': const Color(0xFF10B981),   // Middle Blocker 2 (Central) - Emerald
+      'O': const Color(0xFF8B5CF6),    // Opposite (Opuesto) - Violet
+      'R1': const Color(0xFFF59E0B),   // Outside Hitter 1 (Receptor) - Amber
+      'R2': const Color(0xFFF59E0B),   // Outside Hitter 2 (Receptor) - Amber
+      'L': const Color(0xFFF43F5E),    // Libero - Rose
     };
   }
   
