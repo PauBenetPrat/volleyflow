@@ -34,30 +34,21 @@ class PlayerPainter extends CustomPainter {
       path.addOval(Rect.fromCircle(center: center, radius: 28));
     }
 
-    // Draw Shadow
-    canvas.drawShadow(path, Colors.black, 6.0, true);
+    // Draw subtle shadow for modern elevation effect
+    canvas.drawShadow(path, Colors.black, 2.5, true);
 
-    // Draw Gradient Fill (3D Effect)
-    final gradient = RadialGradient(
-      center: const Alignment(-0.3, -0.3), // Top-left light source
-      colors: [
-        Color.lerp(color, Colors.white, 0.3)!, // Highlight
-        color, // Main color
-        Color.lerp(color, Colors.black, 0.2)!, // Shadow side
-      ],
-      stops: const [0.0, 0.5, 1.0],
-    );
-
+    // Draw solid fill (modern flat design)
     final paint = Paint()
-      ..shader = gradient.createShader(Rect.fromCircle(center: center, radius: 28));
+      ..color = color
+      ..style = PaintingStyle.fill;
     
     canvas.drawPath(path, paint);
     
-    // Draw Border for contrast
+    // Draw subtle border for definition
     final borderPaint = Paint()
-      ..color = Colors.white.withValues(alpha: 0.5)
+      ..color = Colors.black.withValues(alpha: 0.15)
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.5;
+      ..strokeWidth = 2.0;
     
     canvas.drawPath(path, borderPaint);
 
