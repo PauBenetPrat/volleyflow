@@ -401,6 +401,7 @@ class _MatchPageState extends State<MatchPage> {
                       color: textColor,
                     ),
                   ),
+                  const SizedBox(height: 48), // Add spacing between score and decrement button
                 ],
               ),
             ),

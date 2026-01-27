@@ -104,14 +104,22 @@ class _TeamDetailPageState extends ConsumerState<TeamDetailPage> {
       orElse: () => Team(id: widget.teamId, name: _nameController.text),
     );
     
-    // Check if user is authenticated and premium
+    // Check if user can edit this team
+    // Local teams (userId == null) can be edited by anyone
+    // Teams with userId can only be edited by the owner (requires authentication)
+    // Creating multiple teams is still premium (handled in teams_list_page.dart)
     final isAuthenticated = ref.watch(isAuthenticatedProvider);
-    final isPremiumAsync = ref.watch(isPremiumProvider);
-    final canEdit = isPremiumAsync.when(
-      data: (isPremium) => isAuthenticated && isPremium,
-      loading: () => false,
-      error: (_, __) => false,
+    final currentUserAsync = ref.watch(currentUserProvider);
+    final currentUserId = currentUserAsync.when(
+      data: (user) => user?.id,
+      loading: () => null,
+      error: (_, __) => null,
     );
+    
+    // Allow editing if:
+    // 1. Team is local (userId == null) - no auth required, OR
+    // 2. User is authenticated AND owns the team (userId matches)
+    final canEdit = team.userId == null || (isAuthenticated && team.userId == currentUserId);
 
     return Scaffold(
       appBar: AppBar(
