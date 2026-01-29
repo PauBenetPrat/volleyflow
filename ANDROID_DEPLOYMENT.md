@@ -7,7 +7,13 @@ This guide explains how to build and distribute the VolleyFlow Android app.
 The app is configured with:
 - **Package Name**: `com.paubenetprat.volleyflow`
 - **App Name**: VolleyFlow
-- **Version**: Managed in `pubspec.yaml` (currently 1.0.0+1)
+- **Version**: Managed in `pubspec.yaml` (e.g. 1.0.0+4)
+
+### Versioning
+
+- Version is defined only in `pubspec.yaml` as `X.Y.Z+N` (version name + build number).
+- The build number `N` must increase for every Play Store upload; never reuse or decrease it.
+- Version name `X.Y.Z` follows semantic versioning (patch for fixes, minor for features, major for breaking changes).
 
 ## Building the APK
 
